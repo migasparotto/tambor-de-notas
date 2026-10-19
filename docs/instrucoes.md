@@ -11,7 +11,7 @@ Este documento é a base do projeto: tudo o que está aqui já foi decidido. Use
 - **Detalhes de implementação** (nome de variável, organização interna de um componente, escolha entre duas formas equivalentes) você pode decidir sozinho, explicando brevemente.
 - **Trabalhe por etapas.** O documento "Tambor de Notas — Etapas e Backlog" define a ordem. Não adiante funcionalidades de etapas futuras.
 - **Quando faltar informação**, faça uma pergunta objetiva por vez, com uma sugestão de resposta.
-- **Ambiente:** notebook Lenovo LOQ com Windows (também tenho Ubuntu via WSL, mas o app desktop é desenvolvido no Windows). Uso VS Code e GitHub.
+- **Ambiente:** notebook com Windows (também tenho Ubuntu via WSL, mas o app desktop é desenvolvido no Windows). Uso VS Code e GitHub.
 - **Idioma:** converse comigo em português. Código, nomes de arquivos e commits podem ficar em inglês.
 
 ## Visão do produto
