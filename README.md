@@ -31,6 +31,30 @@ npm run tauri dev
 
 A primeira execução compila as dependências em Rust e pode levar alguns minutos.
 
+### Comandos úteis
+
+| Comando              | O que faz                                         |
+| -------------------- | ------------------------------------------------- |
+| `npm run tauri dev`  | Abre o app em modo de desenvolvimento             |
+| `npm test`           | Roda os testes automatizados (Vitest)             |
+| `npm run test:watch` | Roda os testes de novo a cada arquivo salvo       |
+| `npm run lint`       | Procura erros e quebras de camada (ESLint)        |
+| `npm run format`     | Formata o código (Prettier)                       |
+| `npm run build`      | Verifica os tipos (TypeScript) e gera a interface |
+
+## Estrutura do código
+
+O código em `src/` é dividido em quatro camadas que não se misturam (o ESLint bloqueia imports proibidos):
+
+| Pasta               | Camada        | Conteúdo                               |
+| ------------------- | ------------- | -------------------------------------- |
+| `src/ui/`           | Interface     | O que aparece na tela (React)          |
+| `src/domain/`       | Regras        | Lógica do app, sem React               |
+| `src/storage/`      | Armazenamento | Leitura e escrita de arquivos no disco |
+| `src/integrations/` | Integrações   | Notion, Todoist e IA, como adaptadores |
+
+A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistema).
+
 ## Configuração
 
 Copie `.env.example` para `.env` se precisar de configuração local. O arquivo `.env` nunca vai para o repositório.

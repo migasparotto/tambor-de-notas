@@ -23,9 +23,20 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - **Stack:** Tauri + React + TypeScript + Tailwind CSS, desenvolvido no **Windows nativo** (não no WSL). Rust no mínimo possível.
 - **Arquitetura em 4 camadas** que não se misturam: interface, regras, armazenamento, integrações (integrações como adaptadores — padrão Adapter).
 - **Qualidade:** TypeScript estrito, lint e formatação automática, testes nas partes críticas.
+- **Testes:** nunca depender de valores fixos que serão configuráveis (ex.: tempos do pomodoro) — testar o comportamento com o valor configurado; tudo que envolve tempo usa tempo simulado (fake timers do Vitest).
 - **Repositório público no GitHub:** nenhuma chave de API ou dado pessoal no repositório. Usar arquivo de exemplo de configuração sem valores reais.
 - Notas são arquivos `.md` locais com frontmatter; sem banco de dados.
 - **IA:** nada é implementado antes da conversa de escopo no início da etapa 4.
+
+## Princípios de código
+
+- Seguir **SOLID**, **KISS** e **DRY**, priorizando **KISS**: a solução mais simples que resolve o problema, sem complicar à toa.
+- Documentar **funções públicas** com comentários curtos explicando o que fazem.
+- Manter o **README atualizado a cada etapa**.
+
+## Comandos
+
+`npm run tauri dev` (abre o app) · `npm test` · `npm run lint` · `npm run format` · `npm run build`
 
 ## Definição de pronto (toda tarefa)
 

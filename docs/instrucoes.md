@@ -64,6 +64,14 @@ Esse é o único padrão de projeto exigido por enquanto. Outros só entram se r
 - Lint e formatação automática.
 - Testes automatizados nas partes críticas: leitura e escrita de Markdown, backlinks, regras de envio ao Notion, pomodoro.
 - Chaves de API fora do código. O repositório tem um arquivo de exemplo de configuração, sem valores reais.
+- **Testes não dependem de valores fixos que serão configuráveis** (como os tempos do pomodoro): testam o comportamento com o valor configurado.
+- **Testes que envolvem tempo usam tempo simulado** (fake timers), nunca espera real.
+
+### Princípios de código
+
+- Seguir **SOLID**, **KISS** e **DRY**, priorizando **KISS**: a solução mais simples que resolve o problema, sem complicar à toa.
+- Documentar **funções públicas** com comentários curtos explicando o que fazem.
+- Manter o **README atualizado a cada etapa**.
 
 ## Comportamento do app
 
