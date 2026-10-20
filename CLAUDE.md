@@ -7,6 +7,11 @@
 
 Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois documentos acima.
 
+## Comandos rápidos
+
+- **`executar pmp boa noite`:** marcar como concluídas, em [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md), as tarefas que já terminamos e anotar ali o próximo passo. Depois, mostrar o que mudou desde o último envio e, **com aprovação**, fazer o commit e enviar ao GitHub.
+- **`executar pmp bom dia`:** ler o CLAUDE.md e os arquivos em `docs/`, ver em [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md) o que já foi concluído e continuar de onde paramos.
+
 ## Como trabalhar com o Marcos
 
 - Conversar em **português**. Código, nomes de arquivos e commits podem ficar em inglês.

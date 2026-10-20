@@ -20,19 +20,27 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 - Commit no GitHub com mensagem clara.
 - Eu testei e aprovei.
 
-## Etapa 0 — Fundação
+## Próximo passo
+
+_Atualizado em 19/10/2026._ Etapa 0 concluída. Começar a **Etapa 1 — MVP utilizável**:
+
+1. Decidir o ponto em aberto: mockup da tela completa e de como o editor surge a partir do tambor (para eu aprovar).
+2. Dividir as tarefas da etapa em sprints internas, junto comigo.
+3. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
+
+## Etapa 0 — Fundação ✅
 
 **Objetivo:** ambiente pronto e projeto vazio rodando, com a estrutura certa desde o início.
 
 **Pronto quando:** um app Tauri com React + TypeScript + Tailwind abre uma janela no Windows, o código está no GitHub público e as pastas seguem as quatro camadas.
 
-- [ ] Instalar no Windows o que o Tauri exige (Node.js, Rust e dependências do sistema), com explicação de cada item
-- [ ] Criar o projeto Tauri com React + TypeScript + Tailwind CSS
-- [ ] Criar o repositório público no GitHub, com README (o que é o projeto e como rodar) e `.gitignore`
-- [ ] Garantir que chaves e dados pessoais nunca vão ao repositório (arquivo de exemplo de configuração, sem valores reais)
-- [ ] Criar a estrutura de pastas por camada: interface, regras, armazenamento, integrações
-- [ ] Ativar TypeScript estrito, lint e formatação automática
-- [ ] Configurar o primeiro teste automatizado de exemplo, para o fluxo de testes já existir
+- [x] Instalar no Windows o que o Tauri exige (Node.js, Rust e dependências do sistema), com explicação de cada item
+- [x] Criar o projeto Tauri com React + TypeScript + Tailwind CSS
+- [x] Criar o repositório público no GitHub, com README (o que é o projeto e como rodar) e `.gitignore`
+- [x] Garantir que chaves e dados pessoais nunca vão ao repositório (arquivo de exemplo de configuração, sem valores reais)
+- [x] Criar a estrutura de pastas por camada: interface, regras, armazenamento, integrações
+- [x] Ativar TypeScript estrito, lint e formatação automática
+- [x] Configurar o primeiro teste automatizado de exemplo, para o fluxo de testes já existir
 
 ## Etapa 1 — MVP utilizável
 
