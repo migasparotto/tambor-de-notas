@@ -31,7 +31,10 @@ O Tambor de Notas é um app desktop de anotações rápidas para usar durante au
   - Câmara 7: Todoist.
   - Câmara 8: IA.
 - A numeração segue o rascunho original: o centro é o 1, e as câmaras vão de 2 a 8.
-- **Versão futura:** o tambor poderá girar com animação e revelar câmaras do "outro lado". O conteúdo dessas câmaras ainda não foi definido.
+- **Forma (mockup aprovado na etapa 1):** um meio anel em arco, encostado na borda direita da tela, com a abertura virada para a borda. As 7 câmaras são redondas e ficam ao longo do arco. O relógio do pomodoro fica no centro, no formato `88:88`. Um botão "+" fica na ponta de baixo do arco, separado das câmaras.
+- **Tamanho:** o tambor ocupa no máximo **1/3 da altura da tela** (valor padrão), para não tampar o vídeo da aula. O tamanho é uma configuração.
+- **Câmara de cor:** sem nota ativa, aparece só o contorno. Com nota ativa, a câmara fica preenchida e **enche conforme a nota se aproxima do limite de caracteres**.
+- **Versão futura:** o tambor poderá girar com animação e revelar câmaras do "outro lado". O conteúdo dessas câmaras ainda não foi definido. Até lá, o "+" aparece, mas não gira.
 
 ## Decisões técnicas
 
@@ -78,8 +81,10 @@ Esse é o único padrão de projeto exigido por enquanto. Outros só entram se r
 ### Janela
 
 - Janela pequena, **sempre por cima** das outras, para ficar ao lado da aula.
+- Janela **transparente e sem bordas**: aparece só o tambor, sem retângulo em volta.
 - Fica **translúcida** quando não estou usando e **nítida** quando clico nela.
-- O editor de notas abre a partir do tambor (a ação de "girar" o tambor pode revelar o editor; o desenho exato da transição será definido na etapa 1, com mockup aprovado por mim).
+- **Editor em "bolha" (mockup C1, aprovado na etapa 1):** clicar numa câmara de cor faz o painel do editor nascer pequeno e redondo na própria câmara e crescer ao lado do tambor, que continua visível. O painel tem a cor da nota. Ao recolher ou fechar, ele encolhe de volta para a câmara.
+- **Atalhos de teclado globais e configuráveis** para abrir cada cor e controlar o pomodoro. Eles funcionam mesmo com o app em segundo plano, enquanto uso o vídeo. A combinação padrão não pode conflitar com o teclado ABNT2 (AltGr = Ctrl+Alt no Windows) nem com atalhos comuns do Windows, do navegador, do VS Code e do Notion. **Padrão aprovado:** Ctrl+Shift+Alt+1/2/3/4 abre azul/vermelho/verde/roxo e Ctrl+Shift+Alt+P dá play ou pausa no pomodoro. Com o painel aberto, Esc recolhe e Ctrl+Enter fecha a nota. Se um atalho já estiver em uso por outro programa, o app avisa. Os atalhos globais usam o plugin oficial global-shortcut do Tauri.
 
 ### Cores e suas funções
 
@@ -110,7 +115,8 @@ A **nota inteira** tem uma cor. A cor indica a **função** da nota, não a mat�
 
 A nota deve continuar leve; o arquivo completo fica no Notion.
 
-- Existe um **limite de caracteres configurável** por nota.
+- Existe um **limite de caracteres configurável** por nota, definido **num lugar só** do código e reaproveitado por todo o app.
+- **Divisão entre etapas:** na **etapa 1** entram só o valor do limite (300, configurável) e a contagem de caracteres, para a câmara encher. Na **etapa 3** entram o aviso e o envio automático, usando o mesmo valor. A etapa 3 também reavalia se 300 é pouco, e o envio automático dispara quando a câmara encher, sem interromper a digitação.
 - **Nunca enviar enquanto estou digitando.** Ao passar do limite, o app mostra um aviso discreto e espera eu terminar.
 - O envio acontece quando: eu fecho a nota, **ou** confirmo o aviso ("ok"), **ou** fico um tempo sem digitar (tempo de inatividade configurável). Mesmo sem ação manual, a nota precisa ir.
 - Depois do envio automático, a nota local é esvaziada e continuo escrevendo. O que eu escrever depois é **acrescentado à mesma página** do Notion.
@@ -133,7 +139,7 @@ A nota deve continuar leve; o arquivo completo fica no Notion.
 
 ### Pomodoro
 
-- Fica no centro do tambor: play, pause e stop.
+- Fica no centro do tambor: clicar no relógio dá play ou pausa, e um botão pequeno de stop fica abaixo dele.
 - Tempos de foco e pausa configuráveis.
 - Ao fim de cada ciclo, um aviso simples.
 - É independente das notas, mas registra quantos ciclos foram feitos.
@@ -222,7 +228,7 @@ Não há banco de dados. Cada nota é um arquivo .md com um cabeçalho de metada
 | **Backlink** | nota de origem e nota de destino, extraídos da sintaxe `[[ ]]` no conteúdo |
 | **Pomodoro** | tempos configurados e contador de ciclos concluídos |
 | **Envio pendente** | nota, destino e número de tentativas (a fila de nova tentativa) |
-| **Configurações** | limite de caracteres, tempo de inatividade, espaçamento, margens, assunto padrão |
+| **Configurações** | limite de caracteres, tempo de inatividade, espaçamento, margens, assunto padrão, tamanho do tambor, atalhos de teclado |
 
 ### Regras do domínio
 
@@ -253,7 +259,7 @@ Esses itens ficam registrados para versões futuras e evoluem conforme o projeto
 
 ### Pontos em aberto (decidir na etapa indicada)
 
-- **Etapa 1:** desenho da tela completa e de como o editor surge do tambor (mockup para eu aprovar).
+- **Etapa 1:** ~~desenho da tela completa e de como o editor surge do tambor~~ (decidido: variação C1, "bolha"); ~~combinação padrão dos atalhos globais~~ (decidido: Ctrl+Shift+Alt, ver "Janela").
 - **Etapa 2:** como salvar toggle list no arquivo .md.
 - **Etapa 3:** valor final do limite de caracteres e do tempo de inatividade; em qual projeto do Todoist as tarefas caem; forma de guardar as chaves de API.
 - **Etapa 4:** escopo da IA e provedor.

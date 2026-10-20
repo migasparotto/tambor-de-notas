@@ -22,16 +22,14 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 20/10/2026._ Etapa 0 concluída. O CI foi criado e enviado ao GitHub (commit `38ebc23`, com selo no README), mas ainda não tinha terminado de rodar. Antes da Etapa 1:
+_Atualizado em 20/10/2026._ Etapa 0 e CI concluídos (o CI passou no GitHub Actions nos commits `38ebc23` e `b64ed4a`).
 
-1. Conferir o CI na aba Actions e depois mostrar o plano do mockup da Etapa 1.
-2. Se o CI passar, marcar como concluídas as tarefas de "Antes da Etapa 1 — Integração contínua".
+Agora, começar a **Etapa 1 — MVP utilizável**:
 
-Depois, começar a **Etapa 1 — MVP utilizável**:
+Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
-1. Decidir o ponto em aberto: mockup da tela completa e de como o editor surge a partir do tambor (para eu aprovar).
-2. Dividir as tarefas da etapa em sprints internas, junto comigo.
-3. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
+1. Fazer a **S1 — Janela e tambor**.
+2. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
 
 ## Etapa 0 — Fundação ✅
 
@@ -47,15 +45,15 @@ Depois, começar a **Etapa 1 — MVP utilizável**:
 - [x] Ativar TypeScript estrito, lint e formatação automática
 - [x] Configurar o primeiro teste automatizado de exemplo, para o fluxo de testes já existir
 
-## Antes da Etapa 1 — Integração contínua (CI)
+## Antes da Etapa 1 — Integração contínua (CI) ✅
 
 **Objetivo:** a cada envio ao GitHub, uma máquina do GitHub confere sozinha se o projeto continua saudável.
 
 **Pronto quando:** todo push e pull request roda lint, testes e build no GitHub Actions, e o resultado (✅ ou ❌) aparece no GitHub.
 
-- [ ] Criar o workflow do GitHub Actions que roda `npm run lint`, `npm test` e `npm run build` a cada push e pull request
-- [ ] Fazer um envio de teste e conferir o resultado na aba "Actions" do GitHub
-- [ ] Mostrar o selo (badge) do CI no README
+- [x] Criar o workflow do GitHub Actions que roda `npm run lint`, `npm test` e `npm run build` a cada push e pull request
+- [x] Fazer um envio de teste e conferir o resultado na aba "Actions" do GitHub
+- [x] Mostrar o selo (badge) do CI no README
 
 O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1.
 
@@ -65,22 +63,53 @@ O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1
 
 **Pronto quando:** consigo assistir uma aula com o app aberto por cima, anotar nas quatro cores, fechar as notas e encontrá-las arquivadas em .md no disco. Requisitos: RF01 a RF05.
 
-**Decidir antes de programar:** mockup da tela completa e de como o editor surge a partir do tambor.
+**Decidido antes de programar:** mockup C1 (bolha): o editor nasce na câmara clicada e cresce ao lado do tambor. Atalhos globais com Ctrl+Shift+Alt.
+
+### Sprints internas
+
+| Sprint | Conteúdo |
+| --- | --- |
+| **S1 · Janela e tambor** | Janela, tambor desenhado, tamanho configurável, configurações num lugar só (limite e tamanho) |
+| **S2 · Pomodoro** | Pomodoro completo |
+| **S3 · Notas** | Notas em .md, nota ativa por cor, salvamento automático, arquivar, contagem e enchimento, painel bolha com campo de texto simples |
+| **S4 · Editor e atalhos** | Editor estilo Notion (biblioteca debatida antes) e atalhos globais |
+
+Regras das sprints:
+
+- Em cada sprint, a lógica fica em `src/domain/`, com testes, **antes** da tela.
+- Na S3, o campo de texto simples é um componente com entrada bem definida (recebe o texto e avisa quando ele muda). Assim o editor da S4 só o substitui, sem mexer na lógica das notas nem no salvamento.
+- Fim de cada sprint: CI verde, README atualizado e push.
 
 ### Janela
 
 - [ ] Janela pequena, sempre por cima das outras
+- [ ] Janela transparente e sem bordas: aparece só o tambor
 - [ ] Translúcida quando sem foco, nítida ao clicar
 
 ### Tambor
 
-- [ ] Desenhar o meio cilindro com o centro e as 7 câmaras
+- [ ] Desenhar o meio anel em arco, encostado na borda direita, com o relógio no centro e as 7 câmaras redondas ao longo do arco
+- [ ] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela
 - [ ] Câmaras 2 a 5 com as cores iniciais: azul (glossário pessoal), vermelho (núcleo de estudo ativo), verde (exemplo de uso), roxo (tarefa)
+- [ ] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite
 - [ ] Câmaras 6, 7 e 8 (Notion, Todoist, IA) visíveis, mas desativadas até suas etapas
+- [ ] Botão "+" na ponta de baixo do arco, visível mas sem girar (o giro fica para uma versão futura)
+
+### Limite de caracteres (só valor e contagem)
+
+- [ ] Limite de caracteres configurável (padrão 300), definido num lugar só e reaproveitado na Etapa 3
+- [ ] Contagem de caracteres da nota, usada para a câmara encher
+- [ ] Testes da contagem e do nível de enchimento com o limite configurado
+
+### Atalhos de teclado
+
+- [ ] Atalhos globais (funcionam com o app em segundo plano) para abrir cada cor e dar play ou pausa no pomodoro
+- [ ] Atalhos configuráveis, com aviso se a combinação já estiver em uso por outro programa
+- [ ] Esc recolhe o painel e Ctrl+Enter fecha a nota
 
 ### Pomodoro (RF02)
 
-- [ ] Play, pause e stop no centro do tambor
+- [ ] Clicar no relógio (`88:88`) dá play ou pausa; botão pequeno de stop abaixo
 - [ ] Tempos de foco e pausa configuráveis
 - [ ] Aviso simples ao fim de cada ciclo
 - [ ] Contador de ciclos concluídos, salvo entre usos do app
@@ -89,6 +118,7 @@ O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1
 ### Notas (RF01, RF03, RF04, RF05)
 
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
+- [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
 - [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
 - [ ] Atalhos de formatação rápida em Markdown
 - [ ] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
@@ -162,7 +192,9 @@ O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1
 ### Limite de tamanho e envio automático (RF14)
 
 - [ ] Teste de desempenho do editor com notas grandes, para saber se existe limite técnico
-- [ ] Limite de caracteres configurável, começando em 300
+- [ ] Usar o limite de caracteres criado na Etapa 1 (mesmo valor e mesmo lugar no código)
+- [ ] Reavaliar comigo se 300 caracteres é pouco, com base no uso real das Etapas 1 e 2
+- [ ] Quando a câmara encher (a nota chega ao limite), disparar o envio automático, sem interromper a digitação: o envio acontece na primeira pausa
 - [ ] Ao passar do limite, aviso discreto, sem interromper a digitação
 - [ ] Enviar ao confirmar o aviso, ao fechar a nota ou após o tempo de inatividade configurável
 - [ ] Depois do envio, esvaziar a nota local e acrescentar o que vier depois à mesma página do Notion
