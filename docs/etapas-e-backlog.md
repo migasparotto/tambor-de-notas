@@ -22,7 +22,11 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 19/10/2026._ Etapa 0 concluída. Começar a **Etapa 1 — MVP utilizável**:
+_Atualizado em 20/10/2026._ Etapa 0 concluída. Antes da Etapa 1:
+
+1. Aprovar a proposta e configurar o **CI no GitHub Actions** (ver "Antes da Etapa 1 — Integração contínua").
+
+Depois, começar a **Etapa 1 — MVP utilizável**:
 
 1. Decidir o ponto em aberto: mockup da tela completa e de como o editor surge a partir do tambor (para eu aprovar).
 2. Dividir as tarefas da etapa em sprints internas, junto comigo.
@@ -41,6 +45,18 @@ _Atualizado em 19/10/2026._ Etapa 0 concluída. Começar a **Etapa 1 — MVP uti
 - [x] Criar a estrutura de pastas por camada: interface, regras, armazenamento, integrações
 - [x] Ativar TypeScript estrito, lint e formatação automática
 - [x] Configurar o primeiro teste automatizado de exemplo, para o fluxo de testes já existir
+
+## Antes da Etapa 1 — Integração contínua (CI)
+
+**Objetivo:** a cada envio ao GitHub, uma máquina do GitHub confere sozinha se o projeto continua saudável.
+
+**Pronto quando:** todo push e pull request roda lint, testes e build no GitHub Actions, e o resultado (✅ ou ❌) aparece no GitHub.
+
+- [ ] Criar o workflow do GitHub Actions que roda `npm run lint`, `npm test` e `npm run build` a cada push e pull request
+- [ ] Fazer um envio de teste e conferir o resultado na aba "Actions" do GitHub
+- [ ] Mostrar o selo (badge) do CI no README
+
+O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1.
 
 ## Etapa 1 — MVP utilizável
 

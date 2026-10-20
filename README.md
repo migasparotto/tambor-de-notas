@@ -1,5 +1,7 @@
 # Tambor de Notas
 
+[![CI](https://github.com/migasparotto/tambor-de-notas/actions/workflows/ci.yml/badge.svg)](https://github.com/migasparotto/tambor-de-notas/actions/workflows/ci.yml)
+
 App desktop de anotações rápidas para usar durante aulas e estudos. Ele captura notas numa janela pequena e, depois, envia tudo organizado ao Notion.
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
