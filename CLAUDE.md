@@ -29,6 +29,8 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - **Arquitetura em 4 camadas** que não se misturam: interface, regras, armazenamento, integrações (integrações como adaptadores — padrão Adapter).
 - **Qualidade:** TypeScript estrito, lint e formatação automática, testes nas partes críticas.
 - **Testes:** nunca depender de valores fixos que serão configuráveis (ex.: tempos do pomodoro) — testar o comportamento com o valor configurado; tudo que envolve tempo usa tempo simulado (fake timers do Vitest).
+- **Commits e push:** fazer um commit a cada tarefa terminada, só com lint e testes passando. O push acontece no "pmp boa noite" ou ao fim de cada sprint.
+- **Sprints:** a lógica vai em `src/domain/`, com testes, antes da tela. Fim de sprint = CI verde, README atualizado e push.
 - **Repositório público no GitHub:** nenhuma chave de API ou dado pessoal no repositório. Usar arquivo de exemplo de configuração sem valores reais.
 - Notas são arquivos `.md` locais com frontmatter; sem banco de dados.
 - **IA:** nada é implementado antes da conversa de escopo no início da etapa 4.
