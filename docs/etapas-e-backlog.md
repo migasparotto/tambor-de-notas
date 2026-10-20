@@ -22,9 +22,10 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 20/10/2026._ Etapa 0 concluída. Antes da Etapa 1:
+_Atualizado em 20/10/2026._ Etapa 0 concluída. O CI foi criado e enviado ao GitHub (commit `38ebc23`, com selo no README), mas ainda não tinha terminado de rodar. Antes da Etapa 1:
 
-1. Aprovar a proposta e configurar o **CI no GitHub Actions** (ver "Antes da Etapa 1 — Integração contínua").
+1. Conferir o CI na aba Actions e depois mostrar o plano do mockup da Etapa 1.
+2. Se o CI passar, marcar como concluídas as tarefas de "Antes da Etapa 1 — Integração contínua".
 
 Depois, começar a **Etapa 1 — MVP utilizável**:
 
