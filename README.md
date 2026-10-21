@@ -15,8 +15,10 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
 - **Notas** (uma nota ativa por cor):
   - clique numa câmara de cor: o painel da nota nasce na câmara e cresce ao lado do tambor, na cor da nota;
-  - a primeira linha é o **título** (campo maior, com "Título…"); Enter no título dá nome ao arquivo;
-  - uma linha inteira `+texto+` vira subtítulo (no arquivo, `## texto`);
+  - o editor mostra o texto **formatado enquanto você digita** (títulos, negrito, itálico, código, links, listas, linha `---`), mas o que fica salvo é o Markdown puro; os símbolos (`#`, `**`...) só aparecem quando o cursor está dentro daquele trecho;
+  - a primeira linha é o **título** (maior, com "Título…"); Enter no título dá nome ao arquivo;
+  - uma linha inteira `+texto+` vira subtítulo ao sair da linha (no arquivo, `## texto`);
+  - **Ctrl+B** negrito, **Ctrl+I** itálico (de novo, desfaz), **Ctrl+Z** desfaz; Enter numa lista continua a lista;
   - a nota se salva sozinha 1 segundo depois que você para de digitar, e também ao fechar o app;
   - **⤢** expande o painel, **–** recolhe (a nota continua ativa) e **✓ Fechar nota** arquiva a nota e libera a cor;
   - com nota ativa, a câmara fica tingida e **enche** conforme a nota se aproxima do limite de caracteres (padrão 300);
@@ -36,6 +38,7 @@ Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt
 - [Tauri 2](https://tauri.app/) (app desktop)
 - React + TypeScript
 - Tailwind CSS
+- [CodeMirror 6](https://codemirror.net/) (editor das notas, com live preview próprio)
 - Vite
 
 ## Como rodar (Windows)
@@ -84,14 +87,15 @@ A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistem
 
 As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Para mudar, edite o arquivo e reabra o app:
 
-| Configuração             | Padrão | O que é                                                   |
-| ------------------------ | ------ | --------------------------------------------------------- |
-| `drumHeightFraction`     | 1/3    | Altura do tambor, como fração da altura da tela           |
-| `charLimit`              | 300    | Limite de caracteres da nota (a câmara enche até ele)     |
-| `focusMinutes`           | 25     | Minutos de foco do pomodoro                               |
-| `breakMinutes`           | 5      | Minutos de pausa do pomodoro                              |
-| `autosaveDelayMs`        | 1000   | Espera, em milissegundos, para salvar depois da digitação |
-| `maxActiveNotesPerColor` | 1      | Notas ativas por cor ao mesmo tempo                       |
+| Configuração             | Padrão      | O que é                                                                                                            |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------ |
+| `drumHeightFraction`     | 1/3         | Altura do tambor, como fração da altura da tela                                                                    |
+| `charLimit`              | 300         | Limite de caracteres da nota (a câmara enche até ele)                                                              |
+| `focusMinutes`           | 25          | Minutos de foco do pomodoro                                                                                        |
+| `breakMinutes`           | 5           | Minutos de pausa do pomodoro                                                                                       |
+| `autosaveDelayMs`        | 1000        | Espera, em milissegundos, para salvar depois da digitação                                                          |
+| `maxActiveNotesPerColor` | 1           | Notas ativas por cor ao mesmo tempo                                                                                |
+| `symbolsMode`            | `"element"` | Quando o editor mostra `#`, `**`...: `"element"` (só dentro do trecho), `"line"` (na linha do cursor) ou `"never"` |
 
 Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia.
 

@@ -1,3 +1,11 @@
+/**
+ * When the editor shows Markdown symbols (`#`, `**`...): only while the cursor is inside
+ * that heading or bold ("element"), on the whole cursor line ("line"), or never.
+ */
+export type SymbolsMode = "element" | "line" | "never";
+
+const SYMBOLS_MODES: readonly SymbolsMode[] = ["element", "line", "never"];
+
 /** Settings the user can change. Every default lives here, in one place. */
 export interface Settings {
   /** Character limit per note: fills the chamber (stage 1) and triggers auto-send (stage 3). */
@@ -12,6 +20,8 @@ export interface Settings {
   autosaveDelayMs: number;
   /** How many active notes a color may have at once (stage 2 may show several as tabs). */
   maxActiveNotesPerColor: number;
+  /** When the editor shows Markdown symbols. */
+  symbolsMode: SymbolsMode;
 }
 
 /** Default settings used until the user changes them. */
@@ -22,16 +32,20 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   breakMinutes: 5,
   autosaveDelayMs: 1000,
   maxActiveNotesPerColor: 1,
+  symbolsMode: "element",
 };
 
+const isNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+
 /** What makes each setting valid; anything else falls back to the default. */
-const VALID: Record<keyof Settings, (value: number) => boolean> = {
-  charLimit: (v) => Number.isInteger(v) && v > 0,
-  drumHeightFraction: (v) => v > 0 && v <= 1,
-  focusMinutes: (v) => v > 0,
-  breakMinutes: (v) => v > 0,
-  autosaveDelayMs: (v) => v >= 0,
-  maxActiveNotesPerColor: (v) => Number.isInteger(v) && v >= 1,
+const VALID: Record<keyof Settings, (value: unknown) => boolean> = {
+  charLimit: (v) => isNumber(v) && Number.isInteger(v) && v > 0,
+  drumHeightFraction: (v) => isNumber(v) && v > 0 && v <= 1,
+  focusMinutes: (v) => isNumber(v) && v > 0,
+  breakMinutes: (v) => isNumber(v) && v > 0,
+  autosaveDelayMs: (v) => isNumber(v) && v >= 0,
+  maxActiveNotesPerColor: (v) => isNumber(v) && Number.isInteger(v) && v >= 1,
+  symbolsMode: (v) => SYMBOLS_MODES.includes(v as SymbolsMode),
 };
 
 /**
@@ -61,11 +75,11 @@ export function parseSettings(json: string): { settings: Settings; problems: str
   for (const key of Object.keys(VALID) as (keyof Settings)[]) {
     const value = values[key];
     if (value === undefined) continue;
-    if (typeof value === "number" && Number.isFinite(value) && VALID[key](value)) {
-      settings[key] = value;
+    if (VALID[key](value)) {
+      (settings as unknown as Record<string, unknown>)[key] = value;
     } else {
       problems.push(
-        `"${key}" tem um valor inválido (${JSON.stringify(value)}); usando ${DEFAULT_SETTINGS[key]}.`,
+        `"${key}" tem um valor inválido (${JSON.stringify(value)}); usando ${JSON.stringify(DEFAULT_SETTINGS[key])}.`,
       );
     }
   }

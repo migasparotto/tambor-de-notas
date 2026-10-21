@@ -28,6 +28,15 @@ describe("parseSettings", () => {
     expect(problems[0]).toContain(String(DEFAULT_SETTINGS.charLimit));
   });
 
+  it("accepts each symbols mode and refuses others", () => {
+    for (const mode of ["element", "line", "never"]) {
+      expect(parseSettings(JSON.stringify({ symbolsMode: mode })).settings.symbolsMode).toBe(mode);
+    }
+    const { settings, problems } = parseSettings('{ "symbolsMode": "sempre" }');
+    expect(settings.symbolsMode).toBe(DEFAULT_SETTINGS.symbolsMode);
+    expect(problems[0]).toContain('"symbolsMode"');
+  });
+
   it("ignores unknown settings", () => {
     expect(parseSettings('{ "tema": "escuro" }')).toEqual({
       settings: DEFAULT_SETTINGS,

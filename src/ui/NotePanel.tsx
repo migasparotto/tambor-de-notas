@@ -3,12 +3,15 @@ import type { NoteColor } from "../domain/chambers";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
+import type { SymbolsMode } from "../domain/settings";
 import { NoteEditor } from "./NoteEditor";
 
 interface NotePanelProps {
   color: NoteColor;
   text: string;
   charLimit: number;
+  /** When the editor shows Markdown symbols (from the settings). */
+  symbolsMode: SymbolsMode;
   /** Where the panel ends up, inside the window. */
   rect: Rect;
   /** The chamber it grows from and shrinks back into. */
@@ -94,7 +97,12 @@ export function NotePanel(props: NotePanelProps) {
             </button>
           </header>
 
-          <NoteEditor text={text} onChange={props.onChange} onConfirmTitle={props.onConfirmTitle} />
+          <NoteEditor
+            text={text}
+            onChange={props.onChange}
+            onConfirmTitle={props.onConfirmTitle}
+            symbolsMode={props.symbolsMode}
+          />
 
           {message && (
             <p

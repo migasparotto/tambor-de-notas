@@ -3,17 +3,20 @@ import { DEFAULT_SETTINGS } from "./settings";
 import {
   charCount,
   fillLevel,
-  joinTitle,
-  markdownToText,
-  splitTitle,
+  subtitleMarkdown,
   subtitleOf,
-  textToMarkdown,
   titleOf,
+  toDiskMarkdown,
+  withTitleMark,
 } from "./noteText";
 
 describe("titleOf", () => {
-  it("is the first line, trimmed", () => {
-    expect(titleOf("  Aula de Python \nconteúdo")).toBe("Aula de Python");
+  it("is the first line without the # mark", () => {
+    expect(titleOf("# Aula de Python \n## Listas")).toBe("Aula de Python");
+  });
+
+  it("also reads a first line without the mark", () => {
+    expect(titleOf("Aula\ncorpo")).toBe("Aula");
   });
 
   it("is empty for an empty note or an empty first line", () => {
@@ -22,22 +25,19 @@ describe("titleOf", () => {
   });
 });
 
-describe("splitTitle and joinTitle", () => {
-  it("separate the first line from the rest", () => {
-    expect(splitTitle("Aula\nlinha 1\nlinha 2")).toEqual({
-      title: "Aula",
-      body: "linha 1\nlinha 2",
-    });
-    expect(splitTitle("Só título")).toEqual({ title: "Só título", body: "" });
-    expect(splitTitle("")).toEqual({ title: "", body: "" });
-    expect(splitTitle("\ncorpo")).toEqual({ title: "", body: "corpo" });
+describe("withTitleMark", () => {
+  it("adds # to the title line", () => {
+    expect(withTitleMark("Aula")).toBe("# Aula");
   });
 
-  it("join them back into the same text", () => {
-    for (const text of ["Aula\nlinha 1\nlinha 2", "Só título", "", "\ncorpo", "Aula\n\nfim"]) {
-      const { title, body } = splitTitle(text);
-      expect(joinTitle(title, body)).toBe(text);
-    }
+  it("keeps a line that already has it", () => {
+    expect(withTitleMark("# Aula")).toBe("# Aula");
+  });
+
+  it("leaves an empty line empty, and empties a line left with only #", () => {
+    expect(withTitleMark("")).toBe("");
+    expect(withTitleMark("#")).toBe("");
+    expect(withTitleMark("# ")).toBe("");
   });
 });
 
@@ -45,6 +45,7 @@ describe("subtitleOf", () => {
   it("recognizes a whole line in the +texto+ format", () => {
     expect(subtitleOf("+Listas+")).toBe("Listas");
     expect(subtitleOf("  + Listas e tuplas +  ")).toBe("Listas e tuplas");
+    expect(subtitleMarkdown("+Listas+")).toBe("## Listas");
   });
 
   it("ignores + inside ordinary text", () => {
@@ -53,6 +54,7 @@ describe("subtitleOf", () => {
     expect(subtitleOf("+C++")).toBeNull();
     expect(subtitleOf("soma: +1 e +2")).toBeNull();
     expect(subtitleOf("+início+ e mais texto")).toBeNull();
+    expect(subtitleMarkdown("2+2")).toBeNull();
   });
 
   it("needs something between the plus signs", () => {
@@ -62,34 +64,23 @@ describe("subtitleOf", () => {
   });
 });
 
-describe("Markdown conversion", () => {
-  const typed = "Aula de Python\n+Listas+\nCriar: [1, 2]\n2+2 = 4\n+Tuplas+";
-  const saved = "# Aula de Python\n## Listas\nCriar: [1, 2]\n2+2 = 4\n## Tuplas";
-
-  it("saves the title as # título and +texto+ lines as ## texto", () => {
-    expect(textToMarkdown(typed)).toBe(saved);
+describe("toDiskMarkdown", () => {
+  it("keeps Markdown that is already right exactly as it is", () => {
+    const md = "# Aula de Python — ação 🐍\n## Listas\nCriar: [1, 2]\n2+2 = 4, a*b, x < y ~aprox~";
+    expect(toDiskMarkdown(md)).toBe(md);
   });
 
-  it("shows the file as it was typed again", () => {
-    expect(markdownToText(saved)).toBe(typed);
-  });
-
-  it("leaves an empty title line empty", () => {
-    expect(textToMarkdown("\ncorpo")).toBe("\ncorpo");
-    expect(markdownToText("\ncorpo")).toBe("\ncorpo");
+  it("adds the title mark and converts a +texto+ line still being typed", () => {
+    expect(toDiskMarkdown("Aula\n+Listas+\ncorpo")).toBe("# Aula\n## Listas\ncorpo");
   });
 
   it("never turns the title line into a subtitle", () => {
-    expect(textToMarkdown("+Título+\ncorpo")).toBe("# +Título+\ncorpo");
-    expect(markdownToText("# +Título+\ncorpo")).toBe("+Título+\ncorpo");
+    expect(toDiskMarkdown("+Título+\ncorpo")).toBe("# +Título+\ncorpo");
   });
 
-  it("keeps a title the user started with # unchanged", () => {
-    expect(markdownToText(textToMarkdown("# Aula\ncorpo"))).toBe("# Aula\ncorpo");
-  });
-
-  it("reads a first line without # as it is", () => {
-    expect(markdownToText("Aula\ncorpo")).toBe("Aula\ncorpo");
+  it("changes nothing when run twice", () => {
+    const once = toDiskMarkdown("Aula\n+Listas+\n- item");
+    expect(toDiskMarkdown(once)).toBe(once);
   });
 });
 

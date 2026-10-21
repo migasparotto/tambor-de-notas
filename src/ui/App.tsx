@@ -99,6 +99,7 @@ function App({ settings, startupProblems }: AppProps) {
           color={panelColor}
           text={notes.text(panel.colorId)}
           charLimit={settings.charLimit}
+          symbolsMode={settings.symbolsMode}
           rect={layout.panel}
           chamber={{
             center: {

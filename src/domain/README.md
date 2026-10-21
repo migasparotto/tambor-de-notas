@@ -7,6 +7,7 @@ A lógica do app: pomodoro, criar e fechar nota, nota ativa por cor, contagem de
 
 ## Notas (S3)
 
-- `noteText.ts`: título (primeira linha), subtítulo `+texto+` ↔ `## texto`, contagem de caracteres e enchimento da câmara.
+- `noteText.ts`: título (`# ` na primeira linha), `+texto+` → `## texto`, contagem de caracteres e enchimento da câmara. O texto da nota é o próprio Markdown.
 - `noteFile.ts`: o arquivo `.md` (frontmatter + texto em Markdown) e o nome `AAAA-MM cor - título`.
 - `notebook.ts`: notas ativas por cor (limite em `settings.ts`, hoje 1), salvamento automático, renomear no primeiro Enter, fechar e arquivar.
+- `livePreview.ts`: quando o editor mostra os símbolos do Markdown, conforme o modo da configuração e o cursor.

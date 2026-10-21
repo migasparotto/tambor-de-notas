@@ -1,26 +1,26 @@
+// The note text is the Markdown itself: the first line is the title (`# título`),
+// and `## texto` lines are subtitles. The editor shows it formatted (live preview).
+
 /** A whole line like `+texto+`; the inside cannot start or end with "+", so `+C++` is not one. */
 const SUBTITLE_LINE = /^\+([^+](?:.*[^+])?)\+$/;
-const MARKDOWN_SUBTITLE = /^## (.+)$/;
-const MARKDOWN_TITLE = "# ";
+const TITLE_MARK = "# ";
 
 const splitLines = (text: string): string[] => text.split("\n");
 
-/** The note title: its first line, without surrounding spaces. */
+/** The note title: its first line, without the `# ` mark and surrounding spaces. */
 export function titleOf(text: string): string {
-  return (splitLines(text)[0] ?? "").trim();
+  const first = splitLines(text)[0] ?? "";
+  return (first.startsWith(TITLE_MARK) ? first.slice(TITLE_MARK.length) : first).trim();
 }
 
-/** Splits the text into the title line and the body (everything after it). */
-export function splitTitle(text: string): { title: string; body: string } {
-  const newline = text.indexOf("\n");
-  return newline === -1
-    ? { title: text, body: "" }
-    : { title: text.slice(0, newline), body: text.slice(newline + 1) };
-}
-
-/** Joins a title and a body back into the note text (the reverse of `splitTitle`). */
-export function joinTitle(title: string, body: string): string {
-  return body === "" ? title : `${title}\n${body}`;
+/**
+ * The first line as a `# título` heading. A line left with only `#` (the title was
+ * deleted) becomes empty, so the title can be erased letter by letter.
+ */
+export function withTitleMark(line: string): string {
+  if (/^#\s*$/.test(line)) return "";
+  if (line === "" || line.startsWith(TITLE_MARK)) return line;
+  return TITLE_MARK + line;
 }
 
 /** If the whole line is `+texto+`, returns `texto`; otherwise null. */
@@ -29,29 +29,20 @@ export function subtitleOf(line: string): string | null {
   return inner ? inner : null;
 }
 
-/**
- * Converts the text as typed into the Markdown saved on disk:
- * the first line becomes `# título` and `+texto+` lines become `## texto`.
- */
-export function textToMarkdown(text: string): string {
-  return splitLines(text)
-    .map((line, i) => {
-      if (i === 0) return line === "" ? line : MARKDOWN_TITLE + line;
-      const subtitle = subtitleOf(line);
-      return subtitle === null ? line : `## ${subtitle}`;
-    })
-    .join("\n");
+/** The `## texto` line for a `+texto+` line, or null if it is not one. */
+export function subtitleMarkdown(line: string): string | null {
+  const subtitle = subtitleOf(line);
+  return subtitle === null ? null : `## ${subtitle}`;
 }
 
-/** Converts the Markdown on disk back into the text shown for editing (the reverse of `textToMarkdown`). */
-export function markdownToText(markdown: string): string {
-  return splitLines(markdown)
-    .map((line, i) => {
-      if (i === 0)
-        return line.startsWith(MARKDOWN_TITLE) ? line.slice(MARKDOWN_TITLE.length) : line;
-      const subtitle = MARKDOWN_SUBTITLE.exec(line)?.[1];
-      return subtitle === undefined ? line : `+${subtitle}+`;
-    })
+/**
+ * The Markdown saved on disk. The editor already writes `# título` and turns `+texto+`
+ * into `## texto` when the cursor leaves the line; this also covers a line still being
+ * typed when the note is saved. Running it twice changes nothing.
+ */
+export function toDiskMarkdown(text: string): string {
+  return splitLines(text)
+    .map((line, i) => (i === 0 ? withTitleMark(line) : (subtitleMarkdown(line) ?? line)))
     .join("\n");
 }
 

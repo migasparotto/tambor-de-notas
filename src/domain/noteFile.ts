@@ -1,6 +1,6 @@
-import { markdownToText, textToMarkdown, titleOf } from "./noteText";
+import { titleOf, toDiskMarkdown } from "./noteText";
 
-/** A note as the app holds it. `text` is what the user typed (with `+subtitle+` lines). */
+/** A note as the app holds it. `text` is its Markdown (`# título` on the first line). */
 export interface Note {
   id: string;
   /** Id of the note color; never changes after the note is created. */
@@ -26,7 +26,7 @@ export function serializeNote(note: Note): string {
   };
   // JSON strings are valid YAML, so quotes, colons and emoji in the title are safe.
   const header = FIELDS.map((field) => `${field}: ${JSON.stringify(values[field])}`);
-  return [FENCE, ...header, FENCE, textToMarkdown(note.text)].join("\n");
+  return [FENCE, ...header, FENCE, toDiskMarkdown(note.text)].join("\n");
 }
 
 /** Reads a `.md` file back into a note. Throws if the frontmatter is missing or incomplete. */
@@ -51,7 +51,7 @@ export function parseNote(content: string): Note {
   return {
     id: field("id"),
     colorId: field("color"),
-    text: markdownToText(lines.slice(end + 1).join("\n")),
+    text: lines.slice(end + 1).join("\n"),
     createdAt: field("createdAt"),
     updatedAt: field("updatedAt"),
   };

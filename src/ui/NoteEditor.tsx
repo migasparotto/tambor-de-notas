@@ -1,64 +1,118 @@
 import { useEffect, useRef } from "react";
-import { joinTitle, splitTitle } from "../domain/noteText";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { markdown } from "@codemirror/lang-markdown";
+import { EditorState } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
+import type { SymbolsMode } from "../domain/settings";
+import {
+  confirmTitleOnEnter,
+  formattingKeys,
+  subtitleOnLeave,
+  titleMark,
+} from "./editor/editingRules";
+import { livePreview } from "./editor/livePreview";
 
 interface NoteEditorProps {
-  /** The whole note text; its first line is the title. */
+  /** The note Markdown; its first line is the `# título`. */
   text: string;
-  /** Called with the new whole text on every change. */
+  /** Called with the whole new Markdown on every change. */
   onChange: (text: string) => void;
   /** Called when Enter is pressed in the title. */
   onConfirmTitle: () => void;
+  /** When the Markdown symbols show (from the settings). */
+  symbolsMode: SymbolsMode;
 }
 
-/**
- * Simple note editor: a title field (the first line) and a plain text field (the rest).
- * Its contract is just `text` in and `onChange` out, so the stage 1 S4 editor can
- * replace it without touching the notes rules or the saving.
- */
-export function NoteEditor({ text, onChange, onConfirmTitle }: NoteEditorProps) {
-  const { title, body } = splitTitle(text);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
+const theme = EditorView.theme(
+  {
+    "&": { height: "100%", color: "rgb(255 255 255 / .9)", fontSize: "14px" },
+    "&.cm-focused": { outline: "none" },
+    ".cm-scroller": {
+      fontFamily: '"Segoe UI", system-ui, sans-serif',
+      lineHeight: "1.6",
+      scrollbarWidth: "thin",
+      scrollbarColor: "rgb(255 255 255 / .3) transparent",
+    },
+    ".cm-content": { padding: "0", caretColor: "white" },
+    ".cm-line": { padding: "0" },
+    ".cm-cursor": { borderLeftColor: "white" },
+    ".cm-selectionBackground, &.cm-focused .cm-selectionBackground": {
+      backgroundColor: "rgb(255 255 255 / .22) !important",
+    },
+    ".cm-h1": { fontSize: "19px", fontWeight: "600", color: "white", paddingBottom: "2px" },
+    ".cm-h2": { fontSize: "15.5px", fontWeight: "700", color: "white" },
+    ".cm-h3": { fontWeight: "700", color: "white" },
+    ".cm-strong": { fontWeight: "700" },
+    ".cm-em": { fontStyle: "italic" },
+    ".cm-code, .cm-codeblock": {
+      fontFamily: "Consolas, ui-monospace, monospace",
+      fontSize: "13px",
+      backgroundColor: "rgb(0 0 0 / .25)",
+      borderRadius: "3px",
+    },
+    ".cm-link": { color: "#9cc7ff", textDecoration: "underline" },
+    ".cm-bullet": { color: "rgb(255 255 255 / .7)" },
+    ".cm-rule": {
+      display: "inline-block",
+      width: "100%",
+      verticalAlign: "middle",
+      borderTop: "1px solid rgb(255 255 255 / .35)",
+    },
+    ".cm-title-placeholder": {
+      fontSize: "19px",
+      fontWeight: "600",
+      color: "rgb(255 255 255 / .4)",
+      pointerEvents: "none",
+    },
+  },
+  { dark: true },
+);
 
-  // Start in the title for a new note, or at the end of the text for an existing one.
+/**
+ * The note editor (CodeMirror 6). It edits the Markdown itself and shows it formatted,
+ * hiding the symbols ("live preview"). Its contract is `text` in and `onChange` out,
+ * the same as the simple field it replaced.
+ */
+export function NoteEditor({ text, onChange, onConfirmTitle, symbolsMode }: NoteEditorProps) {
+  const host = useRef<HTMLDivElement>(null);
+  // The editor is created once; these refs always point to the latest callbacks.
+  const callbacks = useRef({ onChange, onConfirmTitle });
   useEffect(() => {
-    if (title === "") {
-      titleRef.current?.focus();
-    } else {
-      const field = bodyRef.current;
-      field?.focus();
-      field?.setSelectionRange(field.value.length, field.value.length);
-    }
-    // Only when the editor opens.
+    callbacks.current = { onChange, onConfirmTitle };
+  });
+
+  useEffect(() => {
+    if (!host.current) return;
+    // Start in the title for a new note, or at the end of the text for an existing one.
+    const start = text === "" ? 0 : text.length;
+    const view = new EditorView({
+      parent: host.current,
+      state: EditorState.create({
+        doc: text,
+        selection: { anchor: start },
+        extensions: [
+          confirmTitleOnEnter(() => callbacks.current.onConfirmTitle()),
+          formattingKeys,
+          history(),
+          keymap.of([...historyKeymap, ...defaultKeymap]),
+          markdown(),
+          titleMark,
+          subtitleOnLeave,
+          livePreview(symbolsMode),
+          theme,
+          EditorView.lineWrapping,
+          EditorView.contentAttributes.of({ "aria-label": "Texto da nota", spellcheck: "true" }),
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) callbacks.current.onChange(update.state.doc.toString());
+          }),
+        ],
+      }),
+    });
+    view.focus();
+    return () => view.destroy();
+    // The editor is created when the panel opens; later changes come from the editor itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-1">
-      <input
-        ref={titleRef}
-        value={title}
-        placeholder="Título…"
-        aria-label="Título"
-        spellCheck
-        onChange={(e) => onChange(joinTitle(e.target.value, body))}
-        onKeyDown={(e) => {
-          if (e.key !== "Enter") return;
-          e.preventDefault();
-          onConfirmTitle();
-          bodyRef.current?.focus();
-        }}
-        className="w-full border-0 bg-transparent px-0 text-[19px] font-semibold text-white outline-none placeholder:text-white/40"
-      />
-      <textarea
-        ref={bodyRef}
-        value={body}
-        placeholder={"Anote aqui…\n+texto+ numa linha vira subtítulo"}
-        aria-label="Texto da nota"
-        spellCheck
-        onChange={(e) => onChange(joinTitle(title, e.target.value))}
-        className="min-h-0 w-full flex-1 resize-none border-0 bg-transparent p-0 text-[14px] leading-relaxed text-white/90 outline-none placeholder:text-white/35"
-      />
-    </div>
-  );
+  return <div ref={host} className="min-h-0 flex-1 overflow-hidden" />;
 }

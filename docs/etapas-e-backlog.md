@@ -30,7 +30,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
-5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. Próximo: listas, links, código e `---` no live preview, testes das regras de edição e ligação com o caderno; depois, os atalhos globais.
+5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app; **falta o Marcos testar**. Próximo: os atalhos globais (Ctrl+Shift+Alt) e Esc/Ctrl+Enter no painel.
 
 ## Etapa 0 — Fundação ✅
 
@@ -126,6 +126,7 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 - [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
 - [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
+- [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript (para colorir código dentro da nota). Num app local pesa pouco; avaliar se vale montar a linguagem Markdown sem esses extras.
 - [ ] Botão "ver Markdown" no painel, para mostrar o texto puro da nota (como está no `.md`) (ideia de 21/10/2026)
 - [ ] Decidir o que fazer com arquivos `.tmp` que sobram se o app parar no meio de um salvamento. Hoje a listagem os ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. Atenção: o app não tem permissão de apagar.
 

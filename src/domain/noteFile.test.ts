@@ -4,7 +4,7 @@ import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 const note: Note = {
   id: "8f1c",
   colorId: "red",
-  text: 'Aula de Python: "listas" 🐍\n+Listas+\nCriar: [1, 2]',
+  text: '# Aula de Python: "listas" 🐍\n## Listas\nCriar: [1, 2]',
   createdAt: "2026-10-21T19:05:00.000Z",
   updatedAt: "2026-10-21T19:30:00.000Z",
 };
@@ -38,7 +38,7 @@ describe("parseNote", () => {
   });
 
   it("keeps a body that contains --- lines", () => {
-    const withRule = { ...note, text: "Título\nantes\n---\ndepois" };
+    const withRule = { ...note, text: "# Título\nantes\n---\ndepois" };
     expect(parseNote(serializeNote(withRule))).toEqual(withRule);
   });
 

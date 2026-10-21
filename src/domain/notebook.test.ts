@@ -48,18 +48,18 @@ describe("Notebook", () => {
 
   describe("autosave", () => {
     it("saves by itself after the configured delay, with the provisional name", async () => {
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await vi.advanceTimersByTimeAsync(DELAY - 1);
       expect(files()).toEqual([]);
 
       await vi.advanceTimersByTimeAsync(1);
       expect(files()).toEqual([`ativas/${UNTITLED_RED}`]);
-      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("Aula");
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("# Aula");
     });
 
     it("follows a different configured delay", async () => {
       notebook = make(5000);
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await vi.advanceTimersByTimeAsync(4999);
       expect(files()).toEqual([]);
       await vi.advanceTimersByTimeAsync(1);
@@ -69,7 +69,7 @@ describe("Notebook", () => {
     it("waits for the typing to stop instead of saving on every key", async () => {
       const saveSpy = vi.spyOn(store, "save");
       const createSpy = vi.spyOn(store, "create");
-      for (const text of ["A", "Au", "Aul", "Aula"]) {
+      for (const text of ["# A", "# Au", "# Aul", "# Aula"]) {
         notebook.edit(RED, text);
         await vi.advanceTimersByTimeAsync(DELAY / 2);
       }
@@ -77,7 +77,7 @@ describe("Notebook", () => {
 
       expect(createSpy).toHaveBeenCalledTimes(1);
       expect(saveSpy).not.toHaveBeenCalled();
-      expect(notebook.text(RED)).toBe("Aula");
+      expect(notebook.text(RED)).toBe("# Aula");
     });
 
     it("does not write a file for a note that is still empty", async () => {
@@ -88,63 +88,62 @@ describe("Notebook", () => {
     });
 
     it("keeps one active note per color", async () => {
-      notebook.edit(RED, "Primeira versão");
+      notebook.edit(RED, "# Primeira versão");
       await vi.advanceTimersByTimeAsync(DELAY);
-      notebook.edit(RED, "Segunda versão");
-      notebook.edit(BLUE, "Termo");
+      notebook.edit(RED, "# Segunda versão");
+      notebook.edit(BLUE, "# Termo");
       await vi.advanceTimersByTimeAsync(DELAY);
 
       expect(files()).toEqual(["ativas/2026-10 azul - sem título.md", `ativas/${UNTITLED_RED}`]);
-      expect(notebook.text(RED)).toBe("Segunda versão");
+      expect(notebook.text(RED)).toBe("# Segunda versão");
       expect(notebook.hasNote(RED)).toBe(true);
     });
 
-    it("saves +subtitle+ lines as ## on disk and keeps them as typed", async () => {
-      notebook.edit(RED, "Aula\n+Listas+\n[1, 2]");
+    it("saves a +subtitle+ line still being typed as ## on disk", async () => {
+      notebook.edit(RED, "# Aula\n+Listas+\n[1, 2]");
       await vi.advanceTimersByTimeAsync(DELAY);
-      expect(fs.files.get(`ativas/${UNTITLED_RED}`)).toContain("\n## Listas\n");
-      expect(notebook.text(RED)).toBe("Aula\n+Listas+\n[1, 2]");
+      expect(fs.files.get(`ativas/${UNTITLED_RED}`)).toContain("\n## Listas\n[1, 2]");
     });
 
     it("saves what was typed during a save", async () => {
-      notebook.edit(RED, "v1");
+      notebook.edit(RED, "# v1");
       await vi.advanceTimersByTimeAsync(DELAY);
       vi.spyOn(store, "save").mockImplementationOnce(async (folder, name, content) => {
-        notebook.edit(RED, "v3");
+        notebook.edit(RED, "# v3");
         await createNotesStore(fs).save(folder, name, content);
       });
-      notebook.edit(RED, "v2");
+      notebook.edit(RED, "# v2");
       await vi.advanceTimersByTimeAsync(DELAY * 2);
 
-      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("v3");
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("# v3");
     });
 
     it("reports a busy file, keeps the text and saves once it is free", async () => {
-      notebook.edit(RED, "v1");
+      notebook.edit(RED, "# v1");
       await vi.advanceTimersByTimeAsync(DELAY);
       fs.holdBusy(`ativas/${UNTITLED_RED}`, 2);
-      notebook.edit(RED, "v2");
+      notebook.edit(RED, "# v2");
 
       await vi.advanceTimersByTimeAsync(DELAY + 10);
       expect(events.onError).toHaveBeenCalledWith(expect.any(FileBusyError));
-      expect(notebook.text(RED)).toBe("v2");
+      expect(notebook.text(RED)).toBe("# v2");
 
       await vi.advanceTimersByTimeAsync(DELAY);
-      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("v2");
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").text).toBe("# v2");
     });
   });
 
   describe("confirmTitle (Enter on the first line)", () => {
     it("renames the file to the title once", async () => {
-      notebook.edit(RED, "Aula de Python");
+      notebook.edit(RED, "# Aula de Python");
       await notebook.confirmTitle(RED);
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula de Python.md"]);
     });
 
     it("does not rename again when the title changes later", async () => {
-      notebook.edit(RED, "Aula de Python");
+      notebook.edit(RED, "# Aula de Python");
       await notebook.confirmTitle(RED);
-      notebook.edit(RED, "Aula de Python 2\ntexto");
+      notebook.edit(RED, "# Aula de Python 2\ntexto");
       await notebook.confirmTitle(RED);
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula de Python.md"]);
     });
@@ -156,14 +155,14 @@ describe("Notebook", () => {
     });
 
     it("cleans characters Windows rejects from the title", async () => {
-      notebook.edit(RED, "Aula: listas/tuplas?");
+      notebook.edit(RED, "# Aula: listas/tuplas?");
       await notebook.confirmTitle(RED);
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula listas tuplas.md"]);
     });
 
     it("uses -2 when another note already has that name", async () => {
       await store.save("archived", "2026-10 vermelho - Aula.md", "antiga");
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await notebook.confirmTitle(RED);
       expect(files()).toContain("ativas/2026-10 vermelho - Aula-2.md");
     });
@@ -171,9 +170,9 @@ describe("Notebook", () => {
 
   describe("close", () => {
     it("archives the note under its current title and frees the color", async () => {
-      notebook.edit(RED, "Aula de Python");
+      notebook.edit(RED, "# Aula de Python");
       await notebook.confirmTitle(RED);
-      notebook.edit(RED, "Aula de Python: listas\nconteúdo");
+      notebook.edit(RED, "# Aula de Python: listas\nconteúdo");
       await notebook.close(RED);
 
       expect(files()).toEqual(["arquivadas/2026-10 vermelho - Aula de Python listas.md"]);
@@ -183,7 +182,7 @@ describe("Notebook", () => {
     });
 
     it("saves a note closed before the autosave ran", async () => {
-      notebook.edit(RED, "Rápida");
+      notebook.edit(RED, "# Rápida");
       await notebook.close(RED);
       expect(files()).toEqual(["arquivadas/2026-10 vermelho - Rápida.md"]);
     });
@@ -201,9 +200,9 @@ describe("Notebook", () => {
     });
 
     it("starts a new note, with a new id, after closing", async () => {
-      notebook.edit(RED, "Primeira");
+      notebook.edit(RED, "# Primeira");
       await notebook.close(RED);
-      notebook.edit(RED, "Segunda");
+      notebook.edit(RED, "# Segunda");
       await notebook.close(RED);
 
       const archived = files();
@@ -216,13 +215,13 @@ describe("Notebook", () => {
     });
 
     it("keeps the note active if archiving fails", async () => {
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await notebook.confirmTitle(RED);
       vi.spyOn(store, "archive").mockRejectedValueOnce(new FileBusyError("x.md"));
 
       await expect(notebook.close(RED)).rejects.toThrow(FileBusyError);
 
-      expect(notebook.text(RED)).toBe("Aula");
+      expect(notebook.text(RED)).toBe("# Aula");
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula.md"]);
       await notebook.close(RED);
       expect(files()).toEqual(["arquivadas/2026-10 vermelho - Aula.md"]);
@@ -231,38 +230,38 @@ describe("Notebook", () => {
 
   describe("load", () => {
     it("brings back the active notes saved on disk", async () => {
-      notebook.edit(RED, "Aula\n+Listas+");
+      notebook.edit(RED, "# Aula\n+Listas+");
       await notebook.confirmTitle(RED);
 
       const reopened = make();
       await reopened.load();
 
-      expect(reopened.text(RED)).toBe("Aula\n+Listas+");
+      expect(reopened.text(RED)).toBe("# Aula\n## Listas");
       expect(reopened.hasNote(RED)).toBe(true);
       expect(reopened.hasNote(BLUE)).toBe(false);
       expect(events.onChange).toHaveBeenCalledWith(RED);
     });
 
     it("does not duplicate notes when loaded twice, even at the same time", async () => {
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await notebook.confirmTitle(RED);
 
       const reopened = make();
       await Promise.all([reopened.load(), reopened.load()]);
       await reopened.load();
 
-      expect(reopened.text(RED)).toBe("Aula");
+      expect(reopened.text(RED)).toBe("# Aula");
       expect(events.onError).not.toHaveBeenCalled();
       await reopened.close(RED);
       expect(reopened.hasNote(RED)).toBe(false);
     });
 
     it("continues the same file after reopening", async () => {
-      notebook.edit(RED, "Aula");
+      notebook.edit(RED, "# Aula");
       await notebook.confirmTitle(RED);
       const reopened = make();
       await reopened.load();
-      reopened.edit(RED, "Aula\nmais");
+      reopened.edit(RED, "# Aula\nmais");
       await vi.advanceTimersByTimeAsync(DELAY);
 
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula.md"]);
@@ -286,7 +285,7 @@ describe("Notebook", () => {
         notebook = make(DELAY, 1);
         await notebook.load();
 
-        expect(notebook.text(RED)).toBe("Nova");
+        expect(notebook.text(RED)).toBe("# Nova");
         expect(events.onError).toHaveBeenCalledTimes(2);
         expect(events.onError).toHaveBeenCalledWith(
           expect.objectContaining({ message: expect.stringContaining('"c.md"') as unknown }),
@@ -297,10 +296,10 @@ describe("Notebook", () => {
         notebook = make(DELAY, 2);
         await notebook.load();
 
-        expect(notebook.text(RED)).toBe("Nova");
+        expect(notebook.text(RED)).toBe("# Nova");
         expect(events.onError).toHaveBeenCalledTimes(1);
         await notebook.close(RED);
-        expect(notebook.text(RED)).toBe("Antiga");
+        expect(notebook.text(RED)).toBe("# Antiga");
       });
     });
 
@@ -312,22 +311,22 @@ describe("Notebook", () => {
   });
 
   it("flush (window closing) saves the last letters typed, without waiting for the autosave", async () => {
-    notebook.edit(RED, "Aula");
+    notebook.edit(RED, "# Aula");
     await notebook.confirmTitle(RED);
-    notebook.edit(RED, "Aula\núltimas letras XYZ");
+    notebook.edit(RED, "# Aula\núltimas letras XYZ");
 
     await notebook.flush();
 
     const saved = parseNote(fs.files.get("ativas/2026-10 vermelho - Aula.md") ?? "");
-    expect(saved.text).toBe("Aula\núltimas letras XYZ");
+    expect(saved.text).toBe("# Aula\núltimas letras XYZ");
     const saveSpy = vi.spyOn(store, "save");
     await vi.advanceTimersByTimeAsync(DELAY * 2);
     expect(saveSpy).not.toHaveBeenCalled(); // the cancelled autosave does not run later
   });
 
   it("flush saves pending changes at once", async () => {
-    notebook.edit(RED, "Aula");
-    notebook.edit(BLUE, "Termo");
+    notebook.edit(RED, "# Aula");
+    notebook.edit(BLUE, "# Termo");
     await notebook.flush();
     expect(files()).toHaveLength(2);
   });
