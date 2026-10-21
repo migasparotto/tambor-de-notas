@@ -142,11 +142,20 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - **Nome do arquivo:** tirar os caracteres que o Windows não aceita (`< > : " / \ | ? *` e outros) e tratar nomes repetidos (ex.: `nota-2.md`).
 - **Acentos e emoji:** teste salvando e lendo uma nota com acentos e emoji, para garantir UTF-8.
 
+**Decidido na S3 (21/10/2026) — título, nome do arquivo e subtítulo:**
+
+- **Título = primeira linha do texto**, mostrada com visual de campo de título (maior, com o texto de exemplo "Título…" quando vazia). Também fica no frontmatter.
+- **Nome do arquivo:** `AAAA-MM cor - título.md` (ex.: `2026-10 vermelho - Aula de Python.md`). A nota nasce com o nome provisório `AAAA-MM cor - sem título.md` e é renomeada **uma vez**, ao apertar Enter na primeira linha. Se o título mudar depois, o nome é ajustado ao fechar (ou enviar) a nota. **Nunca renomear a cada tecla**, por causa do OneDrive. Nomes repetidos ganham `-2`, `-3`.
+- **Subtítulo:** uma linha **inteira** no formato `+texto+` vira subtítulo. Na tela aparece em negrito e um pouco maior; no `.md` é gravada como `## texto` (legível e compatível com o Notion). Só vale para a linha inteira, para não confundir com `2+2` ou `C++`.
+
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
 - [ ] Botão para expandir o painel e ler ou editar a nota inteira quando ela ficar grande (S3)
 - [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
 - [ ] Atalhos de formatação rápida em Markdown
+- [ ] Título na primeira linha, com visual de campo de título e o texto de exemplo "Título…" (S3)
+- [ ] Subtítulo com `+texto+` na linha inteira, gravado como `## texto` (S3)
+- [ ] Nome do arquivo `AAAA-MM cor - título.md`: provisório "sem título", renomeado no primeiro Enter e ajustado ao fechar (S3)
 - [ ] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
 - [ ] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
 - [ ] Testes de leitura e escrita dos arquivos .md
@@ -188,7 +197,7 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 ### Editor (RF09, RF10, RF13)
 
 - [ ] Toggle list (bloco recolhível)
-- [ ] Sumário automático (TOC) gerado pelos títulos da nota
+- [ ] Sumário automático (TOC) gerado pelos títulos da nota: um índice com os subtítulos (`## texto`), clicáveis para navegar pela nota (pedido em 21/10/2026)
 - [ ] Ajuste de espaçamento de linhas e margens
 
 ### Lista, busca e exportação (RF11, RF12)
