@@ -3,7 +3,9 @@ import { DEFAULT_SETTINGS } from "./settings";
 import {
   charCount,
   fillLevel,
+  joinTitle,
   markdownToText,
+  splitTitle,
   subtitleOf,
   textToMarkdown,
   titleOf,
@@ -17,6 +19,25 @@ describe("titleOf", () => {
   it("is empty for an empty note or an empty first line", () => {
     expect(titleOf("")).toBe("");
     expect(titleOf("\nsó o corpo")).toBe("");
+  });
+});
+
+describe("splitTitle and joinTitle", () => {
+  it("separate the first line from the rest", () => {
+    expect(splitTitle("Aula\nlinha 1\nlinha 2")).toEqual({
+      title: "Aula",
+      body: "linha 1\nlinha 2",
+    });
+    expect(splitTitle("Só título")).toEqual({ title: "Só título", body: "" });
+    expect(splitTitle("")).toEqual({ title: "", body: "" });
+    expect(splitTitle("\ncorpo")).toEqual({ title: "", body: "corpo" });
+  });
+
+  it("join them back into the same text", () => {
+    for (const text of ["Aula\nlinha 1\nlinha 2", "Só título", "", "\ncorpo", "Aula\n\nfim"]) {
+      const { title, body } = splitTitle(text);
+      expect(joinTitle(title, body)).toBe(text);
+    }
   });
 });
 

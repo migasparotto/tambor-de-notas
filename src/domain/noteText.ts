@@ -10,6 +10,19 @@ export function titleOf(text: string): string {
   return (splitLines(text)[0] ?? "").trim();
 }
 
+/** Splits the text into the title line and the body (everything after it). */
+export function splitTitle(text: string): { title: string; body: string } {
+  const newline = text.indexOf("\n");
+  return newline === -1
+    ? { title: text, body: "" }
+    : { title: text.slice(0, newline), body: text.slice(newline + 1) };
+}
+
+/** Joins a title and a body back into the note text (the reverse of `splitTitle`). */
+export function joinTitle(title: string, body: string): string {
+  return body === "" ? title : `${title}\n${body}`;
+}
+
 /** If the whole line is `+texto+`, returns `texto`; otherwise null. */
 export function subtitleOf(line: string): string | null {
   const inner = SUBTITLE_LINE.exec(line.trim())?.[1]?.trim();
