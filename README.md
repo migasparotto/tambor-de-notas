@@ -6,13 +6,21 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. As sprints S1 (janela e tambor) e S2 (pomodoro) estão concluídas. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. As sprints S1 (janela e tambor), S2 (pomodoro) e S3 (notas) estão concluídas. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
 
 ## O que já funciona
 
 - Janela **transparente, sem bordas e sempre por cima**: aparece só o tambor, encostado na borda direita da tela e centralizado na vertical.
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
-- Tem 7 câmaras: azul, vermelho, verde e roxo (só contorno, por enquanto), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
+- Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
+- **Notas** (uma nota ativa por cor):
+  - clique numa câmara de cor: o painel da nota nasce na câmara e cresce ao lado do tambor, na cor da nota;
+  - a primeira linha é o **título** (campo maior, com "Título…"); Enter no título dá nome ao arquivo;
+  - uma linha inteira `+texto+` vira subtítulo (no arquivo, `## texto`);
+  - a nota se salva sozinha 1 segundo depois que você para de digitar, e também ao fechar o app;
+  - **⤢** expande o painel, **–** recolhe (a nota continua ativa) e **✓ Fechar nota** arquiva a nota e libera a cor;
+  - com nota ativa, a câmara fica tingida e **enche** conforme a nota se aproxima do limite de caracteres (padrão 300);
+  - as notas são arquivos `.md` em `Documentos\Tambor de Notas\notas\` (`ativas\` e `arquivadas\`), com nome `AAAA-MM cor - título.md`. Funciona com Documentos no OneDrive: se a sincronização segurar um arquivo, o app tenta de novo e avisa, sem perder o texto.
 - **Pomodoro** no centro do tambor (padrão: 25 min de foco e 5 de pausa, em `src/domain/settings.ts`):
   - clique no relógio para dar play ou pausa; o quadradinho abaixo é o stop, que volta ao foco cheio;
   - o relógio fica cinza parado, branco focando, bege-rosado pausado e âmbar na pausa de descanso;
@@ -20,7 +28,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido.
 - O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
 
-Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**.
+Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
 
 ## Tecnologias
 

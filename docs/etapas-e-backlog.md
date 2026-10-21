@@ -29,7 +29,8 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. ~~Lógica das notas em `src/domain/`~~, com testes: `noteText.ts` (título, subtítulo, contagem e enchimento), `noteFile.ts` (frontmatter e nome do arquivo) e `notebook.ts` (nota ativa por cor, salvamento automático, primeiro Enter, fechar e arquivar). ~~Relógio centralizado~~ no miolo visível, em qualquer tamanho (com teste). ~~Título no `.md` como `# Título`~~. ~~Limite de notas ativas por cor em `settings.ts`~~ (`maxActiveNotesPerColor: 1`). **Tela da S3 implementada** (painel bolha, título, expandir, recolher, fechar e arquivar, câmara tingida enchendo, mensagens de erro) e conferida por fotos no app. **Próximo: o Marcos testar no app de verdade**; depois, README e fim da S3 (CI verde e push). Na S3 o `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. ~~Lógica das notas em `src/domain/`~~, com testes: `noteText.ts` (título, subtítulo, contagem e enchimento), `noteFile.ts` (frontmatter e nome do arquivo) e `notebook.ts` (nota ativa por cor, salvamento automático, primeiro Enter, fechar e arquivar). ~~Relógio centralizado~~ no miolo visível, em qualquer tamanho (com teste). ~~Título no `.md` como `# Título`~~. ~~Limite de notas ativas por cor em `settings.ts`~~ (`maxActiveNotesPerColor: 1`). ~~Tela da S3~~ (painel bolha, título, expandir, recolher, fechar e arquivar, câmara tingida enchendo, mensagens de erro): testada e aprovada pelo Marcos; notas ativas voltam ao reabrir e o texto digitado logo antes do Alt+F4 não se perde. **Notas da S3 concluídas.** Na S3 o `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4. **Ainda pendentes da S3** (dependem de gravar configurações na pasta do app, já liberada): contador de ciclos salvo entre usos e zerado a cada dia; tamanho do tambor salvo em arquivo. Decidir com o Marcos se entram antes da S4.
+5. **S4 — Editor e atalhos**: começar debatendo a biblioteca do editor estilo Notion.
 
 ## Etapa 0 — Fundação ✅
 
@@ -91,7 +92,7 @@ Regras das sprints:
 - [x] Desenhar o meio anel em arco, encostado na borda direita, com o relógio no centro e as 7 câmaras redondas ao longo do arco (S1)
 - [x] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela (S1: valor em `src/domain/settings.ts`; salvar em arquivo entra com o armazenamento, na S3)
 - [x] Câmaras 2 a 5 com as cores iniciais: azul (glossário pessoal), vermelho (núcleo de estudo ativo), verde (exemplo de uso), roxo (tarefa) (S1)
-- [ ] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite (contorno feito na S1; enchimento na S3)
+- [x] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite (contorno feito na S1; enchimento na S3)
 - [x] Câmaras 6, 7 e 8 (Notion, Todoist, IA) visíveis, mas desativadas até suas etapas (S1)
 - [x] Botão "+" na ponta de baixo do arco, visível mas sem girar (o giro fica para uma versão futura) (S1)
 
@@ -149,16 +150,16 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - **Nome do arquivo:** `AAAA-MM cor - título.md` (ex.: `2026-10 vermelho - Aula de Python.md`). A nota nasce com o nome provisório `AAAA-MM cor - sem título.md` e é renomeada **uma vez**, ao apertar Enter na primeira linha. Se o título mudar depois, o nome é ajustado ao fechar (ou enviar) a nota. **Nunca renomear a cada tecla**, por causa do OneDrive. Nomes repetidos ganham `-2`, `-3`.
 - **Subtítulo:** uma linha **inteira** no formato `+texto+` vira subtítulo. Na tela aparece em negrito e um pouco maior; no `.md` é gravada como `## texto` (legível e compatível com o Notion). Só vale para a linha inteira, para não confundir com `2+2` ou `C++`.
 
-- [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
-- [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
-- [ ] Botão para expandir o painel e ler ou editar a nota inteira quando ela ficar grande (S3)
+- [x] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
+- [x] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
+- [x] Botão para expandir o painel e ler ou editar a nota inteira quando ela ficar grande (S3)
 - [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
 - [ ] Atalhos de formatação rápida em Markdown
-- [ ] Título na primeira linha, com visual de campo de título e o texto de exemplo "Título…" (S3)
+- [x] Título na primeira linha, com visual de campo de título e o texto de exemplo "Título…" (S3)
 - [ ] Subtítulo com `+texto+` na linha inteira, gravado como `## texto` (S3); em negrito e maior na tela com o editor da S4
-- [ ] Nome do arquivo `AAAA-MM cor - título.md`: provisório "sem título", renomeado no primeiro Enter e ajustado ao fechar (S3)
-- [ ] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
-- [ ] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
+- [x] Nome do arquivo `AAAA-MM cor - título.md`: provisório "sem título", renomeado no primeiro Enter e ajustado ao fechar (S3)
+- [x] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
+- [x] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
 - [x] Testes de leitura e escrita dos arquivos .md (S3: porta de armazenamento, frontmatter e `Notebook`)
 
 ## Etapa 2 — Organização

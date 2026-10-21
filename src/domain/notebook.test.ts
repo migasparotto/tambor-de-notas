@@ -311,6 +311,20 @@ describe("Notebook", () => {
     });
   });
 
+  it("flush (window closing) saves the last letters typed, without waiting for the autosave", async () => {
+    notebook.edit(RED, "Aula");
+    await notebook.confirmTitle(RED);
+    notebook.edit(RED, "Aula\núltimas letras XYZ");
+
+    await notebook.flush();
+
+    const saved = parseNote(fs.files.get("ativas/2026-10 vermelho - Aula.md") ?? "");
+    expect(saved.text).toBe("Aula\núltimas letras XYZ");
+    const saveSpy = vi.spyOn(store, "save");
+    await vi.advanceTimersByTimeAsync(DELAY * 2);
+    expect(saveSpy).not.toHaveBeenCalled(); // the cancelled autosave does not run later
+  });
+
   it("flush saves pending changes at once", async () => {
     notebook.edit(RED, "Aula");
     notebook.edit(BLUE, "Termo");
