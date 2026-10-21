@@ -126,6 +126,7 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 - [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
 - [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
+- [ ] Botão "ver Markdown" no painel, para mostrar o texto puro da nota (como está no `.md`) (ideia de 21/10/2026)
 - [ ] Decidir o que fazer com arquivos `.tmp` que sobram se o app parar no meio de um salvamento. Hoje a listagem os ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. Atenção: o app não tem permissão de apagar.
 
 ### Notas (RF01, RF03, RF04, RF05)
