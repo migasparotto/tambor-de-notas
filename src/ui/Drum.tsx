@@ -19,10 +19,13 @@ const EDGE = "#3A3E46";
 const CLOCK_IDLE = "#8A919C";
 const CLOCK_FOCUS = "#E6E9EE";
 const CLOCK_BREAK = "#E0A84F";
+const CLOCK_PAUSED = "#CDB2A8";
+const STOP_MARK = "#B8696A";
 
-/** Clock color: amber during the break, bright while focusing, grey when stopped or paused. */
+/** Clock color: amber during the break, pale beige-pink when paused, bright while focusing, grey when stopped. */
 function clockColor({ phase, status }: PomodoroState): string {
   if (phase === "break") return CLOCK_BREAK;
+  if (status === "paused") return CLOCK_PAUSED;
   return status === "running" ? CLOCK_FOCUS : CLOCK_IDLE;
 }
 
@@ -130,11 +133,7 @@ export function Drum({
         </span>
         <span
           className="absolute inset-0 transition-colors"
-          style={{
-            ...clockFont,
-            color: clockColor(pomodoro),
-            opacity: pomodoro.status === "paused" ? 0.6 : 1,
-          }}
+          style={{ ...clockFont, color: clockColor(pomodoro) }}
         >
           {clockText}
         </span>
@@ -149,13 +148,13 @@ export function Drum({
         className="flex cursor-pointer items-center justify-center rounded-[5px] border border-[#3A3E46] bg-[#23262C] p-0 disabled:cursor-default disabled:opacity-40"
         style={around(g.stop.center, g.stop.size)}
       >
-        <span className="block size-[7px] rounded-[1px] bg-[#C9CED6]" />
+        <span className="block size-[7px] rounded-[1px]" style={{ background: STOP_MARK }} />
       </button>
 
       <span
         title={`${pomodoro.cycles} ciclos concluídos`}
         aria-label={`${pomodoro.cycles} ciclos concluídos`}
-        className="text-left text-[#8A919C]"
+        className="text-left font-semibold text-[#C9CED6]"
         style={{
           ...around(g.cycles.center, g.cycles.width, g.cycles.height),
           fontSize: g.cycles.fontSize,

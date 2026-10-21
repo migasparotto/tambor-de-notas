@@ -72,7 +72,7 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
   const clockCenter = { x: center.x - 0.32 * R, y: center.y };
   const stopSize = Math.max(16, 0.14 * R);
   const stopCenter = { x: clockCenter.x, y: center.y + clockHeight / 2 + 2 + stopSize / 2 };
-  const cyclesWidth = 0.16 * R;
+  const cyclesWidth = 0.22 * R;
 
   return {
     width,
@@ -90,7 +90,7 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
       center: { x: stopCenter.x + stopSize / 2 + 4 + cyclesWidth / 2, y: stopCenter.y },
       width: cyclesWidth,
       height: stopSize,
-      fontSize: Math.max(9, 0.08 * R),
+      fontSize: Math.max(12, 0.11 * R),
     },
   };
 }
