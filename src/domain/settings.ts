@@ -10,6 +10,8 @@ export interface Settings {
   breakMinutes: number;
   /** How long after the last change a note is saved by itself, in milliseconds. */
   autosaveDelayMs: number;
+  /** How many active notes a color may have at once (stage 2 may show several as tabs). */
+  maxActiveNotesPerColor: number;
 }
 
 /** Default settings used until the user changes them. */
@@ -19,4 +21,5 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   focusMinutes: 25,
   breakMinutes: 5,
   autosaveDelayMs: 1000,
+  maxActiveNotesPerColor: 1,
 };

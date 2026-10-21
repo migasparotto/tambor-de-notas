@@ -9,4 +9,4 @@ A lógica do app: pomodoro, criar e fechar nota, nota ativa por cor, contagem de
 
 - `noteText.ts`: título (primeira linha), subtítulo `+texto+` ↔ `## texto`, contagem de caracteres e enchimento da câmara.
 - `noteFile.ts`: o arquivo `.md` (frontmatter + texto em Markdown) e o nome `AAAA-MM cor - título`.
-- `notebook.ts`: uma nota ativa por cor, salvamento automático, renomear no primeiro Enter, fechar e arquivar.
+- `notebook.ts`: notas ativas por cor (limite em `settings.ts`, hoje 1), salvamento automático, renomear no primeiro Enter, fechar e arquivar.

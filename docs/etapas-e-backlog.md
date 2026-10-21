@@ -176,6 +176,11 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 - [ ] Janela do tambor móvel: arrastar para cima ou para baixo e para a borda esquerda da tela. Na borda esquerda o tambor espelha, com a abertura virada para a borda. O app lembra a posição entre usos.
 - [ ] Deixar o clique passar pelos cantos transparentes da janela para o que está atrás (o vídeo). Hoje a janela é um retângulo invisível que bloqueia o clique nesses cantos.
 
+### Várias notas abertas (ideia de 21/10/2026, a debater no início da etapa)
+
+- [ ] Até 3 notas abertas por vez, mostradas como **abas empilhadas** com o título de cada uma, no estilo de pastas de arquivo (a aba de trás aparece acima, só com o título; a da frente mostra a nota inteira). Serve para anotar vários contextos na mesma aula.
+- Preparado na S3: a regra "uma nota ativa por cor" virou o valor `maxActiveNotesPerColor` (padrão 1) em `src/domain/settings.ts`. Falta decidir se o limite é por cor ou no total, como escolher a aba ativa e como os atalhos funcionam com abas.
+
 ### Cores (RF06)
 
 - [ ] Editar nome e função de cada cor

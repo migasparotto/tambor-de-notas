@@ -8,6 +8,7 @@ import { parseNote, serializeNote } from "./noteFile";
 import { DEFAULT_SETTINGS } from "./settings";
 
 const DELAY = DEFAULT_SETTINGS.autosaveDelayMs;
+const MAX_ACTIVE = DEFAULT_SETTINGS.maxActiveNotesPerColor;
 const RED = "red";
 const BLUE = "blue";
 const UNTITLED_RED = "2026-10 vermelho - sem título.md";
@@ -19,8 +20,13 @@ describe("Notebook", () => {
   let notebook: Notebook;
 
   const files = () => [...fs.files.keys()].sort();
-  const make = (autosaveDelayMs = DELAY) =>
-    new Notebook({ store, colors: INITIAL_COLORS, settings: { autosaveDelayMs }, events });
+  const make = (autosaveDelayMs = DELAY, maxActiveNotesPerColor = MAX_ACTIVE) =>
+    new Notebook({
+      store,
+      colors: INITIAL_COLORS,
+      settings: { autosaveDelayMs, maxActiveNotesPerColor },
+      events,
+    });
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -248,21 +254,40 @@ describe("Notebook", () => {
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula.md"]);
     });
 
-    it("keeps the most recent note if a color has two", async () => {
-      const older = {
-        id: "a",
-        colorId: RED,
-        text: "Antiga",
-        createdAt: "2026-10-01T00:00:00.000Z",
+    describe("when a color has more active notes on disk than allowed", () => {
+      const saveRed = (fileName: string, text: string, day: number) => {
+        const date = `2026-10-0${day}T00:00:00.000Z`;
+        const note = { id: text, colorId: RED, text, createdAt: date, updatedAt: date };
+        return store.save("active", fileName, serializeNote(note));
       };
-      await store.save("active", "a.md", serializeNote({ ...older, updatedAt: older.createdAt }));
-      await store.save(
-        "active",
-        "b.md",
-        serializeNote({ ...older, id: "b", text: "Nova", updatedAt: "2026-10-02T00:00:00.000Z" }),
-      );
-      await notebook.load();
-      expect(notebook.text(RED)).toBe("Nova");
+
+      beforeEach(async () => {
+        // File names out of date order, so the order comes from the dates.
+        await saveRed("c.md", "Mais antiga", 1);
+        await saveRed("a.md", "Nova", 3);
+        await saveRed("b.md", "Antiga", 2);
+      });
+
+      it("keeps the most recent ones, up to the configured limit, and reports the rest", async () => {
+        notebook = make(DELAY, 1);
+        await notebook.load();
+
+        expect(notebook.text(RED)).toBe("Nova");
+        expect(events.onError).toHaveBeenCalledTimes(2);
+        expect(events.onError).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.stringContaining('"c.md"') as unknown }),
+        );
+      });
+
+      it("follows a higher limit: the newest is current, the next one shows after closing it", async () => {
+        notebook = make(DELAY, 2);
+        await notebook.load();
+
+        expect(notebook.text(RED)).toBe("Nova");
+        expect(events.onError).toHaveBeenCalledTimes(1);
+        await notebook.close(RED);
+        expect(notebook.text(RED)).toBe("Antiga");
+      });
     });
 
     it("reports and skips a file it cannot read", async () => {

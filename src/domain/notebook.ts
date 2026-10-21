@@ -15,7 +15,7 @@ export interface NotebookEvents {
 export interface NotebookOptions {
   store: NotesStore;
   colors: readonly NoteColor[];
-  settings: Pick<Settings, "autosaveDelayMs">;
+  settings: Pick<Settings, "autosaveDelayMs" | "maxActiveNotesPerColor">;
   events?: NotebookEvents;
 }
 
@@ -28,54 +28,71 @@ interface Entry {
 }
 
 /**
- * The active notes, one per color. Typing changes the note in memory and saves it
+ * The active notes of each color, up to `maxActiveNotesPerColor` (1 for now: the color's
+ * current note is the one shown and edited). Typing changes the note in memory and saves it
  * by itself a moment later. The file is named `AAAA-MM cor - sem título.md` at first,
  * renamed once when the title is confirmed (Enter on the first line), and adjusted
  * to the final title when the note is closed and archived.
  */
 export class Notebook {
-  private readonly entries = new Map<string, Entry>();
+  /** Active notes by color, oldest first; the last one is the color's current note. */
+  private readonly entries = new Map<string, Entry[]>();
   /** Disk operations run one at a time, in order, so two saves never overlap. */
   private queue: Promise<void> = Promise.resolve();
 
   constructor(private readonly options: NotebookOptions) {}
 
-  /** Reads the active notes from disk. Unreadable files are reported and skipped. */
+  /**
+   * Reads the active notes from disk. If a color has more than allowed, the most recent
+   * ones are kept and the others reported. Unreadable files are reported and skipped.
+   */
   async load(): Promise<void> {
-    const { store, events } = this.options;
+    const { store, events, settings } = this.options;
+    const loaded: Entry[] = [];
     for (const fileName of await store.list("active")) {
       try {
-        const note = parseNote(await store.read("active", fileName));
-        const current = this.entries.get(note.colorId);
-        // Only one active note per color: if there are more, keep the most recent.
-        if (current && current.note.updatedAt >= note.updatedAt) continue;
-        this.entries.set(note.colorId, { note, fileName, dirty: false });
-        events?.onChange?.(note.colorId);
+        loaded.push({
+          note: parseNote(await store.read("active", fileName)),
+          fileName,
+          dirty: false,
+        });
       } catch (error) {
         events?.onError?.(error);
       }
     }
+    loaded.sort((a, b) => a.note.updatedAt.localeCompare(b.note.updatedAt));
+    for (const entry of loaded) this.notesOf(entry.note.colorId).push(entry);
+
+    for (const [colorId, notes] of this.entries) {
+      const extra = notes.splice(0, Math.max(notes.length - settings.maxActiveNotesPerColor, 0));
+      for (const { fileName } of extra) {
+        events?.onError?.(
+          new Error(`"${fileName}" ficou de fora: a cor já tem o máximo de notas ativas.`),
+        );
+      }
+      events?.onChange?.(colorId);
+    }
   }
 
-  /** The text of the color's active note, or "" when there is none. */
+  /** The text of the color's current note, or "" when there is none. */
   text(colorId: string): string {
-    return this.entries.get(colorId)?.note.text ?? "";
+    return this.current(colorId)?.note.text ?? "";
   }
 
   /** Whether the color has an active note (an opened but still empty one does not count). */
   hasNote(colorId: string): boolean {
-    const entry = this.entries.get(colorId);
+    const entry = this.current(colorId);
     return entry !== undefined && (entry.fileName !== null || entry.note.text !== "");
   }
 
-  /** Changes the color's active note, creating it if needed, and schedules the autosave. */
+  /** Changes the color's current note, creating it if needed, and schedules the autosave. */
   edit(colorId: string, text: string): void {
-    let entry = this.entries.get(colorId);
+    let entry = this.current(colorId);
     if (!entry) {
       const now = new Date().toISOString();
       const note = { id: crypto.randomUUID(), colorId, text, createdAt: now, updatedAt: now };
       entry = { note, fileName: null, dirty: true };
-      this.entries.set(colorId, entry);
+      this.notesOf(colorId).push(entry);
     }
     entry.note.text = text;
     entry.dirty = true;
@@ -84,7 +101,7 @@ export class Notebook {
 
   /** Enter on the first line: saves, and gives the file its title if it still has the provisional name. */
   confirmTitle(colorId: string): Promise<void> {
-    const entry = this.entries.get(colorId);
+    const entry = this.current(colorId);
     if (!entry) return Promise.resolve();
     clearTimeout(entry.timer);
     return this.run(async () => {
@@ -96,13 +113,13 @@ export class Notebook {
     });
   }
 
-  /** Closes the color's note: saves it, names the file after its title and archives it. */
+  /** Closes the color's current note: saves it, names the file after its title and archives it. */
   close(colorId: string): Promise<void> {
-    const entry = this.entries.get(colorId);
+    const notes = this.notesOf(colorId);
+    const entry = notes.pop();
     if (!entry) return Promise.resolve();
     clearTimeout(entry.timer);
-    // Leave the color free at once, so typing again starts a new note.
-    this.entries.delete(colorId);
+    // The note leaves the color at once, so typing again starts a new note.
     return this.run(async () => {
       try {
         await this.save(entry);
@@ -111,8 +128,9 @@ export class Notebook {
         entry.fileName = await store.rename(entry.fileName, this.fileBase(entry));
         await store.archive(entry.fileName);
       } catch (error) {
-        // Nothing is lost: the note goes back to being the active one, if the color is still free.
-        if (!this.entries.has(colorId)) this.entries.set(colorId, entry);
+        // Nothing is lost: the note goes back to the active ones, if the color still has room
+        // (behind any note started meanwhile, which stays the current one).
+        if (notes.length < this.options.settings.maxActiveNotesPerColor) notes.unshift(entry);
         throw error;
       } finally {
         this.options.events?.onChange?.(colorId);
@@ -122,7 +140,7 @@ export class Notebook {
 
   /** Saves every pending change right away (e.g. before the app closes). */
   flush(): Promise<void> {
-    const entries = [...this.entries.values()];
+    const entries = [...this.entries.values()].flat();
     for (const entry of entries) clearTimeout(entry.timer);
     return this.run(async () => {
       for (const entry of entries) await this.save(entry);
@@ -135,9 +153,23 @@ export class Notebook {
       this.run(() => this.save(entry)).catch((error: unknown) => {
         this.options.events?.onError?.(error);
         // Try again later; the text stays in memory meanwhile.
-        if (this.entries.get(entry.note.colorId) === entry) this.scheduleAutosave(entry);
+        if (this.notesOf(entry.note.colorId).includes(entry)) this.scheduleAutosave(entry);
       });
     }, this.options.settings.autosaveDelayMs);
+  }
+
+  /** The color's active notes (the list is created on first use). */
+  private notesOf(colorId: string): Entry[] {
+    let notes = this.entries.get(colorId);
+    if (!notes) {
+      notes = [];
+      this.entries.set(colorId, notes);
+    }
+    return notes;
+  }
+
+  private current(colorId: string): Entry | undefined {
+    return this.entries.get(colorId)?.at(-1);
   }
 
   private async save(entry: Entry): Promise<void> {
