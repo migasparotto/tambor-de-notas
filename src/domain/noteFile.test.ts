@@ -20,7 +20,7 @@ describe("serializeNote", () => {
         'createdAt: "2026-10-21T19:05:00.000Z"',
         'updatedAt: "2026-10-21T19:30:00.000Z"',
         "---",
-        'Aula de Python: "listas" 🐍',
+        '# Aula de Python: "listas" 🐍',
         "## Listas",
         "Criar: [1, 2]",
       ].join("\n"),

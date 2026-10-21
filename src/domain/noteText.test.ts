@@ -43,19 +43,32 @@ describe("subtitleOf", () => {
 
 describe("Markdown conversion", () => {
   const typed = "Aula de Python\n+Listas+\nCriar: [1, 2]\n2+2 = 4\n+Tuplas+";
-  const saved = "Aula de Python\n## Listas\nCriar: [1, 2]\n2+2 = 4\n## Tuplas";
+  const saved = "# Aula de Python\n## Listas\nCriar: [1, 2]\n2+2 = 4\n## Tuplas";
 
-  it("saves +texto+ lines as ## texto", () => {
+  it("saves the title as # título and +texto+ lines as ## texto", () => {
     expect(textToMarkdown(typed)).toBe(saved);
   });
 
-  it("shows ## texto lines as +texto+ again", () => {
+  it("shows the file as it was typed again", () => {
     expect(markdownToText(saved)).toBe(typed);
   });
 
+  it("leaves an empty title line empty", () => {
+    expect(textToMarkdown("\ncorpo")).toBe("\ncorpo");
+    expect(markdownToText("\ncorpo")).toBe("\ncorpo");
+  });
+
   it("never turns the title line into a subtitle", () => {
-    expect(textToMarkdown("+Título+\ncorpo")).toBe("+Título+\ncorpo");
-    expect(markdownToText("## Título\ncorpo")).toBe("## Título\ncorpo");
+    expect(textToMarkdown("+Título+\ncorpo")).toBe("# +Título+\ncorpo");
+    expect(markdownToText("# +Título+\ncorpo")).toBe("+Título+\ncorpo");
+  });
+
+  it("keeps a title the user started with # unchanged", () => {
+    expect(markdownToText(textToMarkdown("# Aula\ncorpo"))).toBe("# Aula\ncorpo");
+  });
+
+  it("reads a first line without # as it is", () => {
+    expect(markdownToText("Aula\ncorpo")).toBe("Aula\ncorpo");
   });
 });
 

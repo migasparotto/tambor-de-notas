@@ -1,6 +1,7 @@
 /** A whole line like `+texto+`; the inside cannot start or end with "+", so `+C++` is not one. */
 const SUBTITLE_LINE = /^\+([^+](?:.*[^+])?)\+$/;
 const MARKDOWN_SUBTITLE = /^## (.+)$/;
+const MARKDOWN_TITLE = "# ";
 
 const splitLines = (text: string): string[] => text.split("\n");
 
@@ -15,21 +16,27 @@ export function subtitleOf(line: string): string | null {
   return inner ? inner : null;
 }
 
-/** Converts the text as typed into the Markdown saved on disk (`+texto+` → `## texto`). */
+/**
+ * Converts the text as typed into the Markdown saved on disk:
+ * the first line becomes `# título` and `+texto+` lines become `## texto`.
+ */
 export function textToMarkdown(text: string): string {
   return splitLines(text)
     .map((line, i) => {
-      const subtitle = i === 0 ? null : subtitleOf(line);
+      if (i === 0) return line === "" ? line : MARKDOWN_TITLE + line;
+      const subtitle = subtitleOf(line);
       return subtitle === null ? line : `## ${subtitle}`;
     })
     .join("\n");
 }
 
-/** Converts the Markdown on disk back into the text shown for editing (`## texto` → `+texto+`). */
+/** Converts the Markdown on disk back into the text shown for editing (the reverse of `textToMarkdown`). */
 export function markdownToText(markdown: string): string {
   return splitLines(markdown)
     .map((line, i) => {
-      const subtitle = i === 0 ? undefined : MARKDOWN_SUBTITLE.exec(line)?.[1];
+      if (i === 0)
+        return line.startsWith(MARKDOWN_TITLE) ? line.slice(MARKDOWN_TITLE.length) : line;
+      const subtitle = MARKDOWN_SUBTITLE.exec(line)?.[1];
       return subtitle === undefined ? line : `+${subtitle}+`;
     })
     .join("\n");

@@ -144,7 +144,8 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 **Decidido na S3 (21/10/2026) — título, nome do arquivo e subtítulo:**
 
-- **Título = primeira linha do texto**, mostrada com visual de campo de título (maior, com o texto de exemplo "Título…" quando vazia). Também fica no frontmatter.
+- **Título = primeira linha do texto**, mostrada com visual de campo de título (maior, com o texto de exemplo "Título…" quando vazia). Também fica no frontmatter. No `.md`, a primeira linha é gravada como `# Título`, coerente com os `##` dos subtítulos e com o Notion.
+- **Nota vazia não gera arquivo:** abrir e fechar uma cor sem escrever nada não grava nada no disco (o app não pode apagar arquivos).
 - **Nome do arquivo:** `AAAA-MM cor - título.md` (ex.: `2026-10 vermelho - Aula de Python.md`). A nota nasce com o nome provisório `AAAA-MM cor - sem título.md` e é renomeada **uma vez**, ao apertar Enter na primeira linha. Se o título mudar depois, o nome é ajustado ao fechar (ou enviar) a nota. **Nunca renomear a cada tecla**, por causa do OneDrive. Nomes repetidos ganham `-2`, `-3`.
 - **Subtítulo:** uma linha **inteira** no formato `+texto+` vira subtítulo. Na tela aparece em negrito e um pouco maior; no `.md` é gravada como `## texto` (legível e compatível com o Notion). Só vale para a linha inteira, para não confundir com `2+2` ou `C++`.
 
