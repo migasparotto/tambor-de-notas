@@ -29,7 +29,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). Próximo: a lógica das notas em `src/domain/` (formato do frontmatter, nota ativa por cor, contagem e enchimento), com testes, antes da tela. Conferir no app de verdade que a gravação em `OneDrive\Documentos` funciona quando a tela estiver ligada.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. Próximo: a lógica das notas em `src/domain/` (formato do frontmatter, nota ativa por cor, contagem e enchimento), com testes, antes da tela.
 
 ## Etapa 0 — Fundação ✅
 
@@ -125,6 +125,7 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 - [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
 - [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
+- [ ] Decidir o que fazer com arquivos `.tmp` que sobram se o app parar no meio de um salvamento. Hoje a listagem os ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. Atenção: o app não tem permissão de apagar.
 
 ### Notas (RF01, RF03, RF04, RF05)
 
