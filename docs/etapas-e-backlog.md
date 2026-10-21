@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 21/10/2026._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2 e S3 fechadas.
+_Atualizado em 21/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2 e S3 fechadas; S4 com o editor pronto e aprovado.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -30,7 +30,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
-5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app; **falta o Marcos testar**. Próximo: os atalhos globais (Ctrl+Shift+Alt) e Esc/Ctrl+Enter no painel.
+5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. **Próximo:** os atalhos globais (Ctrl+Shift+Alt) e Esc/Ctrl+Enter no painel.
 
 ## Etapa 0 — Fundação ✅
 
@@ -173,10 +173,10 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 
 **Plano da S4 (editor):** listas, links, código e `---` no live preview; testes das regras de edição; ligar o editor ao caderno. Depois, os atalhos globais.
 
-- [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
-- [ ] Atalhos de formatação rápida em Markdown
+- [x] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown (S4: CodeMirror 6 com live preview próprio)
+- [x] Atalhos de formatação rápida em Markdown (S4: Ctrl+B, Ctrl+I, Ctrl+Z; Enter continua listas)
 - [x] Título na primeira linha, com visual de campo de título e o texto de exemplo "Título…" (S3)
-- [ ] Subtítulo com `+texto+` na linha inteira, gravado como `## texto` (S3); em negrito e maior na tela com o editor da S4
+- [x] Subtítulo com `+texto+` na linha inteira, gravado como `## texto` (S3); em negrito e maior na tela com o editor da S4
 - [x] Nome do arquivo `AAAA-MM cor - título.md`: provisório "sem título", renomeado no primeiro Enter e ajustado ao fechar (S3)
 - [x] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
 - [x] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
