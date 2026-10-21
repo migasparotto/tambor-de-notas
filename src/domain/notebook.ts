@@ -63,7 +63,11 @@ export class Notebook {
       }
     }
     loaded.sort((a, b) => a.note.updatedAt.localeCompare(b.note.updatedAt));
-    for (const entry of loaded) this.notesOf(entry.note.colorId).push(entry);
+    for (const entry of loaded) {
+      const notes = this.notesOf(entry.note.colorId);
+      // Loading twice (React runs start-up effects twice in development) must not duplicate notes.
+      if (!notes.some((n) => n.note.id === entry.note.id)) notes.push(entry);
+    }
 
     for (const [colorId, notes] of this.entries) {
       const extra = notes.splice(0, Math.max(notes.length - settings.maxActiveNotesPerColor, 0));

@@ -243,6 +243,20 @@ describe("Notebook", () => {
       expect(events.onChange).toHaveBeenCalledWith(RED);
     });
 
+    it("does not duplicate notes when loaded twice, even at the same time", async () => {
+      notebook.edit(RED, "Aula");
+      await notebook.confirmTitle(RED);
+
+      const reopened = make();
+      await Promise.all([reopened.load(), reopened.load()]);
+      await reopened.load();
+
+      expect(reopened.text(RED)).toBe("Aula");
+      expect(events.onError).not.toHaveBeenCalled();
+      await reopened.close(RED);
+      expect(reopened.hasNote(RED)).toBe(false);
+    });
+
     it("continues the same file after reopening", async () => {
       notebook.edit(RED, "Aula");
       await notebook.confirmTitle(RED);
