@@ -48,6 +48,7 @@ O app é desktop, feito com **Tauri** e interface em **React + TypeScript + Tail
 | Ambiente de desenvolvimento | Windows nativo | Pelo WSL o build sairia como app de Linux |
 | Armazenamento | Arquivos .md locais | Notas legíveis e portáveis, sem banco de dados obrigatório |
 | Repositório | GitHub, **público** | Portfólio. Nenhuma chave ou dado pessoal pode ir para o repositório |
+| Editor (etapa 1) | CodeMirror 6 com live preview próprio | Edita o próprio `.md`, que volta idêntico ao disco; Tiptap e BlockNote alteraram o texto no teste de ida e volta |
 | Uso | Só eu, neste notebook, por enquanto | Mas sem amarrar o projeto: configurações em vez de valores fixos, para poder crescer depois |
 
 ### Arquitetura em camadas
@@ -124,7 +125,7 @@ A nota deve continuar leve; o arquivo completo fica no Notion.
 
 ### Editor
 
-- Estilo Notion: a formatação aparece enquanto digito (WYSIWYG), mas o conteúdo é salvo em Markdown.
+- Estilo Notion: a formatação aparece enquanto digito (WYSIWYG), mas o conteúdo é salvo em Markdown. Feito com CodeMirror 6 editando o próprio `.md`, com os símbolos (`#`, `**`) escondidos ("live preview").
 - Formatação rápida por atalhos de Markdown (`#`, `-`, `**`, etc.).
 - Toggle list (bloco recolhível) e sumário automático (TOC) gerado pelos títulos.
 - Espaçamento de linhas e margens ajustáveis.
