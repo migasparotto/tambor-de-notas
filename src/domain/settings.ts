@@ -4,10 +4,16 @@ export interface Settings {
   charLimit: number;
   /** Maximum drum height, as a fraction of the screen height. */
   drumHeightFraction: number;
+  /** Length of a pomodoro focus period, in minutes. */
+  focusMinutes: number;
+  /** Length of a pomodoro break, in minutes. */
+  breakMinutes: number;
 }
 
 /** Default settings used until the user changes them. */
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
   charLimit: 300,
   drumHeightFraction: 1 / 3,
+  focusMinutes: 25,
+  breakMinutes: 5,
 };
