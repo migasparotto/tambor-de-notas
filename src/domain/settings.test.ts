@@ -1,0 +1,53 @@
+import { describe, expect, it } from "vitest";
+import { DEFAULT_SETTINGS, parseSettings, serializeSettings } from "./settings";
+
+describe("parseSettings", () => {
+  it("reads back exactly what was saved", () => {
+    const custom = { ...DEFAULT_SETTINGS, drumHeightFraction: 0.25, focusMinutes: 50 };
+    expect(parseSettings(serializeSettings(custom))).toEqual({ settings: custom, problems: [] });
+  });
+
+  it("uses the default for settings missing from the file", () => {
+    const { settings, problems } = parseSettings('{ "focusMinutes": 40 }');
+    expect(settings).toEqual({ ...DEFAULT_SETTINGS, focusMinutes: 40 });
+    expect(problems).toEqual([]);
+  });
+
+  it("uses the default for invalid values and explains each one", () => {
+    const { settings, problems } = parseSettings(
+      JSON.stringify({
+        charLimit: -5,
+        drumHeightFraction: "grande",
+        maxActiveNotesPerColor: 1.5,
+        breakMinutes: 0,
+      }),
+    );
+    expect(settings).toEqual(DEFAULT_SETTINGS);
+    expect(problems).toHaveLength(4);
+    expect(problems[0]).toContain('"charLimit"');
+    expect(problems[0]).toContain(String(DEFAULT_SETTINGS.charLimit));
+  });
+
+  it("ignores unknown settings", () => {
+    expect(parseSettings('{ "tema": "escuro" }')).toEqual({
+      settings: DEFAULT_SETTINGS,
+      problems: [],
+    });
+  });
+
+  it("falls back to the defaults when the file is not valid JSON", () => {
+    for (const broken of ["{ focusMinutes: 40", "[]", "null", "42"]) {
+      const { settings, problems } = parseSettings(broken);
+      expect(settings).toEqual(DEFAULT_SETTINGS);
+      expect(problems).toHaveLength(1);
+    }
+  });
+});
+
+describe("serializeSettings", () => {
+  it("writes one setting per line, easy to edit by hand", () => {
+    const text = serializeSettings(DEFAULT_SETTINGS);
+    expect(text).toContain(`\n  "charLimit": ${DEFAULT_SETTINGS.charLimit},\n`);
+    expect(text.endsWith("\n")).toBe(true);
+  });
+});

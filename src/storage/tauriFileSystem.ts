@@ -15,19 +15,24 @@ import type { FileSystem } from "./fileSystem";
  */
 export const NOTES_ROOT = "Tambor de Notas/notas";
 
-const inDocuments = { baseDir: BaseDirectory.Document };
-const at = (path: string): string => `${NOTES_ROOT}/${path}`;
+/** The real disk, through the Tauri fs plugin, limited to `root` inside `baseDir`. */
+function tauriFileSystemIn(baseDir: BaseDirectory, root: string): FileSystem {
+  const options = { baseDir };
+  const at = (path: string): string =>
+    root === "" ? path : path === "" ? root : `${root}/${path}`;
+  return {
+    mkdir: (path) => mkdir(at(path), { ...options, recursive: true }),
+    readDir: async (path) =>
+      (await readDir(at(path), options)).filter((e) => e.isFile).map((e) => e.name),
+    readText: (path) => readTextFile(at(path), options),
+    writeText: (path, content) => writeTextFile(at(path), content, options),
+    rename: (from, to) =>
+      rename(at(from), at(to), { oldPathBaseDir: baseDir, newPathBaseDir: baseDir }),
+  };
+}
 
-/** The real disk, through the Tauri fs plugin, limited to the notes folder. */
-export const tauriFileSystem: FileSystem = {
-  mkdir: (path) => mkdir(at(path), { ...inDocuments, recursive: true }),
-  readDir: async (path) =>
-    (await readDir(at(path), inDocuments)).filter((e) => e.isFile).map((e) => e.name),
-  readText: (path) => readTextFile(at(path), inDocuments),
-  writeText: (path, content) => writeTextFile(at(path), content, inDocuments),
-  rename: (from, to) =>
-    rename(at(from), at(to), {
-      oldPathBaseDir: BaseDirectory.Document,
-      newPathBaseDir: BaseDirectory.Document,
-    }),
-};
+/** The notes folder in Documents. */
+export const tauriFileSystem = tauriFileSystemIn(BaseDirectory.Document, NOTES_ROOT);
+
+/** The app's own folder (AppData), for settings and counters. */
+export const appDataFileSystem = tauriFileSystemIn(BaseDirectory.AppData, "");

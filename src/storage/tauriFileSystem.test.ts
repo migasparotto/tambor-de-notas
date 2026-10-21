@@ -1,7 +1,7 @@
 import { clearMocks, mockIPC } from "@tauri-apps/api/mocks";
 import { BaseDirectory } from "@tauri-apps/plugin-fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { NOTES_ROOT, tauriFileSystem } from "./tauriFileSystem";
+import { NOTES_ROOT, appDataFileSystem, tauriFileSystem } from "./tauriFileSystem";
 
 // Goes through the real plugin code, with Tauri's IPC mock standing in for the Rust side.
 describe("tauriFileSystem", () => {
@@ -65,6 +65,26 @@ describe("tauriFileSystem", () => {
             oldPathBaseDir: BaseDirectory.Document,
             newPathBaseDir: BaseDirectory.Document,
           },
+        },
+      },
+    ]);
+  });
+
+  it("keeps app data paths at the root of the app folder", async () => {
+    await appDataFileSystem.mkdir("");
+    await appDataFileSystem.rename("pomodoro.json.tmp", "pomodoro.json");
+
+    expect(calls).toEqual([
+      {
+        cmd: "plugin:fs|mkdir",
+        args: { path: "", options: { baseDir: BaseDirectory.AppData, recursive: true } },
+      },
+      {
+        cmd: "plugin:fs|rename",
+        args: {
+          oldPath: "pomodoro.json.tmp",
+          newPath: "pomodoro.json",
+          options: { oldPathBaseDir: BaseDirectory.AppData, newPathBaseDir: BaseDirectory.AppData },
         },
       },
     ]);
