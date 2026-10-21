@@ -22,13 +22,14 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 20/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**, com a S1 fechada (CI verde no commit `530e922`).
+_Atualizado em 21/10/2026._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**, com a S1 fechada (CI verde no commit `530e922`) e a S2 pronta, aguardando push e CI verde.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
-2. **S2 — Pomodoro**: lógica pronta e testada (`src/domain/pomodoro.ts`); tela ligada ao tambor (relógio, stop, cor da pausa, contador, aviso). Falta o Marcos testar e aprovar; depois, fechar a S2 (CI verde, README, push).
+2. ~~S2 — Pomodoro~~: lógica testada em `src/domain/pomodoro.ts` e tela ligada ao tambor; testada e aprovada pelo Marcos. Falta só o push e conferir o CI verde.
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
+4. Começar a **S3 — Notas**. Primeiro, debater como o app vai ler e gravar arquivos no disco (plugin oficial `fs` do Tauri ou alternativa) e em qual pasta ficam `notas/ativas/` e `notas/arquivadas/`. Depois, a lógica em `src/domain/` com testes, antes da tela.
 
 ## Etapa 0 — Fundação ✅
 
@@ -110,11 +111,12 @@ Regras das sprints:
 
 **Decidido na S2:** padrão de 25 min de foco e 5 de pausa, sem pausa longa. Fim do foco → conta um ciclo, aviso e a pausa começa sozinha. Fim da pausa → aviso, o relógio volta ao foco cheio e espera o play. Stop (no foco ou na pausa) volta ao foco cheio, parado.
 
-- [ ] Clicar no relógio (`88:88`) dá play ou pausa; botão pequeno de stop abaixo (S2)
+- [x] Clicar no relógio (`88:88`) dá play ou pausa; botão pequeno de stop abaixo (S2)
 - [x] Tempos de foco e pausa configuráveis (S2: valores em `src/domain/settings.ts`)
-- [ ] Relógio com cor diferente na pausa (S2)
-- [ ] Aviso simples ao fim de cada ciclo: o relógio pisca e o tambor fica nítido por alguns segundos (S2)
-- [ ] Contador de ciclos pequeno ao lado do stop (S2); salvar entre usos e zerar a cada dia entra com o armazenamento, na S3
+- [x] Cores do relógio: cinza parado, branco focando, bege-rosado fraco pausado, âmbar na pausa de descanso; centro do stop em vermelho fraco (S2)
+- [x] Aviso simples ao fim de cada ciclo: o relógio pisca e o tambor fica nítido por alguns segundos (S2)
+- [x] Contador de ciclos `×N` ao lado do stop, sempre visível, inclusive com zero (S2)
+- [ ] Contador de ciclos salvo entre usos e zerado a cada dia (S3, com o armazenamento)
 - [x] Testes da lógica do pomodoro (S2)
 
 Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` precisa mostrar o estado do pomodoro novo (hoje a tela mantém o último estado até o próximo clique).
