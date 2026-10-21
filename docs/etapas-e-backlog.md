@@ -22,15 +22,15 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 21/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1 e S2 fechadas (CI verde no commit `86ecb25`). A S3 começou pelas decisões de armazenamento.
+_Atualizado em 21/10/2026._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2 e S3 fechadas.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. ~~Lógica das notas em `src/domain/`~~, com testes: `noteText.ts` (título, subtítulo, contagem e enchimento), `noteFile.ts` (frontmatter e nome do arquivo) e `notebook.ts` (nota ativa por cor, salvamento automático, primeiro Enter, fechar e arquivar). ~~Relógio centralizado~~ no miolo visível, em qualquer tamanho (com teste). ~~Título no `.md` como `# Título`~~. ~~Limite de notas ativas por cor em `settings.ts`~~ (`maxActiveNotesPerColor: 1`). ~~Tela da S3~~ (painel bolha, título, expandir, recolher, fechar e arquivar, câmara tingida enchendo, mensagens de erro): testada e aprovada pelo Marcos; notas ativas voltam ao reabrir e o texto digitado logo antes do Alt+F4 não se perde. **Notas da S3 concluídas.** Na S3 o `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4. **Ainda pendentes da S3** (dependem de gravar configurações na pasta do app, já liberada): contador de ciclos salvo entre usos e zerado a cada dia; tamanho do tambor salvo em arquivo. Decidir com o Marcos se entram antes da S4.
-5. **S4 — Editor e atalhos**: começar debatendo a biblioteca do editor estilo Notion.
+4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
+5. **S4 — Editor e atalhos** (próximo passo): começar debatendo a biblioteca do editor estilo Notion.
 
 ## Etapa 0 — Fundação ✅
 
@@ -90,7 +90,7 @@ Regras das sprints:
 ### Tambor
 
 - [x] Desenhar o meio anel em arco, encostado na borda direita, com o relógio no centro e as 7 câmaras redondas ao longo do arco (S1)
-- [x] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela (S1: valor em `src/domain/settings.ts`; salvar em arquivo entra com o armazenamento, na S3)
+- [x] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela (S1: valor em `src/domain/settings.ts`; salvo em `configuracoes.json` na pasta do app, na S3)
 - [x] Câmaras 2 a 5 com as cores iniciais: azul (glossário pessoal), vermelho (núcleo de estudo ativo), verde (exemplo de uso), roxo (tarefa) (S1)
 - [x] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite (contorno feito na S1; enchimento na S3)
 - [x] Câmaras 6, 7 e 8 (Notion, Todoist, IA) visíveis, mas desativadas até suas etapas (S1)
@@ -117,7 +117,7 @@ Regras das sprints:
 - [x] Cores do relógio: cinza parado, branco focando, bege-rosado fraco pausado, âmbar na pausa de descanso; centro do stop em vermelho fraco (S2)
 - [x] Aviso simples ao fim de cada ciclo: o relógio pisca e o tambor fica nítido por alguns segundos (S2)
 - [x] Contador de ciclos `×N` ao lado do stop, sempre visível, inclusive com zero (S2)
-- [ ] Contador de ciclos salvo entre usos e zerado a cada dia (S3, com o armazenamento)
+- [x] Contador de ciclos salvo entre usos e zerado a cada dia (S3: `pomodoro.json` na pasta do app)
 - [x] Testes da lógica do pomodoro (S2)
 
 Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` precisa mostrar o estado do pomodoro novo (hoje a tela mantém o último estado até o próximo clique).

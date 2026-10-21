@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { loadDailyCycles, saveDailyCycles } from "../domain/appData";
+import { addCycle, cyclesForToday, type DailyCycles } from "../domain/dailyCycles";
 import {
   Pomodoro,
   type PomodoroDurations,
@@ -11,6 +13,7 @@ const ALERT_MS = 6000;
 /**
  * Runs a pomodoro for the drum and exposes its state, the play/pause and stop actions,
  * and `alert`: the phase that just ended, set for a few seconds so the clock can flash.
+ * The cycles shown are today's, saved between uses and back to zero each day.
  */
 export function usePomodoro(durations: PomodoroDurations): {
   state: PomodoroState;
@@ -22,6 +25,25 @@ export function usePomodoro(durations: PomodoroDurations): {
   const pomodoro = useRef<Pomodoro | null>(null);
   const [state, setState] = useState(() => new Pomodoro(durations).getState());
   const [alert, setAlert] = useState<PomodoroPhase | null>(null);
+  const [daily, setDaily] = useState<DailyCycles>(() => cyclesForToday(null, new Date()));
+  const dailyRef = useRef(daily);
+  const updateDaily = (next: DailyCycles) => {
+    dailyRef.current = next;
+    setDaily(next);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    loadDailyCycles(new Date())
+      .then((saved) => {
+        // Keep any cycle finished while loading (only possible with very short settings).
+        if (!cancelled && dailyRef.current.cycles === 0) updateDaily(saved);
+      })
+      .catch(() => undefined); // without the saved count, today simply starts at zero
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let alertTimer: ReturnType<typeof setTimeout> | undefined;
@@ -30,6 +52,11 @@ export function usePomodoro(durations: PomodoroDurations): {
       {
         onChange: setState,
         onPhaseEnd: (ended) => {
+          if (ended === "focus") {
+            const next = addCycle(dailyRef.current, new Date());
+            updateDaily(next);
+            saveDailyCycles(next).catch(() => undefined); // a failed save only loses the count
+          }
           setAlert(ended);
           clearTimeout(alertTimer);
           alertTimer = setTimeout(() => setAlert(null), ALERT_MS);
@@ -45,7 +72,7 @@ export function usePomodoro(durations: PomodoroDurations): {
   }, [focusMinutes, breakMinutes]);
 
   return {
-    state,
+    state: { ...state, cycles: daily.cycles },
     alert,
     toggle: () => pomodoro.current?.toggle(),
     stop: () => pomodoro.current?.stop(),

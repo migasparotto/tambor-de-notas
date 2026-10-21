@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { fillLevel } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
-import { DEFAULT_SETTINGS } from "../domain/settings";
+import type { Settings } from "../domain/settings";
 import { Drum, type ChamberState } from "./Drum";
 import { NotePanel } from "./NotePanel";
 import { useAppWindow } from "./useAppWindow";
@@ -16,11 +16,24 @@ interface PanelState {
   open: boolean;
 }
 
-const settings = DEFAULT_SETTINGS;
+interface AppProps {
+  settings: Settings;
+  /** Problems found in the settings file, shown once at start-up. */
+  startupProblems: string[];
+}
+
+const STARTUP_MESSAGE_MS = 10000;
 
 /** Root of the interface: a transparent window with the drum and, when open, the note panel. */
-function App() {
+function App({ settings, startupProblems }: AppProps) {
   const [panel, setPanel] = useState<PanelState | null>(null);
+  const [startupMessage, setStartupMessage] = useState(
+    startupProblems.length > 0 ? startupProblems.join(" ") : null,
+  );
+  useEffect(() => {
+    const timer = setTimeout(() => setStartupMessage(null), STARTUP_MESSAGE_MS);
+    return () => clearTimeout(timer);
+  }, []);
   const { geometry, layout, focused } = useAppWindow(
     settings.drumHeightFraction,
     panel?.size ?? null,
@@ -112,12 +125,12 @@ function App() {
         />
       )}
 
-      {notes.message && !panel && (
+      {(startupMessage ?? (panel ? null : notes.message)) && (
         <p
           role="status"
           className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
         >
-          {notes.message}
+          {startupMessage ?? notes.message}
         </p>
       )}
     </main>

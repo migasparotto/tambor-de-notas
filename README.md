@@ -25,7 +25,8 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - clique no relógio para dar play ou pausa; o quadradinho abaixo é o stop, que volta ao foco cheio;
   - o relógio fica cinza parado, branco focando, bege-rosado pausado e âmbar na pausa de descanso;
   - ao fim do foco, conta um ciclo (`×N`, ao lado do stop) e a pausa começa sozinha; ao fim da pausa, o relógio volta ao foco e espera o play;
-  - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido.
+  - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido;
+  - o contador `×N` mostra os ciclos **do dia**: ele volta ao reabrir o app e começa do zero num dia novo.
 - O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
 
 Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
@@ -80,6 +81,19 @@ O código em `src/` é dividido em quatro camadas que não se misturam (o ESLint
 A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistema).
 
 ## Configuração
+
+As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Para mudar, edite o arquivo e reabra o app:
+
+| Configuração             | Padrão | O que é                                                   |
+| ------------------------ | ------ | --------------------------------------------------------- |
+| `drumHeightFraction`     | 1/3    | Altura do tambor, como fração da altura da tela           |
+| `charLimit`              | 300    | Limite de caracteres da nota (a câmara enche até ele)     |
+| `focusMinutes`           | 25     | Minutos de foco do pomodoro                               |
+| `breakMinutes`           | 5      | Minutos de pausa do pomodoro                              |
+| `autosaveDelayMs`        | 1000   | Espera, em milissegundos, para salvar depois da digitação |
+| `maxActiveNotesPerColor` | 1      | Notas ativas por cor ao mesmo tempo                       |
+
+Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia.
 
 Copie `.env.example` para `.env` se precisar de configuração local. O arquivo `.env` nunca vai para o repositório.
 

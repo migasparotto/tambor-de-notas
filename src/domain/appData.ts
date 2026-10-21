@@ -29,12 +29,18 @@ export async function loadSettings(
 }
 
 /** Today's pomodoro cycles, from the app folder (zero on a new day or if nothing is saved). */
-export async function loadDailyCycles(store: AppDataStore, now: Date): Promise<DailyCycles> {
+export async function loadDailyCycles(
+  now: Date,
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<DailyCycles> {
   const saved = await store.read(CYCLES_FILE);
   return cyclesForToday(saved === null ? null : parseDailyCycles(saved), now);
 }
 
 /** Saves the pomodoro cycles counter in the app folder. */
-export function saveDailyCycles(store: AppDataStore, cycles: DailyCycles): Promise<void> {
+export function saveDailyCycles(
+  cycles: DailyCycles,
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<void> {
   return store.write(CYCLES_FILE, `${JSON.stringify(cycles)}\n`);
 }

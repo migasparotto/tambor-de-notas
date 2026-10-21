@@ -53,19 +53,19 @@ describe("app data", () => {
     const tomorrow = new Date(2026, 9, 22, 8);
 
     it("comes back after the app is reopened the same day", async () => {
-      await saveDailyCycles(store, { date: "2026-10-21", cycles: 3 });
-      expect(await loadDailyCycles(store, today)).toEqual({ date: "2026-10-21", cycles: 3 });
+      await saveDailyCycles({ date: "2026-10-21", cycles: 3 }, store);
+      expect(await loadDailyCycles(today, store)).toEqual({ date: "2026-10-21", cycles: 3 });
     });
 
     it("starts at zero on the next day", async () => {
-      await saveDailyCycles(store, { date: "2026-10-21", cycles: 3 });
-      expect(await loadDailyCycles(store, tomorrow)).toEqual({ date: "2026-10-22", cycles: 0 });
+      await saveDailyCycles({ date: "2026-10-21", cycles: 3 }, store);
+      expect(await loadDailyCycles(tomorrow, store)).toEqual({ date: "2026-10-22", cycles: 0 });
     });
 
     it("starts at zero when the file is missing or broken", async () => {
-      expect(await loadDailyCycles(store, today)).toEqual({ date: "2026-10-21", cycles: 0 });
+      expect(await loadDailyCycles(today, store)).toEqual({ date: "2026-10-21", cycles: 0 });
       await store.write(CYCLES_FILE, "lixo");
-      expect(await loadDailyCycles(store, today)).toEqual({ date: "2026-10-21", cycles: 0 });
+      expect(await loadDailyCycles(today, store)).toEqual({ date: "2026-10-21", cycles: 0 });
     });
   });
 });
