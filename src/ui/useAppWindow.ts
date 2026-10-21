@@ -1,0 +1,95 @@
+import { useEffect, useMemo, useState } from "react";
+import { isTauri } from "@tauri-apps/api/core";
+import { LogicalPosition, LogicalSize } from "@tauri-apps/api/dpi";
+import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
+import { drumGeometry, type DrumGeometry, type Rect } from "../domain/drum";
+import { windowLayout, type PanelSize, type WindowLayout } from "../domain/panel";
+
+interface Screen {
+  workArea: Rect;
+  height: number;
+}
+
+/** Outside Tauri (plain browser), use the browser's idea of the screen. */
+const browserScreen = (): Screen => ({
+  workArea: { x: 0, y: 0, width: window.screen.availWidth, height: window.screen.availHeight },
+  height: window.screen.height,
+});
+
+/**
+ * Sizes and places the app window: just the drum, or the drum plus the editor panel.
+ * The new layout is shown only after the window has its new size, so the drum does not jump.
+ * Also reports whether the window has focus (used for the translucent look).
+ */
+export function useAppWindow(
+  heightFraction: number,
+  panel: PanelSize | null,
+): { geometry: DrumGeometry; layout: WindowLayout; focused: boolean } {
+  const [screen, setScreen] = useState<Screen>(browserScreen);
+  const [focused, setFocused] = useState(true);
+  const geometry = useMemo(
+    () => drumGeometry(screen.height, heightFraction),
+    [screen.height, heightFraction],
+  );
+  const wanted = useMemo(
+    () => windowLayout(geometry, screen.workArea, panel),
+    [geometry, screen.workArea, panel],
+  );
+  // Inside Tauri, the layout in use is the one the window has already been resized for.
+  const [applied, setApplied] = useState(wanted);
+  const layout = isTauri() ? applied : wanted;
+
+  useEffect(() => {
+    if (!isTauri()) return;
+    const win = getCurrentWindow();
+    let cancelled = false;
+    let unlisten: (() => void) | undefined;
+
+    void (async () => {
+      const monitor = await currentMonitor();
+      if (monitor && !cancelled) {
+        const scale = monitor.scaleFactor;
+        const { position, size } = monitor.workArea;
+        setScreen({
+          workArea: {
+            x: position.x / scale,
+            y: position.y / scale,
+            width: size.width / scale,
+            height: size.height / scale,
+          },
+          height: monitor.size.height / scale,
+        });
+      }
+      const stop = await win.onFocusChanged(({ payload }) => setFocused(payload));
+      if (cancelled) stop();
+      else unlisten = stop;
+      setFocused(await win.isFocused());
+    })();
+
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isTauri()) return;
+    let cancelled = false;
+    const win = getCurrentWindow();
+    const { x, y, width, height } = wanted.window;
+    void (async () => {
+      await Promise.all([
+        win.setSize(new LogicalSize(width, height)),
+        win.setPosition(new LogicalPosition(x, y)),
+      ]);
+      if (cancelled) return;
+      setApplied(wanted);
+      await win.show();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [wanted]);
+
+  return { geometry, layout, focused };
+}

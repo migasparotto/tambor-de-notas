@@ -1,30 +1,125 @@
+import { useState } from "react";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
+import { fillLevel } from "../domain/noteText";
+import type { PanelSize } from "../domain/panel";
 import { DEFAULT_SETTINGS } from "../domain/settings";
-import { Drum } from "./Drum";
-import { useDrumWindow } from "./useDrumWindow";
+import { Drum, type ChamberState } from "./Drum";
+import { NotePanel } from "./NotePanel";
+import { useAppWindow } from "./useAppWindow";
+import { useNotebook } from "./useNotebook";
 import { usePomodoro } from "./usePomodoro";
 
-/** Root of the interface: a transparent window that shows only the drum. */
+/** The open panel: which color, how big, and whether it is open or shrinking back. */
+interface PanelState {
+  colorId: string;
+  size: PanelSize;
+  open: boolean;
+}
+
+const settings = DEFAULT_SETTINGS;
+
+/** Root of the interface: a transparent window with the drum and, when open, the note panel. */
 function App() {
-  const { geometry, focused } = useDrumWindow(DEFAULT_SETTINGS.drumHeightFraction);
-  const pomodoro = usePomodoro(DEFAULT_SETTINGS);
+  const [panel, setPanel] = useState<PanelState | null>(null);
+  const { geometry, layout, focused } = useAppWindow(
+    settings.drumHeightFraction,
+    panel?.size ?? null,
+  );
+  const pomodoro = usePomodoro(settings);
+  const notes = useNotebook(INITIAL_COLORS, settings);
   // The end-of-cycle alert shows the drum fully, even when the window is not focused.
   const visible = focused || pomodoro.alert !== null;
+
+  const chambers: Record<string, ChamberState> = {};
+  for (const color of INITIAL_COLORS) {
+    chambers[color.id] = {
+      active: notes.hasNote(color.id),
+      fill: fillLevel(notes.text(color.id), settings.charLimit),
+    };
+  }
+
+  /** Clicking a chamber opens its note, collapses it if it is already open, or switches color. */
+  const openColor = (colorId: string) => {
+    if (panel?.open && panel.colorId === colorId) setPanel({ ...panel, open: false });
+    else setPanel({ colorId, size: panel?.size ?? "normal", open: true });
+  };
+
+  const panelColor = INITIAL_COLORS.find((c) => c.id === panel?.colorId);
+  const chamberIndex = INITIAL_COLORS.findIndex((c) => c.id === panel?.colorId);
+  const chamberCenter = geometry.chambers[chamberIndex];
 
   return (
     <main
       className="relative overflow-hidden transition-opacity duration-300"
-      style={{ width: geometry.width, height: geometry.height, opacity: visible ? 1 : 0.35 }}
+      style={{
+        width: layout.window.width,
+        height: layout.window.height,
+        opacity: visible ? 1 : 0.35,
+      }}
     >
-      <Drum
-        geometry={geometry}
-        colors={INITIAL_COLORS}
-        integrations={INTEGRATION_CHAMBERS}
-        pomodoro={pomodoro.state}
-        pomodoroAlert={pomodoro.alert}
-        onTogglePomodoro={pomodoro.toggle}
-        onStopPomodoro={pomodoro.stop}
-      />
+      <div
+        className="absolute"
+        style={{
+          left: layout.drumOrigin.x,
+          top: layout.drumOrigin.y,
+          width: geometry.width,
+          height: geometry.height,
+        }}
+      >
+        <Drum
+          geometry={geometry}
+          colors={INITIAL_COLORS}
+          chambers={chambers}
+          openColorId={panel?.open ? panel.colorId : null}
+          onOpenColor={openColor}
+          integrations={INTEGRATION_CHAMBERS}
+          pomodoro={pomodoro.state}
+          pomodoroAlert={pomodoro.alert}
+          onTogglePomodoro={pomodoro.toggle}
+          onStopPomodoro={pomodoro.stop}
+        />
+      </div>
+
+      {panel && panelColor && chamberCenter && layout.panel && (
+        <NotePanel
+          key={panel.colorId}
+          color={panelColor}
+          text={notes.text(panel.colorId)}
+          charLimit={settings.charLimit}
+          rect={layout.panel}
+          chamber={{
+            center: {
+              x: layout.drumOrigin.x + chamberCenter.x,
+              y: layout.drumOrigin.y + chamberCenter.y,
+            },
+            size: geometry.chamberSize,
+          }}
+          open={panel.open}
+          size={panel.size}
+          message={notes.message}
+          onChange={(text) => notes.edit(panel.colorId, text)}
+          onConfirmTitle={() => void notes.confirmTitle(panel.colorId)}
+          onToggleSize={() =>
+            setPanel({ ...panel, size: panel.size === "normal" ? "expanded" : "normal" })
+          }
+          onCollapse={() => setPanel({ ...panel, open: false })}
+          onCloseNote={() => {
+            void notes.close(panel.colorId).then((closed) => {
+              if (closed) setPanel((p) => (p ? { ...p, open: false } : p));
+            });
+          }}
+          onHidden={() => setPanel((p) => (p && !p.open ? null : p))}
+        />
+      )}
+
+      {notes.message && !panel && (
+        <p
+          role="status"
+          className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
+        >
+          {notes.message}
+        </p>
+      )}
     </main>
   );
 }

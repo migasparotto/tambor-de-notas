@@ -3,9 +3,19 @@ import type { DrumGeometry, Point } from "../domain/drum";
 import type { IntegrationChamber, NoteColor } from "../domain/chambers";
 import { formatClock, type PomodoroPhase, type PomodoroState } from "../domain/pomodoro";
 
+/** How a color chamber looks: with an active note it is tinted and fills up to `fill` (0 to 1). */
+export interface ChamberState {
+  active: boolean;
+  fill: number;
+}
+
 interface DrumProps {
   geometry: DrumGeometry;
   colors: readonly NoteColor[];
+  chambers: Record<string, ChamberState>;
+  /** Color whose panel is open, highlighted on the drum. */
+  openColorId: string | null;
+  onOpenColor: (colorId: string) => void;
   integrations: readonly IntegrationChamber[];
   pomodoro: PomodoroState;
   /** Phase that just ended, while its alert is showing. */
@@ -49,6 +59,9 @@ function around(center: Point, width: number, height = width): CSSProperties {
 export function Drum({
   geometry: g,
   colors,
+  chambers,
+  openColorId,
+  onOpenColor,
   integrations,
   pomodoro,
   pomodoroAlert,
@@ -80,20 +93,37 @@ export function Drum({
         }}
       />
 
-      {colors.map((color, i) => (
-        <button
-          key={color.id}
-          type="button"
-          title={`${color.name} · ${color.role}`}
-          aria-label={`${color.name} · ${color.role}`}
-          className="cursor-pointer rounded-full bg-transparent p-0"
-          style={{
-            ...around(g.chambers[i]!, g.chamberSize),
-            boxSizing: "border-box",
-            border: `2px solid ${color.hex}`,
-          }}
-        />
-      ))}
+      {colors.map((color, i) => {
+        const chamber = chambers[color.id] ?? { active: false, fill: 0 };
+        const label = `${color.name} · ${color.role}${chamber.active ? " · nota ativa" : ""}`;
+        return (
+          <button
+            key={color.id}
+            type="button"
+            title={label}
+            aria-label={label}
+            aria-pressed={openColorId === color.id}
+            onClick={() => onOpenColor(color.id)}
+            className="cursor-pointer overflow-hidden rounded-full p-0"
+            style={{
+              ...around(g.chambers[i]!, g.chamberSize),
+              boxSizing: "border-box",
+              border: `2px solid ${color.hex}`,
+              // With an active note the chamber is tinted, and fills from the bottom up.
+              background: chamber.active ? `${color.hex}40` : "transparent",
+              boxShadow: openColorId === color.id ? "0 0 0 2px rgba(255,255,255,.55)" : undefined,
+            }}
+          >
+            {chamber.active && (
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 block transition-[height] duration-300"
+                style={{ height: `${chamber.fill * 100}%`, background: color.hex }}
+              />
+            )}
+          </button>
+        );
+      })}
 
       {integrations.map((chamber, i) => (
         <button

@@ -1,4 +1,6 @@
+import { defaultNotesStore } from "../storage/defaultStore";
 import type { NotesStore } from "../storage/notesStore";
+import { FileBusyError } from "../storage/retry";
 import type { NoteColor } from "./chambers";
 import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 import { titleOf } from "./noteText";
@@ -209,4 +211,16 @@ export class Notebook {
     );
     return result;
   }
+}
+
+/** The app's notebook, on the default notes store (the notes folder in Documents). */
+export function createAppNotebook(options: Omit<NotebookOptions, "store">): Notebook {
+  return new Notebook({ ...options, store: defaultNotesStore() });
+}
+
+/** A message the user can understand, for any error from the notes. */
+export function notesErrorMessage(error: unknown): string {
+  if (error instanceof FileBusyError) return error.message;
+  const detail = error instanceof Error ? error.message : String(error);
+  return `Não foi possível salvar ou ler uma nota agora. O texto continua no app. (${detail})`;
 }
