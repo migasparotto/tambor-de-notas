@@ -8,6 +8,8 @@ export interface Settings {
   focusMinutes: number;
   /** Length of a pomodoro break, in minutes. */
   breakMinutes: number;
+  /** How long after the last change a note is saved by itself, in milliseconds. */
+  autosaveDelayMs: number;
 }
 
 /** Default settings used until the user changes them. */
@@ -16,4 +18,5 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   drumHeightFraction: 1 / 3,
   focusMinutes: 25,
   breakMinutes: 5,
+  autosaveDelayMs: 1000,
 };

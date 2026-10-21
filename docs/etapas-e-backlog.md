@@ -29,7 +29,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. Próximo: a lógica das notas em `src/domain/` (formato do frontmatter, nota ativa por cor, contagem e enchimento), com testes, antes da tela.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). ~~Teste no disco real~~ (21/10/2026): criar, ler, salvar de novo, arquivar e nome repetido funcionaram em `OneDrive\Documentos\Tambor de Notas\notas`, com acentos e emoji no nome e no texto; gravar fora da pasta foi bloqueado; a pasta do app (AppData) precisou liberar a própria pasta no escopo. ~~Lógica das notas em `src/domain/`~~, com testes: `noteText.ts` (título, subtítulo, contagem e enchimento), `noteFile.ts` (frontmatter e nome do arquivo) e `notebook.ts` (nota ativa por cor, salvamento automático, primeiro Enter, fechar e arquivar). **Próximo: a tela da S3**, ligando o tambor e o painel bolha ao `Notebook`, e o Marcos testar no app de verdade.
 
 ## Etapa 0 — Fundação ✅
 
@@ -98,8 +98,8 @@ Regras das sprints:
 ### Limite de caracteres (só valor e contagem)
 
 - [x] Limite de caracteres configurável (padrão 300), definido num lugar só e reaproveitado na Etapa 3 (S1)
-- [ ] Contagem de caracteres da nota, usada para a câmara encher
-- [ ] Testes da contagem e do nível de enchimento com o limite configurado
+- [x] Contagem de caracteres da nota, usada para a câmara encher (S3: `charCount` conta como uma pessoa conta, ex.: 👩🏽‍💻 = 1)
+- [x] Testes da contagem e do nível de enchimento com o limite configurado (S3)
 
 ### Atalhos de teclado
 
@@ -158,7 +158,7 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - [ ] Nome do arquivo `AAAA-MM cor - título.md`: provisório "sem título", renomeado no primeiro Enter e ajustado ao fechar (S3)
 - [ ] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
 - [ ] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
-- [ ] Testes de leitura e escrita dos arquivos .md
+- [x] Testes de leitura e escrita dos arquivos .md (S3: porta de armazenamento, frontmatter e `Notebook`)
 
 ## Etapa 2 — Organização
 
