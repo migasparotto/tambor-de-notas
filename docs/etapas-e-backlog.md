@@ -22,9 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 20/10/2026._ Etapa 0 e CI concluídos (o CI passou no GitHub Actions nos commits `38ebc23` e `b64ed4a`).
-
-Agora, começar a **Etapa 1 — MVP utilizável**:
+_Atualizado em 20/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**, com a S1 fechada (CI verde no commit `530e922`).
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -135,6 +133,13 @@ Regras das sprints:
 
 **Decidir antes de programar:** como salvar toggle list no arquivo .md.
 
+### Janela
+
+As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criado na S3 da Etapa 1.
+
+- [ ] Janela do tambor móvel: arrastar para cima ou para baixo e para a borda esquerda da tela. Na borda esquerda o tambor espelha, com a abertura virada para a borda. O app lembra a posição entre usos.
+- [ ] Deixar o clique passar pelos cantos transparentes da janela para o que está atrás (o vídeo). Hoje a janela é um retângulo invisível que bloqueia o clique nesses cantos.
+
 ### Cores (RF06)
 
 - [ ] Editar nome e função de cada cor
@@ -230,4 +235,3 @@ Ideias registradas para depois da etapa 4. Nenhuma entra antes sem ser debatida 
 - Animação de giro do tambor e câmaras do "outro lado" (conteúdo a definir).
 - Distribuir o app para outras pessoas (instalador, atualizações).
 - Agrupar notas por assunto como uma visão de backlinks (ideia surgida ao definir o campo assunto).
-- Deixar o clique passar pelos cantos transparentes da janela para o que está atrás (o vídeo). Hoje a janela é um retângulo invisível que bloqueia o clique nesses cantos.
