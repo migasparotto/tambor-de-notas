@@ -136,6 +136,10 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - **Pasta das notas:** `Documentos\Tambor de Notas\notas\` (com `ativas/` e `arquivadas/`). O caminho de Documentos **não é fixo no código**: vem do Tauri, porque a pasta pode estar no OneDrive (neste notebook está).
 - **Configurações e contadores** (ex.: ciclos do pomodoro) ficam na pasta de dados do app (AppData), não junto das notas.
 - **OneDrive:** se um arquivo estiver bloqueado por um instante pela sincronização, o app tenta de novo e, se não der, mostra uma mensagem clara em vez de um erro técnico. A nota nunca se perde.
+- **Salvamento atômico:** gravar primeiro num arquivo `.tmp` e depois renomear por cima do `.md`. Assim, se o app travar no meio, o `.md` antigo continua inteiro. A listagem ignora arquivos `.tmp`.
+- **Menor privilégio:** o app **não** recebe permissão de apagar arquivos (`remove`). Arquivar é só renomear (mover de `ativas/` para `arquivadas/`).
+- **Nome do arquivo:** tirar os caracteres que o Windows não aceita (`< > : " / \ | ? *` e outros) e tratar nomes repetidos (ex.: `nota-2.md`).
+- **Acentos e emoji:** teste salvando e lendo uma nota com acentos e emoji, para garantir UTF-8.
 
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara

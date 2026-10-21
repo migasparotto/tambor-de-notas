@@ -8,6 +8,23 @@
     "opener:default",
     "core:window:allow-set-size",
     "core:window:allow-set-position",
-    "core:window:allow-show"
+    "core:window:allow-show",
+    "fs:deny-default",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-rename",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        { "path": "$DOCUMENT/Tambor de Notas" },
+        { "path": "$DOCUMENT/Tambor de Notas/notas" },
+        { "path": "$DOCUMENT/Tambor de Notas/notas/**" },
+        { "path": "$APPDATA" },
+        { "path": "$APPDATA/**" }
+      ]
+    }
   ]
 }
