@@ -19,14 +19,14 @@ const browserScreen = (): Screen => ({
 /**
  * Sizes and places the app window: just the drum, or the drum plus the editor panel.
  * The new layout is shown only after the window has its new size, so the drum does not jump.
- * Also reports whether the window has focus (used for the translucent look).
+ * Also reports whether the app has focus (used for the translucent look).
  */
 export function useAppWindow(
   heightFraction: number,
   panel: PanelSize | null,
 ): { geometry: DrumGeometry; layout: WindowLayout; focused: boolean } {
   const [screen, setScreen] = useState<Screen>(browserScreen);
-  const [focused, setFocused] = useState(true);
+  const [focused, setFocused] = useState(() => document.hasFocus());
   const geometry = useMemo(
     () => drumGeometry(screen.height, heightFraction),
     [screen.height, heightFraction],
@@ -39,11 +39,20 @@ export function useAppWindow(
   const [applied, setApplied] = useState(wanted);
   const layout = isTauri() ? applied : wanted;
 
+  // The page's own focus events: they arrive in order and follow exactly where the keyboard is.
+  useEffect(() => {
+    const update = () => setFocused(document.hasFocus());
+    window.addEventListener("focus", update);
+    window.addEventListener("blur", update);
+    return () => {
+      window.removeEventListener("focus", update);
+      window.removeEventListener("blur", update);
+    };
+  }, []);
+
   useEffect(() => {
     if (!isTauri()) return;
-    const win = getCurrentWindow();
     let cancelled = false;
-    let unlisten: (() => void) | undefined;
 
     void (async () => {
       const monitor = await currentMonitor();
@@ -60,15 +69,10 @@ export function useAppWindow(
           height: monitor.size.height / scale,
         });
       }
-      const stop = await win.onFocusChanged(({ payload }) => setFocused(payload));
-      if (cancelled) stop();
-      else unlisten = stop;
-      setFocused(await win.isFocused());
     })();
 
     return () => {
       cancelled = true;
-      unlisten?.();
     };
   }, []);
 
