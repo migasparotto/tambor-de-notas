@@ -19,8 +19,10 @@ export interface NotesStore {
   read(folder: NoteFolder, fileName: string): Promise<string>;
   /** Writes a note safely: first to a `.tmp` file, then renamed over the real one. */
   save(folder: NoteFolder, fileName: string, content: string): Promise<void>;
-  /** Saves a new active note, naming it after the title; returns the file name chosen. */
-  create(title: string, content: string): Promise<string>;
+  /** Saves a new active note with a safe, unused version of `name`; returns the file name chosen. */
+  create(name: string, content: string): Promise<string>;
+  /** Renames an active note to a safe, unused version of `name`; returns the new file name. */
+  rename(fileName: string, name: string): Promise<string>;
   /** Moves a note from active to archived; returns its name in the archive. */
   archive(fileName: string): Promise<string>;
 }
@@ -40,6 +42,11 @@ export function createNotesStore(fs: FileSystem, retry: RetryOptions = DEFAULT_R
     await fs.mkdir(FOLDER_PATHS[folder]);
     const names = await fs.readDir(FOLDER_PATHS[folder]);
     return names.filter((name) => name.endsWith(NOTE_EXTENSION));
+  }
+
+  /** Names in both folders, so a new name never collides with an archived note. */
+  async function allNames(): Promise<string[]> {
+    return [...(await list("active")), ...(await list("archived"))];
   }
 
   async function save(folder: NoteFolder, fileName: string, content: string): Promise<void> {
@@ -65,11 +72,23 @@ export function createNotesStore(fs: FileSystem, retry: RetryOptions = DEFAULT_R
       return withRetry(() => fs.readText(pathOf(folder, fileName)), fileName, retry);
     },
 
-    async create(title, content) {
-      const taken = [...(await list("active")), ...(await list("archived"))];
-      const fileName = uniqueFileName(toSafeFileName(title), taken);
+    async create(name, content) {
+      const fileName = uniqueFileName(toSafeFileName(name), await allNames());
       await save("active", fileName, content);
       return fileName;
+    },
+
+    async rename(fileName, name) {
+      assertPlainName(fileName);
+      const others = (await allNames()).filter((n) => n !== fileName);
+      const newName = uniqueFileName(toSafeFileName(name), others);
+      if (newName === fileName) return fileName;
+      await withRetry(
+        () => fs.rename(pathOf("active", fileName), pathOf("active", newName)),
+        fileName,
+        retry,
+      );
+      return newName;
     },
 
     async archive(fileName) {

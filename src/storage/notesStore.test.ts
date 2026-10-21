@@ -44,6 +44,37 @@ describe("NotesStore", () => {
     expect(await store.create("aula", "terceira")).toBe("aula-3.md");
   });
 
+  describe("rename", () => {
+    it("renames an active note, cleaning the name", async () => {
+      await store.create("sem título", "texto");
+      expect(await store.rename("sem título.md", "Aula: Python")).toBe("Aula Python.md");
+      expect(await store.list("active")).toEqual(["Aula Python.md"]);
+      expect(await store.read("active", "Aula Python.md")).toBe("texto");
+    });
+
+    it("keeps the name when it would not change", async () => {
+      await store.create("Aula", "texto");
+      const renameSpy = vi.spyOn(fs, "rename");
+      expect(await store.rename("Aula.md", "Aula")).toBe("Aula.md");
+      expect(renameSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not take a name used by another note, active or archived", async () => {
+      await store.save("archived", "Aula.md", "antiga");
+      await store.save("active", "Aula-2.md", "outra");
+      await store.save("active", "sem título.md", "nova");
+
+      expect(await store.rename("sem título.md", "Aula")).toBe("Aula-3.md");
+      expect(await store.read("archived", "Aula.md")).toBe("antiga");
+    });
+
+    it("keeps a numbered name if the plain one is still taken", async () => {
+      await store.save("archived", "Aula.md", "antiga");
+      await store.save("active", "Aula-2.md", "nova");
+      expect(await store.rename("Aula-2.md", "Aula")).toBe("Aula-2.md");
+    });
+  });
+
   describe("save", () => {
     it("overwrites the note through a .tmp file and leaves no .tmp behind", async () => {
       await store.save("active", "Aula.md", "v1");
