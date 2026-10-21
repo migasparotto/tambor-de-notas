@@ -117,6 +117,8 @@ Regras das sprints:
 - [ ] Contador de ciclos pequeno ao lado do stop (S2); salvar entre usos e zerar a cada dia entra com o armazenamento, na S3
 - [x] Testes da lógica do pomodoro (S2)
 
+Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` precisa mostrar o estado do pomodoro novo (hoje a tela mantém o último estado até o próximo clique).
+
 ### Polimento (fim da Etapa 1)
 
 - [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
