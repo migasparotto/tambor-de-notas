@@ -30,7 +30,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
-5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). Falta escolher o modo de mostrar os símbolos (na linha atual, só dentro do trecho ou nunca).
+5. **S4 — Editor e atalhos** (próximo passo). ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. Próximo: listas, links, código e `---` no live preview, testes das regras de edição e ligação com o caderno; depois, os atalhos globais.
 
 ## Etapa 0 — Fundação ✅
 
@@ -154,7 +154,23 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - [x] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [x] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
 - [x] Botão para expandir o painel e ler ou editar a nota inteira quando ela ficar grande (S3)
-**Decidido na S4 (21/10/2026) — editor:** **CodeMirror 6**, editando o próprio `.md` (sem conversão), com **live preview feito por nós**: esconde `#`, `##`, `**`, `*`; título maior com "Título…"; `+texto+` vira `## texto` ao sair da linha; atalhos Ctrl+B (negrito), Ctrl+I (itálico) e Ctrl+Z (desfazer), aprovados no protótipo. Motivo: no teste de ida e volta, só o CodeMirror devolveu o `.md` idêntico; o Tiptap escapa `[ ] * _`, troca `<` e `&` por códigos HTML e transforma `~aprox~` em riscado, e o BlockNote troca `-` por `*` e `---` por `***`. Não há pacote pronto confiável de live preview (os existentes são pequenos ou parados). Menu "/" e blocos arrastáveis ficam como bônus, para depois.
+**Decidido na S4 (21/10/2026) — editor:** **CodeMirror 6**, editando o próprio `.md` (sem conversão), com **live preview feito por nós**: esconde `#`, `##`, `**`, `*`; título maior com "Título…"; `+texto+` vira `## texto` ao sair da linha; atalhos Ctrl+B (negrito), Ctrl+I (itálico) e Ctrl+Z (desfazer), aprovados no protótipo. Motivo: no teste de ida e volta, só o CodeMirror devolveu o `.md` idêntico; o Tiptap escapa `[ ] * _`, troca `<` e `&` por códigos HTML e transforma `~aprox~` em riscado, e o BlockNote troca `-` por `*` e `---` por `***`. Não há pacote pronto confiável de live preview (os existentes são pequenos ou parados). Menu "/" e blocos arrastáveis ficam como bônus, para depois. BlockNote + CodeMirror juntos foi descartado (dois editores sincronizando, e a fidelidade ainda dependeria da conversão do BlockNote).
+
+**Modo dos símbolos:** "só dentro do trecho": o `#` ou o `**` só aparece quando o cursor está dentro daquele título ou negrito. Fica em `settings.ts` (`symbolsMode`), com as opções `"element"` (padrão), `"line"` (linha atual, como o Obsidian) e `"never"`.
+
+Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto:
+
+| | Tiptap | BlockNote | CodeMirror 6 |
+| --- | --- | --- | --- |
+| `#`, `##`, acentos, emoji | ✅ | ✅ | ✅ |
+| Formato atual do app (sem linhas em branco) | ❌ põe linhas em branco | ❌ põe linhas em branco e quebra linhas com `\` | ✅ idêntico |
+| `[1, 2]`, `a*b`, `c_d` | ❌ `\[1, 2\]`, `a\*b`, `c\_d` | ✅ | ✅ |
+| `x < y & z` | ❌ `x &lt; y &amp; z` | ✅ | ✅ |
+| `~aprox~` | ❌ vira `~~aprox~~` (riscado) | ✅ | ✅ |
+| Listas e `---` | ✅ | ❌ `-` → `*`, `---` → `***` | ✅ |
+| Estável ao salvar de novo | ✅ depois da 1ª vez | ✅ depois da 1ª vez | ✅ sempre |
+
+**Plano da S4 (editor):** listas, links, código e `---` no live preview; testes das regras de edição; ligar o editor ao caderno. Depois, os atalhos globais.
 
 - [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
 - [ ] Atalhos de formatação rápida em Markdown
