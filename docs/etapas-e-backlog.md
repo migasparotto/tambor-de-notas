@@ -22,14 +22,14 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 21/10/2026._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**, com a S1 fechada (CI verde no commit `530e922`) e a S2 pronta, aguardando push e CI verde.
+_Atualizado em 21/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1 e S2 fechadas (CI verde no commit `86ecb25`). A S3 começou pelas decisões de armazenamento.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
-2. ~~S2 — Pomodoro~~: lógica testada em `src/domain/pomodoro.ts` e tela ligada ao tambor; testada e aprovada pelo Marcos. Falta só o push e conferir o CI verde.
+2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. Começar a **S3 — Notas**. Primeiro, debater como o app vai ler e gravar arquivos no disco (plugin oficial `fs` do Tauri ou alternativa) e em qual pasta ficam `notas/ativas/` e `notas/arquivadas/`. Depois, a lógica em `src/domain/` com testes, antes da tela.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). Falta decidir em qual pasta do computador ficam `notas/ativas/` e `notas/arquivadas/`. Depois: instalar o plugin (`npm run tauri add fs`), criar a porta e a implementação em memória, e fazer a lógica em `src/domain/` com testes, antes da tela.
 
 ## Etapa 0 — Fundação ✅
 
@@ -127,6 +127,13 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
 
 ### Notas (RF01, RF03, RF04, RF05)
+
+**Decidido na S3 (21/10/2026) — gravar no disco:**
+
+- Usar o **plugin oficial `fs` do Tauri**, com permissão (scope) **só** para a pasta das notas (`ativas/` e `arquivadas/`), nada além.
+- Todo acesso ao disco passa por **uma única porta (interface) em `src/storage/`**, com as operações listar, ler, salvar e arquivar. O resto do app nunca usa o plugin direto.
+- Os testes usam uma **implementação em memória** dessa porta, sem tocar no disco.
+- Ainda em aberto: em qual pasta do computador fica a pasta das notas.
 
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
