@@ -63,6 +63,20 @@ describe("drumGeometry", () => {
     corners.forEach((p) => expect(distance(p, g.center)).toBeLessThanOrEqual(g.hubRadius));
   });
 
+  const extremes = [DRUM_HEIGHT_LIMITS.min, DRUM_HEIGHT_LIMITS.max].map((f) => [720, f] as const);
+
+  it.each([...cases, ...extremes])(
+    "centers the clock on the visible part of the hub (%ipx, %f)",
+    (screen, fraction) => {
+      const g = drumGeometry(screen, fraction);
+      const { center, width } = g.clock;
+      expect(center.y).toBeCloseTo(g.center.y);
+      const gapLeft = center.x - width / 2 - (g.center.x - g.hubRadius);
+      const gapRight = g.width - (center.x + width / 2);
+      expect(gapLeft).toBeCloseTo(gapRight);
+    },
+  );
+
   it.each(cases)("keeps stop and cycle counter inside the hub (%ipx, %f)", (screen, fraction) => {
     const { stop, cycles, center, hubRadius } = drumGeometry(screen, fraction);
     const corners = [

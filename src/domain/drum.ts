@@ -67,9 +67,11 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
     onCircle(center, orbit, FIRST_CHAMBER_ANGLE - i * CHAMBER_STEP),
   );
 
+  const hubRadius = 0.6 * R;
   const clockHeight = 0.26 * R;
   const clockWidth = 0.52 * R;
-  const clockCenter = { x: center.x - 0.32 * R, y: center.y };
+  // Only the left half of the hub shows: center the clock between its left edge and the window edge.
+  const clockCenter = { x: (center.x - hubRadius + width) / 2, y: center.y };
   const stopSize = Math.max(16, 0.14 * R);
   const stopCenter = { x: clockCenter.x, y: center.y + clockHeight / 2 + 2 + stopSize / 2 };
   const cyclesWidth = 0.22 * R;
@@ -80,7 +82,7 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
     center,
     outerRadius: R,
     innerRadius: 0.64 * R,
-    hubRadius: 0.6 * R,
+    hubRadius,
     chamberSize: 0.25 * R,
     chambers,
     plus: { center: onCircle(center, orbit, PLUS_ANGLE), size: Math.max(20, 0.2 * R) },
