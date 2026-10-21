@@ -83,7 +83,7 @@ Esse é o único padrão de projeto exigido por enquanto. Outros só entram se r
 - Janela pequena, **sempre por cima** das outras, para ficar ao lado da aula.
 - Janela **transparente e sem bordas**: aparece só o tambor, sem retângulo em volta.
 - Fica **translúcida** quando não estou usando e **nítida** quando clico nela.
-- **Editor em "bolha" (mockup C1, aprovado na etapa 1):** clicar numa câmara de cor faz o painel do editor nascer pequeno e redondo na própria câmara e crescer ao lado do tambor, que continua visível. O painel tem a cor da nota. Ao recolher ou fechar, ele encolhe de volta para a câmara.
+- **Editor em "bolha" (mockup C1, aprovado na etapa 1):** clicar numa câmara de cor faz o painel do editor nascer pequeno e redondo na própria câmara e crescer ao lado do tambor, que continua visível. O painel tem a cor da nota. Ao recolher ou fechar, ele encolhe de volta para a câmara. O painel é maior que o tambor, e um botão o expande para ler ou editar a nota inteira quando ela ficar grande.
 - **Atalhos de teclado globais e configuráveis** para abrir cada cor e controlar o pomodoro. Eles funcionam mesmo com o app em segundo plano, enquanto uso o vídeo. A combinação padrão não pode conflitar com o teclado ABNT2 (AltGr = Ctrl+Alt no Windows) nem com atalhos comuns do Windows, do navegador, do VS Code e do Notion. **Padrão aprovado:** Ctrl+Shift+Alt+1/2/3/4 abre azul/vermelho/verde/roxo e Ctrl+Shift+Alt+P dá play ou pausa no pomodoro. Com o painel aberto, Esc recolhe e Ctrl+Enter fecha a nota. Se um atalho já estiver em uso por outro programa, o app avisa. Os atalhos globais usam o plugin oficial global-shortcut do Tauri.
 
 ### Cores e suas funções
@@ -116,7 +116,7 @@ A **nota inteira** tem uma cor. A cor indica a **função** da nota, não a mat�
 A nota deve continuar leve; o arquivo completo fica no Notion.
 
 - Existe um **limite de caracteres configurável** por nota, definido **num lugar só** do código e reaproveitado por todo o app.
-- **Divisão entre etapas:** na **etapa 1** entram só o valor do limite (300, configurável) e a contagem de caracteres, para a câmara encher. Na **etapa 3** entram o aviso e o envio automático, usando o mesmo valor. A etapa 3 também reavalia se 300 é pouco, e o envio automático dispara quando a câmara encher, sem interromper a digitação.
+- **Divisão entre etapas:** na **etapa 1** entram só o valor do limite (300, configurável) e a contagem de caracteres, para a câmara encher. Na **etapa 3** entram o aviso e o envio automático, usando o mesmo valor. A etapa 3 também reavalia se 300 é pouco. Regra de envio: **ao fechar a nota, envia na hora**; **com a câmara cheia e a nota aberta, envia na primeira pausa da digitação**.
 - **Nunca enviar enquanto estou digitando.** Ao passar do limite, o app mostra um aviso discreto e espera eu terminar.
 - O envio acontece quando: eu fecho a nota, **ou** confirmo o aviso ("ok"), **ou** fico um tempo sem digitar (tempo de inatividade configurável). Mesmo sem ação manual, a nota precisa ir.
 - Depois do envio automático, a nota local é esvaziada e continuo escrevendo. O que eu escrever depois é **acrescentado à mesma página** do Notion.

@@ -28,8 +28,9 @@ Agora, começar a **Etapa 1 — MVP utilizável**:
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
-1. Fazer a **S1 — Janela e tambor**.
-2. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
+1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
+2. Fazer a **S2 — Pomodoro**: lógica em `src/domain/` com testes (tempo simulado) antes da tela.
+3. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
 
 ## Etapa 0 — Fundação ✅
 
@@ -71,7 +72,7 @@ O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1
 | --- | --- |
 | **S1 · Janela e tambor** | Janela, tambor desenhado, tamanho configurável, configurações num lugar só (limite e tamanho) |
 | **S2 · Pomodoro** | Pomodoro completo |
-| **S3 · Notas** | Notas em .md, nota ativa por cor, salvamento automático, arquivar, contagem e enchimento, painel bolha com campo de texto simples |
+| **S3 · Notas** | Notas em .md, nota ativa por cor, salvamento automático, arquivar, contagem e enchimento, painel bolha com campo de texto simples e botão de expandir |
 | **S4 · Editor e atalhos** | Editor estilo Notion (biblioteca debatida antes) e atalhos globais |
 
 Regras das sprints:
@@ -82,22 +83,22 @@ Regras das sprints:
 
 ### Janela
 
-- [ ] Janela pequena, sempre por cima das outras
-- [ ] Janela transparente e sem bordas: aparece só o tambor
-- [ ] Translúcida quando sem foco, nítida ao clicar
+- [x] Janela pequena, sempre por cima das outras (S1)
+- [x] Janela transparente e sem bordas: aparece só o tambor (S1)
+- [x] Translúcida quando sem foco, nítida ao clicar (S1)
 
 ### Tambor
 
-- [ ] Desenhar o meio anel em arco, encostado na borda direita, com o relógio no centro e as 7 câmaras redondas ao longo do arco
-- [ ] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela
-- [ ] Câmaras 2 a 5 com as cores iniciais: azul (glossário pessoal), vermelho (núcleo de estudo ativo), verde (exemplo de uso), roxo (tarefa)
-- [ ] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite
-- [ ] Câmaras 6, 7 e 8 (Notion, Todoist, IA) visíveis, mas desativadas até suas etapas
-- [ ] Botão "+" na ponta de baixo do arco, visível mas sem girar (o giro fica para uma versão futura)
+- [x] Desenhar o meio anel em arco, encostado na borda direita, com o relógio no centro e as 7 câmaras redondas ao longo do arco (S1)
+- [x] Tamanho do tambor configurável, com padrão de no máximo 1/3 da altura da tela (S1: valor em `src/domain/settings.ts`; salvar em arquivo entra com o armazenamento, na S3)
+- [x] Câmaras 2 a 5 com as cores iniciais: azul (glossário pessoal), vermelho (núcleo de estudo ativo), verde (exemplo de uso), roxo (tarefa) (S1)
+- [ ] Câmara sem nota só com contorno; com nota ativa, preenchida e enchendo conforme a nota se aproxima do limite (contorno feito na S1; enchimento na S3)
+- [x] Câmaras 6, 7 e 8 (Notion, Todoist, IA) visíveis, mas desativadas até suas etapas (S1)
+- [x] Botão "+" na ponta de baixo do arco, visível mas sem girar (o giro fica para uma versão futura) (S1)
 
 ### Limite de caracteres (só valor e contagem)
 
-- [ ] Limite de caracteres configurável (padrão 300), definido num lugar só e reaproveitado na Etapa 3
+- [x] Limite de caracteres configurável (padrão 300), definido num lugar só e reaproveitado na Etapa 3 (S1)
 - [ ] Contagem de caracteres da nota, usada para a câmara encher
 - [ ] Testes da contagem e do nível de enchimento com o limite configurado
 
@@ -119,6 +120,7 @@ Regras das sprints:
 
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
+- [ ] Botão para expandir o painel e ler ou editar a nota inteira quando ela ficar grande (S3)
 - [ ] Editor estilo Notion (formatação aparece enquanto digito), salvando em Markdown
 - [ ] Atalhos de formatação rápida em Markdown
 - [ ] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
@@ -194,7 +196,8 @@ Regras das sprints:
 - [ ] Teste de desempenho do editor com notas grandes, para saber se existe limite técnico
 - [ ] Usar o limite de caracteres criado na Etapa 1 (mesmo valor e mesmo lugar no código)
 - [ ] Reavaliar comigo se 300 caracteres é pouco, com base no uso real das Etapas 1 e 2
-- [ ] Quando a câmara encher (a nota chega ao limite), disparar o envio automático, sem interromper a digitação: o envio acontece na primeira pausa
+- [ ] Ao fechar a nota, enviar na hora
+- [ ] Com a câmara cheia (a nota chegou ao limite) e a nota aberta, enviar na primeira pausa da digitação, sem interromper
 - [ ] Ao passar do limite, aviso discreto, sem interromper a digitação
 - [ ] Enviar ao confirmar o aviso, ao fechar a nota ou após o tempo de inatividade configurável
 - [ ] Depois do envio, esvaziar a nota local e acrescentar o que vier depois à mesma página do Notion
@@ -227,3 +230,4 @@ Ideias registradas para depois da etapa 4. Nenhuma entra antes sem ser debatida 
 - Animação de giro do tambor e câmaras do "outro lado" (conteúdo a definir).
 - Distribuir o app para outras pessoas (instalador, atualizações).
 - Agrupar notas por assunto como uma visão de backlinks (ideia surgida ao definir o campo assunto).
+- Deixar o clique passar pelos cantos transparentes da janela para o que está atrás (o vídeo). Hoje a janela é um retângulo invisível que bloqueia o clique nesses cantos.
