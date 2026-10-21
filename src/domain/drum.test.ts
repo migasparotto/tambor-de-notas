@@ -62,6 +62,16 @@ describe("drumGeometry", () => {
     ];
     corners.forEach((p) => expect(distance(p, g.center)).toBeLessThanOrEqual(g.hubRadius));
   });
+
+  it.each(cases)("keeps stop and cycle counter inside the hub (%ipx, %f)", (screen, fraction) => {
+    const { stop, cycles, center, hubRadius } = drumGeometry(screen, fraction);
+    const corners = [
+      { x: stop.center.x - stop.size / 2, y: stop.center.y + stop.size / 2 },
+      { x: cycles.center.x + cycles.width / 2, y: cycles.center.y + cycles.height / 2 },
+    ];
+    corners.forEach((p) => expect(distance(p, center)).toBeLessThanOrEqual(hubRadius));
+    expect(cycles.center.x - cycles.width / 2).toBeGreaterThan(stop.center.x + stop.size / 2);
+  });
 });
 
 describe("placeAtRightEdge", () => {

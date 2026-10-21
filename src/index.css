@@ -9,3 +9,14 @@ body,
   overflow: hidden;
   font-family: "Segoe UI", system-ui, sans-serif;
 }
+
+/* End-of-cycle alert: the clock blinks for a few seconds. */
+@keyframes clock-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.clock-alert {
+  animation: clock-blink 0.8s ease-in-out infinite;
+}

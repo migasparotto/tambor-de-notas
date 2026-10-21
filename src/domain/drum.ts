@@ -28,6 +28,8 @@ export interface DrumGeometry {
   plus: { center: Point; size: number };
   clock: { center: Point; width: number; height: number; fontSize: number };
   stop: { center: Point; size: number };
+  /** Small completed-cycles counter, to the right of the stop button. */
+  cycles: { center: Point; width: number; height: number; fontSize: number };
 }
 
 /** Allowed range for the drum height fraction; values outside are clamped. */
@@ -69,6 +71,8 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
   const clockWidth = 0.52 * R;
   const clockCenter = { x: center.x - 0.32 * R, y: center.y };
   const stopSize = Math.max(16, 0.14 * R);
+  const stopCenter = { x: clockCenter.x, y: center.y + clockHeight / 2 + 2 + stopSize / 2 };
+  const cyclesWidth = 0.16 * R;
 
   return {
     width,
@@ -81,9 +85,12 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
     chambers,
     plus: { center: onCircle(center, orbit, PLUS_ANGLE), size: Math.max(20, 0.2 * R) },
     clock: { center: clockCenter, width: clockWidth, height: clockHeight, fontSize: 0.18 * R },
-    stop: {
-      center: { x: clockCenter.x, y: center.y + clockHeight / 2 + 2 + stopSize / 2 },
-      size: stopSize,
+    stop: { center: stopCenter, size: stopSize },
+    cycles: {
+      center: { x: stopCenter.x + stopSize / 2 + 4 + cyclesWidth / 2, y: stopCenter.y },
+      width: cyclesWidth,
+      height: stopSize,
+      fontSize: Math.max(9, 0.08 * R),
     },
   };
 }
