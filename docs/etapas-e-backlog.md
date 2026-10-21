@@ -27,8 +27,8 @@ _Atualizado em 20/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **E
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
-2. Fazer a **S2 — Pomodoro**: lógica em `src/domain/` com testes (tempo simulado) antes da tela.
-3. Quando chegarem os testes reais, remover o exemplo `src/domain/delay.ts` se ele não for usado.
+2. **S2 — Pomodoro**: lógica pronta e testada (`src/domain/pomodoro.ts`); tela ligada ao tambor (relógio, stop, cor da pausa, contador, aviso). Falta o Marcos testar e aprovar; depois, fechar a S2 (CI verde, README, push).
+3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 
 ## Etapa 0 — Fundação ✅
 
@@ -108,11 +108,19 @@ Regras das sprints:
 
 ### Pomodoro (RF02)
 
-- [ ] Clicar no relógio (`88:88`) dá play ou pausa; botão pequeno de stop abaixo
-- [ ] Tempos de foco e pausa configuráveis
-- [ ] Aviso simples ao fim de cada ciclo
-- [ ] Contador de ciclos concluídos, salvo entre usos do app
-- [ ] Testes da lógica do pomodoro
+**Decidido na S2:** padrão de 25 min de foco e 5 de pausa, sem pausa longa. Fim do foco → conta um ciclo, aviso e a pausa começa sozinha. Fim da pausa → aviso, o relógio volta ao foco cheio e espera o play. Stop (no foco ou na pausa) volta ao foco cheio, parado.
+
+- [ ] Clicar no relógio (`88:88`) dá play ou pausa; botão pequeno de stop abaixo (S2)
+- [x] Tempos de foco e pausa configuráveis (S2: valores em `src/domain/settings.ts`)
+- [ ] Relógio com cor diferente na pausa (S2)
+- [ ] Aviso simples ao fim de cada ciclo: o relógio pisca e o tambor fica nítido por alguns segundos (S2)
+- [ ] Contador de ciclos pequeno ao lado do stop (S2); salvar entre usos e zerar a cada dia entra com o armazenamento, na S3
+- [x] Testes da lógica do pomodoro (S2)
+
+### Polimento (fim da Etapa 1)
+
+- [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
+- [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
 
 ### Notas (RF01, RF03, RF04, RF05)
 
