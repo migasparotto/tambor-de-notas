@@ -6,7 +6,16 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — atualmente na **Etapa 0 (Fundação)**. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. A sprint S1 (janela e tambor) está concluída. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+
+## O que já funciona
+
+- Janela **transparente, sem bordas e sempre por cima**: aparece só o tambor, encostado na borda direita da tela e centralizado na vertical.
+- O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
+- Tem 7 câmaras: azul, vermelho, verde e roxo (só contorno, por enquanto), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
+- O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
+
+Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**.
 
 ## Tecnologias
 
