@@ -29,7 +29,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). Falta decidir em qual pasta do computador ficam `notas/ativas/` e `notas/arquivadas/`. Depois: instalar o plugin (`npm run tauri add fs`), criar a porta e a implementação em memória, e fazer a lógica em `src/domain/` com testes, antes da tela.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). Próximo: instalar o plugin (`npm run tauri add fs`), criar a porta e a implementação em memória, e fazer a lógica em `src/domain/` com testes, antes da tela.
 
 ## Etapa 0 — Fundação ✅
 
@@ -133,7 +133,9 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 - Usar o **plugin oficial `fs` do Tauri**, com permissão (scope) **só** para a pasta das notas (`ativas/` e `arquivadas/`), nada além.
 - Todo acesso ao disco passa por **uma única porta (interface) em `src/storage/`**, com as operações listar, ler, salvar e arquivar. O resto do app nunca usa o plugin direto.
 - Os testes usam uma **implementação em memória** dessa porta, sem tocar no disco.
-- Ainda em aberto: em qual pasta do computador fica a pasta das notas.
+- **Pasta das notas:** `Documentos\Tambor de Notas\notas\` (com `ativas/` e `arquivadas/`). O caminho de Documentos **não é fixo no código**: vem do Tauri, porque a pasta pode estar no OneDrive (neste notebook está).
+- **Configurações e contadores** (ex.: ciclos do pomodoro) ficam na pasta de dados do app (AppData), não junto das notas.
+- **OneDrive:** se um arquivo estiver bloqueado por um instante pela sincronização, o app tenta de novo e, se não der, mostra uma mensagem clara em vez de um erro técnico. A nota nunca se perde.
 
 - [ ] Clicar numa câmara de cor abre a nota ativa daquela cor ou cria uma nova
 - [ ] Painel do editor na cor da nota, que nasce na câmara e cresce ao lado do tambor (bolha); ao recolher ou fechar, encolhe de volta para a câmara
