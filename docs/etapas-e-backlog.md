@@ -29,7 +29,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 1. ~~S1 — Janela e tambor~~: concluída e aprovada (tambor na borda direita, transparente, sempre por cima).
 2. ~~S2 — Pomodoro~~: concluída e aprovada (lógica testada em `src/domain/pomodoro.ts`, tela ligada ao tambor, CI verde).
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
-4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). Próximo: instalar o plugin (`npm run tauri add fs`), criar a porta e a implementação em memória, e fazer a lógica em `src/domain/` com testes, antes da tela.
+4. **S3 — Notas** (próximo passo). ~~Como gravar no disco~~: decidido (plugin `fs` com scope só na pasta das notas, atrás de uma porta única em `src/storage/`; ver "Notas"). ~~Em qual pasta~~: decidido (Documentos do Tauri, com cuidado para o OneDrive; ver "Notas"). ~~Instalar o plugin `fs`~~ (escopo mínimo, sem `remove`). ~~Porta `src/storage/notesStore.ts` e disco em memória~~, com testes (salvamento atômico, nomes, OneDrive, UTF-8). Próximo: a lógica das notas em `src/domain/` (formato do frontmatter, nota ativa por cor, contagem e enchimento), com testes, antes da tela. Conferir no app de verdade que a gravação em `OneDrive\Documentos` funciona quando a tela estiver ligada.
 
 ## Etapa 0 — Fundação ✅
 
