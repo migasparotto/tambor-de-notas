@@ -1,8 +1,23 @@
+import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
+import { DEFAULT_SETTINGS } from "../domain/settings";
+import { Drum } from "./Drum";
+import { useDrumWindow } from "./useDrumWindow";
+
+/** Root of the interface: a transparent window that shows only the drum. */
 function App() {
+  const { geometry, focused } = useDrumWindow(DEFAULT_SETTINGS.drumHeightFraction);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-900 text-slate-100">
-      <h1 className="text-2xl font-bold">Tambor de Notas</h1>
-      <p className="text-sm text-slate-400">Etapa 0 — Fundação</p>
+    <main
+      className="relative overflow-hidden transition-opacity duration-300"
+      style={{ width: geometry.width, height: geometry.height, opacity: focused ? 1 : 0.35 }}
+    >
+      <Drum
+        geometry={geometry}
+        colors={INITIAL_COLORS}
+        integrations={INTEGRATION_CHAMBERS}
+        clockText="00:00"
+      />
     </main>
   );
 }
