@@ -1,3 +1,9 @@
+import {
+  CYCLE_END_ANIMATIONS,
+  CYCLE_END_SOUNDS,
+  type CycleEndAnimation,
+  type CycleEndSound,
+} from "./cycleEnd";
 import { parseShortcuts, type Shortcuts } from "./shortcuts";
 
 /**
@@ -24,6 +30,14 @@ export interface Settings {
   maxActiveNotesPerColor: number;
   /** When the editor shows Markdown symbols. */
   symbolsMode: SymbolsMode;
+  /** Sound at the end of each pomodoro phase ("off" for none). */
+  cycleEndSound: CycleEndSound;
+  /** Drum animation at the end of each pomodoro phase ("off" for none). */
+  cycleEndAnimation: CycleEndAnimation;
+  /** How long the ratchet and the spin last, in milliseconds; the final clack lands at the end. */
+  cycleEndDurationMs: number;
+  /** Volume of the app sounds, from 0 (silent) to 1. */
+  soundVolume: number;
   /** Global shortcuts (they work with the app in the background). */
   shortcuts: Shortcuts;
 }
@@ -37,6 +51,10 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   autosaveDelayMs: 1000,
   maxActiveNotesPerColor: 1,
   symbolsMode: "element",
+  cycleEndSound: "ratchet",
+  cycleEndAnimation: "spin",
+  cycleEndDurationMs: 1800,
+  soundVolume: 0.6,
   shortcuts: {
     openColor1: "Ctrl+Shift+Alt+1",
     openColor2: "Ctrl+Shift+Alt+2",
@@ -62,6 +80,10 @@ const VALID: Record<Exclude<keyof Settings, "shortcuts">, (value: unknown) => bo
   autosaveDelayMs: (v) => isNumber(v) && v >= 0,
   maxActiveNotesPerColor: (v) => isNumber(v) && Number.isInteger(v) && v >= 1,
   symbolsMode: (v) => SYMBOLS_MODES.includes(v as SymbolsMode),
+  cycleEndSound: (v) => CYCLE_END_SOUNDS.includes(v as CycleEndSound),
+  cycleEndAnimation: (v) => CYCLE_END_ANIMATIONS.includes(v as CycleEndAnimation),
+  cycleEndDurationMs: (v) => isNumber(v) && v >= 200 && v <= 10000,
+  soundVolume: (v) => isNumber(v) && v >= 0 && v <= 1,
 };
 
 /**

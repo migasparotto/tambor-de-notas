@@ -14,14 +14,23 @@ const ALERT_MS = 6000;
  * Runs a pomodoro for the drum and exposes its state, the play/pause and stop actions,
  * and `alert`: the phase that just ended, set for a few seconds so the clock can flash.
  * The cycles shown are today's, saved between uses and back to zero each day.
+ * `onPhaseEnd` is called when a phase ends (for the sound and the drum spin).
  */
-export function usePomodoro(durations: PomodoroDurations): {
+export function usePomodoro(
+  durations: PomodoroDurations,
+  onPhaseEnd?: (ended: PomodoroPhase) => void,
+): {
   state: PomodoroState;
   alert: PomodoroPhase | null;
   toggle: () => void;
   stop: () => void;
 } {
   const { focusMinutes, breakMinutes } = durations;
+  // The pomodoro is created once per durations; this ref always points to the latest callback.
+  const phaseEndRef = useRef(onPhaseEnd);
+  useEffect(() => {
+    phaseEndRef.current = onPhaseEnd;
+  });
   const pomodoro = useRef<Pomodoro | null>(null);
   const [state, setState] = useState(() => new Pomodoro(durations).getState());
   const [alert, setAlert] = useState<PomodoroPhase | null>(null);
@@ -58,6 +67,7 @@ export function usePomodoro(durations: PomodoroDurations): {
             saveDailyCycles(next).catch(() => undefined); // a failed save only loses the count
           }
           setAlert(ended);
+          phaseEndRef.current?.(ended);
           clearTimeout(alertTimer);
           alertTimer = setTimeout(() => setAlert(null), ALERT_MS);
         },

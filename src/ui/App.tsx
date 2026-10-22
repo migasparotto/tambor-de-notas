@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
+import { cycleEndEffects } from "../domain/cycleEnd";
 import { fillLevel } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
-import { Drum, type ChamberState } from "./Drum";
+import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
+import { Drum, type ChamberState, type DrumSpin } from "./Drum";
 import { NotePanel } from "./NotePanel";
 import { useAppWindow } from "./useAppWindow";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
@@ -42,7 +44,17 @@ function App({ settings, startupProblems }: AppProps) {
     settings.drumHeightFraction,
     panel?.size ?? null,
   );
-  const pomodoro = usePomodoro(settings);
+  const [spin, setSpin] = useState<DrumSpin | null>(null);
+  useEffect(() => wakeAudioOnFirstInput(), []);
+  /** End of a pomodoro phase: the ratchet sound and the drum spin, as set in the settings. */
+  const onPhaseEnd = () => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const effects = cycleEndEffects(settings, reduceMotion);
+    playSound(effects.sound, effects.volume);
+    const animation = effects.animation;
+    if (animation) setSpin((previous) => ({ id: (previous?.id ?? 0) + 1, ...animation }));
+  };
+  const pomodoro = usePomodoro(settings, onPhaseEnd);
   const notes = useNotebook(INITIAL_COLORS, settings);
   // The end-of-cycle alert shows the drum fully, even when the window is not focused.
   const visible = focused || pomodoro.alert !== null;
@@ -113,6 +125,7 @@ function App({ settings, startupProblems }: AppProps) {
           pomodoroAlert={pomodoro.alert}
           onTogglePomodoro={pomodoro.toggle}
           onStopPomodoro={pomodoro.stop}
+          spin={spin}
         />
       </div>
 

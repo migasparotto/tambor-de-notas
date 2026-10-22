@@ -29,7 +29,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - clique no relógio para dar play ou pausa; o quadradinho abaixo é o stop, que volta ao foco cheio;
   - o relógio fica cinza parado, branco focando, bege-rosado pausado e âmbar na pausa de descanso;
   - ao fim do foco, conta um ciclo (`×N`, ao lado do stop) e a pausa começa sozinha; ao fim da pausa, o relógio volta ao foco e espera o play;
-  - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido;
+  - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido. As câmaras dão um giro completo, desacelerando, com o som de catraca de um tambor de revólver, e param com um "clac" (1,8 s). O som é gerado pelo app, sem arquivo de áudio. Se o Windows estiver com "efeitos de animação" desligados, o tambor não gira, mas o som toca;
   - o contador `×N` mostra os ciclos **do dia**: ele volta ao reabrir o app e começa do zero num dia novo.
 - O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
 - **Atalhos globais**, que funcionam mesmo com o app em segundo plano (por exemplo, com o vídeo da aula em foco):
@@ -100,16 +100,20 @@ A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistem
 
 As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Para mudar, edite o arquivo e reabra o app:
 
-| Configuração             | Padrão      | O que é                                                                                                            |
-| ------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------ |
-| `drumHeightFraction`     | 1/3         | Altura do tambor, como fração da altura da tela                                                                    |
-| `charLimit`              | 300         | Limite de caracteres da nota (a câmara enche até ele)                                                              |
-| `focusMinutes`           | 25          | Minutos de foco do pomodoro                                                                                        |
-| `breakMinutes`           | 5           | Minutos de pausa do pomodoro                                                                                       |
-| `autosaveDelayMs`        | 1000        | Espera, em milissegundos, para salvar depois da digitação                                                          |
-| `maxActiveNotesPerColor` | 1           | Notas ativas por cor ao mesmo tempo                                                                                |
-| `symbolsMode`            | `"element"` | Quando o editor mostra `#`, `**`...: `"element"` (só dentro do trecho), `"line"` (na linha do cursor) ou `"never"` |
-| `shortcuts`              | (abaixo)    | Atalhos globais                                                                                                    |
+| Configuração             | Padrão      | O que é                                                                                                              |
+| ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `drumHeightFraction`     | 1/3         | Altura do tambor, como fração da altura da tela                                                                      |
+| `charLimit`              | 300         | Limite de caracteres da nota (a câmara enche até ele)                                                                |
+| `focusMinutes`           | 25          | Minutos de foco do pomodoro                                                                                          |
+| `breakMinutes`           | 5           | Minutos de pausa do pomodoro                                                                                         |
+| `autosaveDelayMs`        | 1000        | Espera, em milissegundos, para salvar depois da digitação                                                            |
+| `maxActiveNotesPerColor` | 1           | Notas ativas por cor ao mesmo tempo                                                                                  |
+| `symbolsMode`            | `"element"` | Quando o editor mostra `#`, `**`...: `"element"` (só dentro do trecho), `"line"` (na linha do cursor) ou `"never"`   |
+| `cycleEndSound`          | `"ratchet"` | Som no fim de cada fase do pomodoro: `"ratchet"` (catraca), `"cock"` (engatilhar), `"chime"` (sino suave) ou `"off"` |
+| `cycleEndAnimation`      | `"spin"`    | Animação no fim de cada fase: `"spin"` (giro completo), `"jolt"` (tranco curto) ou `"off"`                           |
+| `cycleEndDurationMs`     | 1800        | Duração da catraca e do giro, em milissegundos (de 200 a 10000)                                                      |
+| `soundVolume`            | 0.6         | Volume dos sons do app, de 0 (mudo) a 1                                                                              |
+| `shortcuts`              | (abaixo)    | Atalhos globais                                                                                                      |
 
 Os atalhos ficam assim no arquivo. Só é preciso escrever os que mudarem; os outros continuam com o padrão:
 

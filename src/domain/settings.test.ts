@@ -84,3 +84,36 @@ describe("shortcuts setting", () => {
     expect(DEFAULT_SETTINGS.shortcuts.openColor1).not.toBe("Ctrl+Alt+Q");
   });
 });
+
+describe("cycle end settings", () => {
+  it("accepts valid values", () => {
+    const { settings, problems } = parseSettings(
+      JSON.stringify({
+        cycleEndSound: "chime",
+        cycleEndAnimation: "off",
+        cycleEndDurationMs: 2500,
+        soundVolume: 0,
+      }),
+    );
+    expect(problems).toEqual([]);
+    expect(settings).toMatchObject({
+      cycleEndSound: "chime",
+      cycleEndAnimation: "off",
+      cycleEndDurationMs: 2500,
+      soundVolume: 0,
+    });
+  });
+
+  it("refuses invalid values and keeps the defaults", () => {
+    const { settings, problems } = parseSettings(
+      JSON.stringify({
+        cycleEndSound: "trovão",
+        cycleEndAnimation: "dança",
+        cycleEndDurationMs: 50,
+        soundVolume: 1.5,
+      }),
+    );
+    expect(problems).toHaveLength(4);
+    expect(settings).toEqual(DEFAULT_SETTINGS);
+  });
+});
