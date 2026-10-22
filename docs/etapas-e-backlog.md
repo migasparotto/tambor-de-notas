@@ -31,7 +31,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
-6. **Polimento do fim da Etapa 1** (em andamento), na ordem: sobras de `.tmp` (em debate), "ver Markdown" (feito, falta o teste do Marcos), som e animação do tambor (opções a aprovar antes). Ver a lista "Polimento" abaixo.
+6. **Polimento do fim da Etapa 1** (em andamento), na ordem: sobras de `.tmp` → som e animação do tambor (opções a aprovar antes) → completar `configuracoes.json` → Esc duas vezes (investigar antes) → CD. "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
 7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
 8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
 
@@ -129,20 +129,12 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 Ordem combinada em 22/10/2026. A lógica de cada item vai em `src/domain/`, com testes, antes da tela.
 
-1. [ ] Sobras de `.tmp` ao abrir o app. Elas aparecem se o app parar no meio de um salvamento. Hoje a listagem as ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. **Em debate:** o app não tem permissão de apagar, e o `.tmp` pode ter o texto mais novo da nota.
-2. [ ] Botão "ver Markdown" no painel, para mostrar o texto puro da nota, como está no `.md` (ideia de 21/10/2026). Feito em 22/10/2026 (botão **MD**, só leitura, com o cabeçalho); falta o teste do Marcos.
+1. [ ] Sobras de `.tmp` ao abrir o app. Elas aparecem se o app parar no meio de um salvamento, e podem ter o texto mais novo da nota. **Decidido (22/10/2026), opção A:** ao abrir, o app move as sobras para `notas/sobras/` (renomear, sem permissão de apagar). Nada se perde, e o Marcos apaga à mão quando quiser.
+2. [x] Botão "ver Markdown" no painel (botão **MD**): mostra a nota exatamente como fica no `.md`, com o cabeçalho, só para leitura. Aprovado em 22/10/2026.
 3. [ ] Som e animação do tambor girando no fim do ciclo, ligados ao `onPhaseEnd` do pomodoro. Som e duração em `settings.ts`, com opção de desligar. **Antes de programar:** mostrar opções de som e de animação para o Marcos aprovar.
-4. [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript (para colorir código dentro da nota). Num app local pesa pouco; avaliar se vale montar a linguagem Markdown sem esses extras.
-
-## Depois da Etapa 1 — Entrega contínua (CD)
-
-**Objetivo:** gerar o instalador do app automaticamente, sem montar à mão.
-
-**Pronto quando:** o GitHub Actions gera o instalador do Windows a partir do código no GitHub. Os detalhes (quando gerar, onde guardar o instalador) são decididos no início desta fase.
-
-- [ ] Decidir quando o instalador é gerado e onde ele fica
-- [ ] Criar o workflow do GitHub Actions que gera o instalador do Windows
-- [ ] Conferir que o instalador funciona neste notebook
+4. [ ] Completar o `configuracoes.json` ao abrir: acrescentar as configurações que faltam no arquivo, com o valor padrão, sem mexer nas que o Marcos já mudou. Assim as opções novas (como os atalhos) aparecem no arquivo.
+5. [ ] Esc duas vezes: o 1º Esc recolhe o painel (como hoje); o 2º Esc, com o painel já recolhido, tira o foco do tambor e devolve o teclado ao vídeo. **Antes de programar:** investigar se o Windows permite isso de forma confiável e, se não, trazer alternativas.
+6. [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript. **Só se o instalador do CD ficar grande.**
 
 ### Notas (RF01, RF03, RF04, RF05)
 
@@ -195,6 +187,16 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 - [x] Salvamento automático em `notas/ativas/`, com metadados no cabeçalho do arquivo
 - [x] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
 - [x] Testes de leitura e escrita dos arquivos .md (S3: porta de armazenamento, frontmatter e `Notebook`)
+
+## Depois da Etapa 1 — Entrega contínua (CD)
+
+**Objetivo:** gerar o instalador do app automaticamente, sem montar à mão.
+
+**Pronto quando:** o GitHub Actions gera o instalador do Windows a partir do código no GitHub. Os detalhes (quando gerar, onde guardar o instalador) são decididos no início desta fase.
+
+- [ ] Decidir quando o instalador é gerado e onde ele fica
+- [ ] Criar o workflow do GitHub Actions que gera o instalador do Windows
+- [ ] Conferir que o instalador funciona neste notebook
 
 ## Etapa 2 — Organização
 
@@ -297,6 +299,7 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 
 **Decidir antes de programar:** o escopo da IA e o provedor (serviço e modelo). Nada de IA é implementado antes dessa conversa.
 
+- [ ] Ideia para a conversa de escopo (22/10/2026): sugerir conexões entre notas de títulos diferentes que tratam de assuntos ligados, mostrando algo como "Este assunto agrega com o assunto X", nas notas, nos documentos e no Notion. Complementa os backlinks manuais da Etapa 2.
 - [ ] Conversa de escopo comigo, partindo das ideias já levantadas: tirar dúvidas; perguntar se já existe algo escrito nas notas, no Notion ou no Todoist; editar nota arquivada por comando e atualizar o Notion; esclarecer a ideia de "pedir para a IA fazer a integração"
 - [ ] Escolher o provedor de IA e guardar sua chave como as demais
 - [ ] Criar o adaptador de IA no mesmo formato das outras integrações
