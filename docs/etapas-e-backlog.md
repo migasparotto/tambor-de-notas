@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 22/10/2026._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2, S3 e S4 fechadas e aprovadas.
+_Atualizado em 22/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2, S3 e S4 fechadas e aprovadas.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -32,6 +32,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
 6. **Polimento do fim da Etapa 1** (em andamento), na ordem: ~~sobras de `.tmp`~~ (aprovado) → som e animação do tambor (feito, falta o teste) → completar `configuracoes.json` → Esc duas vezes (investigar antes) → CD. "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
+   - **Próximo:** o Marcos testa o som e o giro num fim de ciclo de verdade (dica: `focusMinutes` e `breakMinutes` em 0.1 no `configuracoes.json`, depois voltar para 25 e 5). Em seguida, o item 4: completar o `configuracoes.json` ao abrir.
 7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
 8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
 
