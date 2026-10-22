@@ -31,7 +31,9 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 3. ~~Remover o exemplo `src/domain/delay.ts`~~: removido.
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
-6. **Polimento do fim da Etapa 1** (próximo passo): ver a lista "Polimento" abaixo.
+6. **Polimento do fim da Etapa 1** (em andamento), na ordem: sobras de `.tmp` (em debate), "ver Markdown" (feito, falta o teste do Marcos), som e animação do tambor (opções a aprovar antes). Ver a lista "Polimento" abaixo.
+7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
+8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
 
 ## Etapa 0 — Fundação ✅
 
@@ -57,7 +59,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 - [x] Fazer um envio de teste e conferir o resultado na aba "Actions" do GitHub
 - [x] Mostrar o selo (badge) do CI no README
 
-O **CD** (gerar o instalador do app automaticamente) fica para depois da Etapa 1.
+O **CD** (gerar o instalador do app automaticamente) vem logo depois do polimento da Etapa 1 (ver "Depois da Etapa 1 — Entrega contínua (CD)").
 
 ## Etapa 1 — MVP utilizável
 
@@ -125,11 +127,22 @@ Nota técnica: quando os tempos puderem mudar com o app aberto, o `usePomodoro` 
 
 ### Polimento (fim da Etapa 1)
 
-- [ ] Som de tambor girando no aviso de fim de ciclo, ligado ao `onPhaseEnd` do pomodoro
-- [ ] Tambor girando (animação) até o play, também ligado ao `onPhaseEnd`
-- [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript (para colorir código dentro da nota). Num app local pesa pouco; avaliar se vale montar a linguagem Markdown sem esses extras.
-- [ ] Botão "ver Markdown" no painel, para mostrar o texto puro da nota (como está no `.md`) (ideia de 21/10/2026)
-- [ ] Decidir o que fazer com arquivos `.tmp` que sobram se o app parar no meio de um salvamento. Hoje a listagem os ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. Atenção: o app não tem permissão de apagar.
+Ordem combinada em 22/10/2026. A lógica de cada item vai em `src/domain/`, com testes, antes da tela.
+
+1. [ ] Sobras de `.tmp` ao abrir o app. Elas aparecem se o app parar no meio de um salvamento. Hoje a listagem as ignora e o próximo salvamento da mesma nota grava por cima, mas um `.tmp` de nota que não é mais salva fica para sempre. **Em debate:** o app não tem permissão de apagar, e o `.tmp` pode ter o texto mais novo da nota.
+2. [ ] Botão "ver Markdown" no painel, para mostrar o texto puro da nota, como está no `.md` (ideia de 21/10/2026). Feito em 22/10/2026 (botão **MD**, só leitura, com o cabeçalho); falta o teste do Marcos.
+3. [ ] Som e animação do tambor girando no fim do ciclo, ligados ao `onPhaseEnd` do pomodoro. Som e duração em `settings.ts`, com opção de desligar. **Antes de programar:** mostrar opções de som e de animação para o Marcos aprovar.
+4. [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript (para colorir código dentro da nota). Num app local pesa pouco; avaliar se vale montar a linguagem Markdown sem esses extras.
+
+## Depois da Etapa 1 — Entrega contínua (CD)
+
+**Objetivo:** gerar o instalador do app automaticamente, sem montar à mão.
+
+**Pronto quando:** o GitHub Actions gera o instalador do Windows a partir do código no GitHub. Os detalhes (quando gerar, onde guardar o instalador) são decididos no início desta fase.
+
+- [ ] Decidir quando o instalador é gerado e onde ele fica
+- [ ] Criar o workflow do GitHub Actions que gera o instalador do Windows
+- [ ] Conferir que o instalador funciona neste notebook
 
 ### Notas (RF01, RF03, RF04, RF05)
 
@@ -198,7 +211,7 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 - [ ] Janela do tambor móvel: arrastar para cima ou para baixo e para a borda esquerda da tela. Na borda esquerda o tambor espelha, com a abertura virada para a borda. O app lembra a posição entre usos.
 - [ ] Deixar o clique passar pelos cantos transparentes da janela para o que está atrás (o vídeo). Hoje a janela é um retângulo invisível que bloqueia o clique nesses cantos.
 
-### Várias notas abertas (ideia de 21/10/2026, a debater no início da etapa)
+### Várias notas abertas (ideia de 21/10/2026; confirmada na Etapa 2 em 22/10/2026, detalhes a debater no início da etapa)
 
 - [ ] Até 3 notas abertas por vez, mostradas como **abas empilhadas** com o título de cada uma, no estilo de pastas de arquivo (a aba de trás aparece acima, só com o título; a da frente mostra a nota inteira). Serve para anotar vários contextos na mesma aula.
 - Preparado na S3: a regra "uma nota ativa por cor" virou o valor `maxActiveNotesPerColor` (padrão 1) em `src/domain/settings.ts`. Falta decidir se o limite é por cor ou no total, como escolher a aba ativa e como os atalhos funcionam com abas.
