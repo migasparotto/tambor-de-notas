@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
+import { isTauri } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { fillLevel } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
 import type { Settings } from "../domain/settings";
+import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
 import { Drum, type ChamberState } from "./Drum";
 import { NotePanel } from "./NotePanel";
 import { useAppWindow } from "./useAppWindow";
+import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
 import { usePomodoro } from "./usePomodoro";
 
@@ -56,6 +60,25 @@ function App({ settings, startupProblems }: AppProps) {
     if (panel?.open && panel.colorId === colorId) setPanel({ ...panel, open: false });
     else setPanel({ colorId, size: panel?.size ?? "normal", open: true });
   };
+
+  /** A global shortcut: play or pause the pomodoro, or open (or put away) a color's note. */
+  const onShortcut = (action: ShortcutAction) => {
+    if (action === "togglePomodoro") {
+      pomodoro.toggle();
+      return;
+    }
+    const color = INITIAL_COLORS[colorIndexOf(action) ?? -1];
+    if (!color) return;
+    const openColorId = panel?.open ? panel.colorId : null;
+    if (panel && colorShortcutEffect(color.id, { openColorId, focused }) === "collapse") {
+      setPanel({ ...panel, open: false });
+      return;
+    }
+    setPanel({ colorId: color.id, size: panel?.size ?? "normal", open: true });
+    // The keyboard comes to the app, so typing goes straight into the note.
+    if (isTauri()) void getCurrentWindow().setFocus();
+  };
+  const shortcutMessage = useGlobalShortcuts(settings.shortcuts, onShortcut);
 
   const panelColor = INITIAL_COLORS.find((c) => c.id === panel?.colorId);
   const chamberIndex = INITIAL_COLORS.findIndex((c) => c.id === panel?.colorId);
@@ -126,12 +149,12 @@ function App({ settings, startupProblems }: AppProps) {
         />
       )}
 
-      {(startupMessage ?? (panel ? null : notes.message)) && (
+      {(startupMessage ?? shortcutMessage ?? (panel ? null : notes.message)) && (
         <p
           role="status"
           className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
         >
-          {startupMessage ?? notes.message}
+          {startupMessage ?? shortcutMessage ?? notes.message}
         </p>
       )}
     </main>

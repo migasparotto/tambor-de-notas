@@ -6,7 +6,7 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. As sprints S1 (janela e tambor), S2 (pomodoro) e S3 (notas) estão concluídas. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. As sprints S1 (janela e tambor), S2 (pomodoro) e S3 (notas) estão concluídas, e a S4 (editor e atalhos) está em andamento. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
 
 ## O que já funciona
 
@@ -20,7 +20,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - uma linha inteira `+texto+` vira subtítulo ao sair da linha (no arquivo, `## texto`);
   - **Ctrl+B** negrito, **Ctrl+I** itálico (de novo, desfaz), **Ctrl+Z** desfaz; Enter numa lista continua a lista;
   - a nota se salva sozinha 1 segundo depois que você para de digitar, e também ao fechar o app;
-  - **⤢** expande o painel, **–** recolhe (a nota continua ativa) e **✓ Fechar nota** arquiva a nota e libera a cor;
+  - **⤢** expande o painel, **–** ou **Esc** recolhe (a nota continua ativa) e **✓ Fechar nota** ou **Ctrl+Enter** arquiva a nota e libera a cor;
   - com nota ativa, a câmara fica tingida e **enche** conforme a nota se aproxima do limite de caracteres (padrão 300);
   - as notas são arquivos `.md` em `Documentos\Tambor de Notas\notas\` (`ativas\` e `arquivadas\`), com nome `AAAA-MM cor - título.md`. Funciona com Documentos no OneDrive: se a sincronização segurar um arquivo, o app tenta de novo e avisa, sem perder o texto.
 - **Pomodoro** no centro do tambor (padrão: 25 min de foco e 5 de pausa, em `src/domain/settings.ts`):
@@ -30,6 +30,17 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido;
   - o contador `×N` mostra os ciclos **do dia**: ele volta ao reabrir o app e começa do zero num dia novo.
 - O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
+- **Atalhos globais**, que funcionam mesmo com o app em segundo plano (por exemplo, com o vídeo da aula em foco):
+
+  | Atalho           | O que faz                                      |
+  | ---------------- | ---------------------------------------------- |
+  | Ctrl+Shift+Alt+1 | Abre a nota azul (a 1ª câmara de cor, de cima) |
+  | Ctrl+Shift+Alt+2 | Abre a nota vermelha                           |
+  | Ctrl+Shift+Alt+3 | Abre a nota verde                              |
+  | Ctrl+Shift+Alt+4 | Abre a nota roxa                               |
+  | Ctrl+Shift+Alt+P | Play ou pausa no pomodoro                      |
+
+  O atalho de cor traz o teclado para a nota, e você já pode digitar. Apertado de novo com a nota aberta, recolhe o painel. Se outro programa já usar uma combinação, o app avisa ao abrir. Os atalhos podem ser trocados nas configurações.
 
 Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
 
@@ -96,6 +107,21 @@ As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoe
 | `autosaveDelayMs`        | 1000        | Espera, em milissegundos, para salvar depois da digitação                                                          |
 | `maxActiveNotesPerColor` | 1           | Notas ativas por cor ao mesmo tempo                                                                                |
 | `symbolsMode`            | `"element"` | Quando o editor mostra `#`, `**`...: `"element"` (só dentro do trecho), `"line"` (na linha do cursor) ou `"never"` |
+| `shortcuts`              | (abaixo)    | Atalhos globais                                                                                                    |
+
+Os atalhos ficam assim no arquivo. Só é preciso escrever os que mudarem; os outros continuam com o padrão:
+
+```json
+"shortcuts": {
+  "openColor1": "Ctrl+Shift+Alt+1",
+  "openColor2": "Ctrl+Shift+Alt+2",
+  "openColor3": "Ctrl+Shift+Alt+3",
+  "openColor4": "Ctrl+Shift+Alt+4",
+  "togglePomodoro": "Ctrl+Shift+Alt+P"
+}
+```
+
+Cada atalho precisa de Ctrl, Alt ou Super (a tecla Windows), junto com uma letra, um número ou F1 a F24. Um texto vazio (`""`) desliga o atalho. Se duas ações tiverem a mesma combinação, todos os atalhos voltam ao padrão.
 
 Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia.
 
