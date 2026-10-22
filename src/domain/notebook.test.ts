@@ -46,6 +46,26 @@ describe("Notebook", () => {
     }
   });
 
+  describe("markdown (ver Markdown)", () => {
+    it("is empty when the color has no note", () => {
+      expect(notebook.markdown(RED)).toBe("");
+    });
+
+    it("is exactly the file on disk once the note is saved", async () => {
+      notebook.edit(RED, "# Aula\ntexto");
+      await vi.advanceTimersByTimeAsync(DELAY);
+      expect(notebook.markdown(RED)).toBe(fs.files.get(`ativas/${UNTITLED_RED}`));
+    });
+
+    it("shows the header and the text as it goes to disk", () => {
+      notebook.edit(RED, "# Aula\n+Parte 1+");
+      const markdown = notebook.markdown(RED);
+      expect(markdown.startsWith("---\n")).toBe(true);
+      expect(markdown).toContain('title: "Aula"');
+      expect(markdown.endsWith("# Aula\n## Parte 1")).toBe(true);
+    });
+  });
+
   describe("autosave", () => {
     it("saves by itself after the configured delay, with the provisional name", async () => {
       notebook.edit(RED, "# Aula");

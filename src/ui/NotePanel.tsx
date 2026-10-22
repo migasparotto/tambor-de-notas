@@ -9,6 +9,8 @@ import { NoteEditor } from "./NoteEditor";
 interface NotePanelProps {
   color: NoteColor;
   text: string;
+  /** The note as written in its .md file, shown by "ver Markdown". */
+  markdown: string;
   charLimit: number;
   /** When the editor shows Markdown symbols (from the settings). */
   symbolsMode: SymbolsMode;
@@ -35,8 +37,10 @@ const iconButton =
 
 /** The editor "bubble": born round in the chamber, it grows beside the drum in the note color. */
 export function NotePanel(props: NotePanelProps) {
-  const { color, text, charLimit, rect, chamber, open, size, message } = props;
+  const { color, text, markdown, charLimit, rect, chamber, open, size, message } = props;
   const [mounted, setMounted] = useState(false);
+  // "Ver Markdown": the plain file text instead of the editor (which stays alive, hidden).
+  const [showMarkdown, setShowMarkdown] = useState(false);
 
   useEffect(() => {
     // Wait one frame so the browser draws the small bubble before growing it.
@@ -89,6 +93,16 @@ export function NotePanel(props: NotePanelProps) {
             </span>
             <button
               type="button"
+              title={showMarkdown ? "Voltar ao editor" : "Ver Markdown (como fica no arquivo .md)"}
+              aria-label="Ver Markdown"
+              aria-pressed={showMarkdown}
+              onClick={() => setShowMarkdown((show) => !show)}
+              className={`${iconButton} font-mono text-[11px] font-semibold ${showMarkdown ? "bg-white/30" : ""}`}
+            >
+              MD
+            </button>
+            <button
+              type="button"
               title={size === "normal" ? "Expandir" : "Reduzir"}
               aria-label={size === "normal" ? "Expandir o painel" : "Reduzir o painel"}
               onClick={props.onToggleSize}
@@ -107,12 +121,23 @@ export function NotePanel(props: NotePanelProps) {
             </button>
           </header>
 
-          <NoteEditor
-            text={text}
-            onChange={props.onChange}
-            onConfirmTitle={props.onConfirmTitle}
-            symbolsMode={props.symbolsMode}
-          />
+          <div className={showMarkdown ? "hidden" : "flex min-h-0 flex-1 flex-col"}>
+            <NoteEditor
+              text={text}
+              onChange={props.onChange}
+              onConfirmTitle={props.onConfirmTitle}
+              symbolsMode={props.symbolsMode}
+            />
+          </div>
+          {showMarkdown && (
+            <pre
+              aria-label="Markdown da nota"
+              tabIndex={0}
+              className="m-0 min-h-0 flex-1 overflow-auto rounded-md bg-black/30 p-2 font-mono text-[12px] leading-relaxed break-words whitespace-pre-wrap text-white/85 select-text"
+            >
+              {markdown || "A nota ainda está vazia."}
+            </pre>
+          )}
 
           {message && (
             <p

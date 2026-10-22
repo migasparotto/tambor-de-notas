@@ -121,6 +121,7 @@ function App({ settings, startupProblems }: AppProps) {
           key={panel.colorId}
           color={panelColor}
           text={notes.text(panel.colorId)}
+          markdown={notes.markdown(panel.colorId)}
           charLimit={settings.charLimit}
           symbolsMode={settings.symbolsMode}
           rect={layout.panel}

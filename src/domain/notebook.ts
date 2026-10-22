@@ -85,6 +85,15 @@ export class Notebook {
     return this.current(colorId)?.note.text ?? "";
   }
 
+  /**
+   * The color's current note as it is written in its `.md` file (header included,
+   * `+texto+` as `## texto`), or "" when there is none. Used by "ver Markdown".
+   */
+  markdown(colorId: string): string {
+    const entry = this.current(colorId);
+    return entry ? serializeNote(entry.note) : "";
+  }
+
   /** Whether the color has an active note (an opened but still empty one does not count). */
   hasNote(colorId: string): boolean {
     const entry = this.current(colorId);

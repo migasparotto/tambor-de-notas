@@ -40,6 +40,8 @@ export function useNotebook(
 
   return {
     text: (colorId: string) => notebook.text(colorId),
+    /** The note as written in its .md file (for "ver Markdown"). */
+    markdown: (colorId: string) => notebook.markdown(colorId),
     hasNote: (colorId: string) => notebook.hasNote(colorId),
     edit: (colorId: string, text: string) => {
       notebook.edit(colorId, text);
