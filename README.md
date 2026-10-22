@@ -24,6 +24,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - **MD** mostra o texto puro da nota, exatamente como fica no arquivo `.md` (com o cabeçalho), só para leitura; clique de novo para voltar ao editor;
   - com nota ativa, a câmara fica tingida e **enche** conforme a nota se aproxima do limite de caracteres (padrão 300);
   - as notas são arquivos `.md` em `Documentos\Tambor de Notas\notas\` (`ativas\` e `arquivadas\`), com nome `AAAA-MM cor - título.md`. Funciona com Documentos no OneDrive: se a sincronização segurar um arquivo, o app tenta de novo e avisa, sem perder o texto.
+  - se o app parar no meio de um salvamento, pode sobrar um arquivo `.tmp`. Ao abrir, o app move essas sobras para `notassobras` (como `.md`) e avisa. Elas podem ter o texto mais novo da nota; confira e apague quando quiser.
 - **Pomodoro** no centro do tambor (padrão: 25 min de foco e 5 de pausa, em `src/domain/settings.ts`):
   - clique no relógio para dar play ou pausa; o quadradinho abaixo é o stop, que volta ao foco cheio;
   - o relógio fica cinza parado, branco focando, bege-rosado pausado e âmbar na pausa de descanso;

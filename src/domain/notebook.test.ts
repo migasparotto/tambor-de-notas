@@ -3,7 +3,7 @@ import { MemoryFileSystem } from "../storage/memoryFileSystem";
 import { createNotesStore, type NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
 import { INITIAL_COLORS } from "./chambers";
-import { Notebook, type NotebookEvents } from "./notebook";
+import { leftoversMessage, Notebook, type NotebookEvents } from "./notebook";
 import { parseNote, serializeNote } from "./noteFile";
 import { DEFAULT_SETTINGS } from "./settings";
 
@@ -33,7 +33,7 @@ describe("Notebook", () => {
     vi.setSystemTime(new Date(2026, 9, 21, 16, 5));
     fs = new MemoryFileSystem();
     store = createNotesStore(fs, { attempts: 2, delayMs: 10 });
-    events = { onChange: vi.fn(), onError: vi.fn() };
+    events = { onChange: vi.fn(), onError: vi.fn(), onNotice: vi.fn() };
     notebook = make();
   });
 
@@ -245,6 +245,66 @@ describe("Notebook", () => {
       expect(files()).toEqual(["ativas/2026-10 vermelho - Aula.md"]);
       await notebook.close(RED);
       expect(files()).toEqual(["arquivadas/2026-10 vermelho - Aula.md"]);
+    });
+  });
+
+  describe("load: leftovers of interrupted saves", () => {
+    const saveRed = async () => {
+      notebook.edit(RED, "# Aula");
+      await vi.advanceTimersByTimeAsync(DELAY);
+    };
+
+    it("moves them to sobras, says how many, and still loads the notes", async () => {
+      await saveRed();
+      fs.files.set(`ativas/${UNTITLED_RED}.tmp`, "texto mais novo");
+      fs.files.set("arquivadas/Velha.md.tmp", "antigo");
+
+      const reopened = make();
+      await reopened.load();
+
+      expect(files()).toContain(`sobras/${UNTITLED_RED}`);
+      expect(files()).toContain("sobras/Velha.md");
+      expect(events.onNotice).toHaveBeenCalledWith(leftoversMessage(2));
+      expect(reopened.text(RED)).toBe("# Aula");
+    });
+
+    it("says nothing when there are no leftovers", async () => {
+      await saveRed();
+      await make().load();
+      expect(events.onNotice).not.toHaveBeenCalled();
+    });
+
+    it("handles two loads at the same time (React does this while developing)", async () => {
+      await fs.mkdir("ativas");
+      fs.files.set("ativas/X.md.tmp", "x");
+      const reopened = make();
+      await Promise.all([reopened.load(), reopened.load()]);
+      expect(events.onError).not.toHaveBeenCalled();
+      expect(events.onNotice).toHaveBeenCalledTimes(1);
+    });
+
+    it("reports a leftover it cannot move, and the notes still load", async () => {
+      await saveRed();
+      const tmp = `ativas/${UNTITLED_RED}.tmp`;
+      fs.files.set(tmp, "x");
+      fs.holdBusy(tmp, 10);
+
+      const reopened = make();
+      const loading = reopened.load();
+      await vi.runAllTimersAsync();
+      await loading;
+
+      expect(events.onError).toHaveBeenCalledWith(expect.any(FileBusyError));
+      expect(reopened.text(RED)).toBe("# Aula");
+    });
+  });
+
+  describe("leftoversMessage", () => {
+    it("is empty with no leftovers and names the folder otherwise", () => {
+      expect(leftoversMessage(0)).toBeNull();
+      expect(leftoversMessage(1)).toContain("1 sobra");
+      expect(leftoversMessage(3)).toContain("3 sobras");
+      expect(leftoversMessage(3)).toContain("sobras\\");
     });
   });
 

@@ -12,6 +12,18 @@ export interface NotebookEvents {
   onChange?: (colorId: string) => void;
   /** Something failed in the background (e.g. an autosave while OneDrive holds the file). */
   onError?: (error: unknown) => void;
+  /** Something the user should know that is not an error (e.g. leftovers were moved). */
+  onNotice?: (message: string) => void;
+}
+
+/** The notice shown when leftover `.tmp` files were moved to `notas/sobras/`. */
+export function leftoversMessage(count: number): string | null {
+  if (count === 0) return null;
+  const what =
+    count === 1
+      ? "1 sobra de um salvamento interrompido foi movida"
+      : `${count} sobras de salvamentos interrompidos foram movidas`;
+  return `${what} para notas\\sobras\\. Confira se falta algo nas notas e apague as sobras quando quiser.`;
 }
 
 export interface NotebookOptions {
@@ -45,11 +57,20 @@ export class Notebook {
   constructor(private readonly options: NotebookOptions) {}
 
   /**
-   * Reads the active notes from disk. If a color has more than allowed, the most recent
+   * Moves leftover `.tmp` files to `sobras/` (and says so), then
+   * reads the active notes from disk. If a color has more than allowed, the most recent
    * ones are kept and the others reported. Unreadable files are reported and skipped.
    */
   async load(): Promise<void> {
     const { store, events, settings } = this.options;
+    // First, leftovers of interrupted saves go to `sobras/` (in the queue, so a second
+    // load running at the same time finds nothing left to move).
+    try {
+      const message = leftoversMessage((await this.run(() => store.moveLeftovers())).length);
+      if (message !== null) events?.onNotice?.(message);
+    } catch (error) {
+      events?.onError?.(error); // the notes still load
+    }
     const loaded: Entry[] = [];
     for (const fileName of await store.list("active")) {
       try {

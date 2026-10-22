@@ -22,7 +22,11 @@ export function useNotebook(
   const report = (error: unknown) => setMessage(notesErrorMessage(error));
 
   const [notebook] = useState(() =>
-    createAppNotebook({ colors, settings, events: { onChange: redraw, onError: report } }),
+    createAppNotebook({
+      colors,
+      settings,
+      events: { onChange: redraw, onError: report, onNotice: setMessage },
+    }),
   );
 
   useEffect(() => {

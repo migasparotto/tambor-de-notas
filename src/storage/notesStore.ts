@@ -7,6 +7,8 @@ export type NoteFolder = "active" | "archived";
 
 const FOLDER_PATHS: Record<NoteFolder, string> = { active: "ativas", archived: "arquivadas" };
 const TEMP_EXTENSION = ".tmp";
+/** Where leftover `.tmp` files go (the app cannot delete files, and they may hold text). */
+export const LEFTOVERS_FOLDER = "sobras";
 
 /**
  * The single door to the notes on disk. The rest of the app only uses this,
@@ -25,6 +27,11 @@ export interface NotesStore {
   rename(fileName: string, name: string): Promise<string>;
   /** Moves a note from active to archived; returns its name in the archive. */
   archive(fileName: string): Promise<string>;
+  /**
+   * Moves the `.tmp` files left by an interrupted save to the `sobras` folder, as `.md`
+   * so they open easily (`Aula.md.tmp` → `sobras/Aula.md`). Returns their original names.
+   */
+  moveLeftovers(): Promise<string[]>;
 }
 
 /** Throws if the name could reach outside its folder (e.g. `../x.md`). */
@@ -101,6 +108,33 @@ export function createNotesStore(fs: FileSystem, retry: RetryOptions = DEFAULT_R
         retry,
       );
       return archivedName;
+    },
+
+    async moveLeftovers() {
+      const moved: string[] = [];
+      let taken: string[] | null = null;
+      for (const folder of ["active", "archived"] as const) {
+        await fs.mkdir(FOLDER_PATHS[folder]);
+        const leftovers = (await fs.readDir(FOLDER_PATHS[folder])).filter((name) =>
+          name.endsWith(TEMP_EXTENSION),
+        );
+        for (const name of leftovers) {
+          if (taken === null) {
+            await fs.mkdir(LEFTOVERS_FOLDER);
+            taken = await fs.readDir(LEFTOVERS_FOLDER);
+          }
+          const base = name.slice(0, -TEMP_EXTENSION.length).replace(/\.md$/i, "");
+          const target = uniqueFileName(base, taken);
+          await withRetry(
+            () => fs.rename(pathOf(folder, name), `${LEFTOVERS_FOLDER}/${target}`),
+            name,
+            retry,
+          );
+          taken.push(target);
+          moved.push(name);
+        }
+      }
+      return moved;
     },
   };
 }

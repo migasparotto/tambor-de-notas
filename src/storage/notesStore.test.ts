@@ -166,3 +166,52 @@ describe("NotesStore", () => {
     });
   });
 });
+
+describe("NotesStore.moveLeftovers", () => {
+  let fs: MemoryFileSystem;
+  let store: NotesStore;
+
+  beforeEach(async () => {
+    fs = new MemoryFileSystem();
+    store = createNotesStore(fs, RETRY);
+    await fs.mkdir("ativas");
+    await fs.mkdir("arquivadas");
+  });
+
+  const files = () => [...fs.files.keys()].sort();
+
+  it("moves .tmp files from both folders to sobras, as .md, keeping their text", async () => {
+    fs.files.set("ativas/Aula.md", "salvo");
+    fs.files.set("ativas/Aula.md.tmp", "mais novo");
+    fs.files.set("arquivadas/Velha.md.tmp", "antigo");
+
+    expect(await store.moveLeftovers()).toEqual(["Aula.md.tmp", "Velha.md.tmp"]);
+    expect(files()).toEqual(["ativas/Aula.md", "sobras/Aula.md", "sobras/Velha.md"]);
+    expect(fs.files.get("sobras/Aula.md")).toBe("mais novo");
+    expect(fs.files.get("ativas/Aula.md")).toBe("salvo");
+  });
+
+  it("never overwrites a leftover already in sobras", async () => {
+    await fs.mkdir("sobras");
+    fs.files.set("sobras/Aula.md", "de antes");
+    fs.files.set("ativas/Aula.md.tmp", "ativa");
+    fs.files.set("arquivadas/Aula.md.tmp", "arquivada");
+
+    await store.moveLeftovers();
+    expect(fs.files.get("sobras/Aula.md")).toBe("de antes");
+    expect(fs.files.get("sobras/Aula-2.md")).toBe("ativa");
+    expect(fs.files.get("sobras/Aula-3.md")).toBe("arquivada");
+  });
+
+  it("does nothing when there are no leftovers", async () => {
+    fs.files.set("ativas/Aula.md", "salvo");
+    expect(await store.moveLeftovers()).toEqual([]);
+    expect(files()).toEqual(["ativas/Aula.md"]);
+  });
+
+  it("leaves the notes list without leftovers afterwards", async () => {
+    fs.files.set("ativas/Aula.md.tmp", "x");
+    await store.moveLeftovers();
+    expect(await fs.readDir("ativas")).toEqual([]);
+  });
+});
