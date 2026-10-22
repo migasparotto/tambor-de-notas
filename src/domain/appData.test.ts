@@ -8,7 +8,7 @@ import {
   loadSettings,
   saveDailyCycles,
 } from "./appData";
-import { DEFAULT_SETTINGS, parseSettings } from "./settings";
+import { DEFAULT_SETTINGS, parseSettings, serializeSettings } from "./settings";
 
 describe("app data", () => {
   let fs: MemoryFileSystem;
@@ -38,6 +38,30 @@ describe("app data", () => {
       expect(settings).toEqual(DEFAULT_SETTINGS);
       expect(problems).toHaveLength(1);
       expect(fs.files.get(SETTINGS_FILE)).toBe("{ quebrado");
+    });
+
+    it("adds the missing settings to the file, keeping the user's values", async () => {
+      await store.write(SETTINGS_FILE, '{ "drumHeightFraction": 0.25 }');
+      const { settings } = await loadSettings(store);
+      const written = parseSettings(fs.files.get(SETTINGS_FILE) ?? "");
+      expect(written).toEqual({ settings, problems: [] });
+      expect(written.settings).toEqual({ ...DEFAULT_SETTINGS, drumHeightFraction: 0.25 });
+    });
+
+    it("does not rewrite a file that already has every setting", async () => {
+      const complete = serializeSettings(DEFAULT_SETTINGS).replace(/\n/g, "\r\n");
+      await store.write(SETTINGS_FILE, complete);
+      await loadSettings(store);
+      expect(fs.files.get(SETTINGS_FILE)).toBe(complete);
+    });
+
+    it("still uses the settings if completing the file fails", async () => {
+      await store.write(SETTINGS_FILE, '{ "drumHeightFraction": 0.25 }');
+      vi.spyOn(store, "write").mockRejectedValueOnce(new Error("disco"));
+      const { settings, problems } = await loadSettings(store);
+      expect(settings.drumHeightFraction).toBe(0.25);
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toContain("disco");
     });
 
     it("keeps working with the defaults if the disk fails", async () => {

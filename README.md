@@ -98,7 +98,7 @@ A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistem
 
 ## Configuração
 
-As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Para mudar, edite o arquivo e reabra o app:
+As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Cada vez que o app abre, ele acrescenta ao arquivo as configurações que faltam (por exemplo, as que chegam numa versão nova), com o valor padrão, sem mexer nas que você já mudou. Para mudar, edite o arquivo e reabra o app:
 
 | Configuração             | Padrão      | O que é                                                                                                              |
 | ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |

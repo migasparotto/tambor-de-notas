@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_SETTINGS, parseSettings, serializeSettings } from "./settings";
+import { DEFAULT_SETTINGS, completeSettings, parseSettings, serializeSettings } from "./settings";
 
 describe("parseSettings", () => {
   it("reads back exactly what was saved", () => {
@@ -115,5 +115,62 @@ describe("cycle end settings", () => {
     );
     expect(problems).toHaveLength(4);
     expect(settings).toEqual(DEFAULT_SETTINGS);
+  });
+});
+
+describe("completeSettings", () => {
+  const full = () => JSON.parse(serializeSettings(DEFAULT_SETTINGS)) as Record<string, unknown>;
+
+  it("adds the missing settings with their defaults, keeping the user's values", () => {
+    const changed = DEFAULT_SETTINGS.focusMinutes + 10;
+    const completed = completeSettings(JSON.stringify({ focusMinutes: changed }));
+    expect(completed).not.toBeNull();
+    expect(parseSettings(completed ?? "")).toEqual({
+      settings: { ...DEFAULT_SETTINGS, focusMinutes: changed },
+      problems: [],
+    });
+  });
+
+  it("keeps the user's settings first, in their order, and adds the new ones after", () => {
+    const completed = completeSettings('{ "soundVolume": 0.2, "charLimit": 500 }') ?? "";
+    const keys = Object.keys(JSON.parse(completed) as object);
+    expect(keys.slice(0, 2)).toEqual(["soundVolume", "charLimit"]);
+    expect(new Set(keys)).toEqual(new Set(Object.keys(DEFAULT_SETTINGS)));
+  });
+
+  it("adds the missing shortcuts without changing the ones already there", () => {
+    const mine = "Ctrl+Alt+Q";
+    const completed = completeSettings(JSON.stringify({ shortcuts: { openColor1: mine } })) ?? "";
+    expect(parseSettings(completed).settings.shortcuts).toEqual({
+      ...DEFAULT_SETTINGS.shortcuts,
+      openColor1: mine,
+    });
+  });
+
+  it("leaves invalid and unknown values as they are, for the user to fix", () => {
+    const saved: Record<string, unknown> = { ...full(), charLimit: -5, minhaNota: "oi" };
+    delete saved.soundVolume;
+    const completed = JSON.parse(completeSettings(JSON.stringify(saved)) ?? "{}") as Record<
+      string,
+      unknown
+    >;
+    expect(completed.charLimit).toBe(-5);
+    expect(completed.minhaNota).toBe("oi");
+    expect(completed.soundVolume).toBe(DEFAULT_SETTINGS.soundVolume);
+  });
+
+  it("returns null when nothing is missing, so the file is not rewritten", () => {
+    expect(completeSettings(serializeSettings(DEFAULT_SETTINGS))).toBeNull();
+  });
+
+  it("returns null for a broken file or one in the wrong format", () => {
+    expect(completeSettings("{ quebrado")).toBeNull();
+    expect(completeSettings("[1, 2]")).toBeNull();
+    expect(completeSettings("null")).toBeNull();
+  });
+
+  it("does not touch shortcuts written in the wrong format", () => {
+    const completed = completeSettings(JSON.stringify({ shortcuts: "nenhum" })) ?? "";
+    expect((JSON.parse(completed) as Record<string, unknown>).shortcuts).toBe("nenhum");
   });
 });

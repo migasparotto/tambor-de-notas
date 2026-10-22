@@ -129,6 +129,37 @@ export function parseSettings(json: string): { settings: Settings; problems: str
   return { settings, problems };
 }
 
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+/**
+ * Adds to the settings file the settings it lacks (new ones, like the shortcuts), with
+ * their defaults. The user's values stay as written, even invalid or unknown ones, and
+ * come first. Returns the new file content, or null when nothing is missing or the file
+ * cannot be read (then it is left alone for the user to fix).
+ */
+export function completeSettings(json: string): string | null {
+  let saved: unknown;
+  try {
+    saved = JSON.parse(json);
+  } catch {
+    return null;
+  }
+  if (!isObject(saved)) return null;
+
+  const completed = withDefaults(saved, DEFAULT_SETTINGS);
+  if (isObject(saved.shortcuts)) {
+    completed.shortcuts = withDefaults(saved.shortcuts, DEFAULT_SETTINGS.shortcuts);
+  }
+  if (JSON.stringify(completed) === JSON.stringify(saved)) return null;
+  return `${JSON.stringify(completed, null, 2)}\n`;
+}
+
+/** The saved values, in their order, followed by the defaults they lack. */
+function withDefaults(saved: Record<string, unknown>, defaults: object): Record<string, unknown> {
+  return { ...saved, ...defaults, ...saved };
+}
+
 /** The settings file content: readable JSON, one setting per line. */
 export function serializeSettings(settings: Settings): string {
   return `${JSON.stringify(settings, null, 2)}\n`;
