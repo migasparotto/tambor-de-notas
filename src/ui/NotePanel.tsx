@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import type { NoteColor } from "../domain/chambers";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
-import type { PanelSize } from "../domain/panel";
+import { panelKeyAction, type PanelSize } from "../domain/panel";
 import type { SymbolsMode } from "../domain/settings";
 import { NoteEditor } from "./NoteEditor";
 
@@ -62,6 +62,16 @@ export function NotePanel(props: NotePanelProps) {
       onTransitionEnd={(e) => {
         if (e.target === e.currentTarget && e.propertyName === "width" && !open) props.onHidden();
       }}
+      // Capture phase: the panel sees Esc and Ctrl+Enter before the editor does.
+      onKeyDownCapture={(e) => {
+        if (!grown || e.nativeEvent.isComposing) return;
+        const action = panelKeyAction(e);
+        if (action === null) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if (action === "collapse") props.onCollapse();
+        else props.onCloseNote();
+      }}
       className="absolute flex flex-col overflow-hidden"
       style={{
         ...shape,
@@ -88,7 +98,7 @@ export function NotePanel(props: NotePanelProps) {
             </button>
             <button
               type="button"
-              title="Recolher (a nota continua ativa)"
+              title="Recolher, a nota continua ativa (Esc)"
               aria-label="Recolher o painel"
               onClick={props.onCollapse}
               className={iconButton}
@@ -122,7 +132,7 @@ export function NotePanel(props: NotePanelProps) {
             </span>
             <button
               type="button"
-              title="Fechar a nota e arquivá-la"
+              title="Fechar a nota e arquivá-la (Ctrl+Enter)"
               onClick={props.onCloseNote}
               className="cursor-pointer rounded-md border-0 bg-white/15 px-3 py-1 text-[13px] font-semibold text-white hover:bg-white/25"
             >

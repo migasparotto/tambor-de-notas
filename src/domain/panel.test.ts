@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { drumGeometry, placeAtRightEdge, type Rect } from "./drum";
-import { windowLayout, type PanelSize } from "./panel";
+import { panelKeyAction, windowLayout, type PanelSize } from "./panel";
 import { DEFAULT_SETTINGS } from "./settings";
 
 // A 1536x864 screen with the taskbar at the bottom, and a smaller one.
@@ -75,5 +75,36 @@ describe("windowLayout", () => {
     const panel = windowLayout(drum, area, "normal").panel!;
     expect(panel.width).toBeGreaterThan(drum.width);
     expect(panel.height).toBeGreaterThanOrEqual(2 * drum.outerRadius);
+  });
+});
+
+describe("panelKeyAction", () => {
+  const press = (
+    key: string,
+    mods: Partial<Record<"ctrl" | "shift" | "alt" | "meta", boolean>> = {},
+  ) =>
+    panelKeyAction({
+      key,
+      ctrlKey: mods.ctrl ?? false,
+      shiftKey: mods.shift ?? false,
+      altKey: mods.alt ?? false,
+      metaKey: mods.meta ?? false,
+    });
+
+  it("collapses the panel on Esc", () => {
+    expect(press("Escape")).toBe("collapse");
+  });
+
+  it("closes the note on Ctrl+Enter", () => {
+    expect(press("Enter", { ctrl: true })).toBe("closeNote");
+  });
+
+  it("leaves other keys to the editor", () => {
+    expect(press("Enter")).toBeNull();
+    expect(press("a", { ctrl: true })).toBeNull();
+    expect(press("Enter", { ctrl: true, shift: true })).toBeNull();
+    expect(press("Enter", { ctrl: true, alt: true })).toBeNull();
+    expect(press("Escape", { shift: true })).toBeNull();
+    expect(press("Escape", { ctrl: true })).toBeNull();
   });
 });
