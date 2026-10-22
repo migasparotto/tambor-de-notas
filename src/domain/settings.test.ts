@@ -60,3 +60,27 @@ describe("serializeSettings", () => {
     expect(text.endsWith("\n")).toBe(true);
   });
 });
+
+describe("shortcuts setting", () => {
+  it("reads custom shortcuts and keeps the defaults for the others", () => {
+    const { settings, problems } = parseSettings(
+      '{ "shortcuts": { "togglePomodoro": "ctrl+alt+f9" } }',
+    );
+    expect(settings.shortcuts).toEqual({
+      ...DEFAULT_SETTINGS.shortcuts,
+      togglePomodoro: "Ctrl+Alt+F9",
+    });
+    expect(problems).toEqual([]);
+  });
+
+  it("reports invalid shortcuts with the other settings", () => {
+    const { problems } = parseSettings('{ "charLimit": 0, "shortcuts": { "openColor1": "1" } }');
+    expect(problems).toHaveLength(2);
+  });
+
+  it("never changes the defaults when a read setting is changed", () => {
+    const { settings } = parseSettings("{}");
+    settings.shortcuts.openColor1 = "Ctrl+Alt+Q";
+    expect(DEFAULT_SETTINGS.shortcuts.openColor1).not.toBe("Ctrl+Alt+Q");
+  });
+});

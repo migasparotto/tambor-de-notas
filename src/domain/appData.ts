@@ -1,7 +1,7 @@
 import type { AppDataStore } from "../storage/appDataStore";
 import { defaultAppDataStore } from "../storage/defaultStore";
 import { cyclesForToday, parseDailyCycles, type DailyCycles } from "./dailyCycles";
-import { DEFAULT_SETTINGS, parseSettings, serializeSettings, type Settings } from "./settings";
+import { defaultSettings, parseSettings, serializeSettings, type Settings } from "./settings";
 
 /** File names in the app folder (AppData). */
 export const SETTINGS_FILE = "configuracoes.json";
@@ -17,12 +17,12 @@ export async function loadSettings(
   try {
     const saved = await store.read(SETTINGS_FILE);
     if (saved !== null) return parseSettings(saved);
-    await store.write(SETTINGS_FILE, serializeSettings(DEFAULT_SETTINGS));
-    return { settings: { ...DEFAULT_SETTINGS }, problems: [] };
+    await store.write(SETTINGS_FILE, serializeSettings(defaultSettings()));
+    return { settings: defaultSettings(), problems: [] };
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     return {
-      settings: { ...DEFAULT_SETTINGS },
+      settings: defaultSettings(),
       problems: [`Não foi possível ler as configurações; usando os padrões. (${detail})`],
     };
   }

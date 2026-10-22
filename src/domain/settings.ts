@@ -1,3 +1,5 @@
+import { parseShortcuts, type Shortcuts } from "./shortcuts";
+
 /**
  * When the editor shows Markdown symbols (`#`, `**`...): only while the cursor is inside
  * that heading or bold ("element"), on the whole cursor line ("line"), or never.
@@ -22,6 +24,8 @@ export interface Settings {
   maxActiveNotesPerColor: number;
   /** When the editor shows Markdown symbols. */
   symbolsMode: SymbolsMode;
+  /** Global shortcuts (they work with the app in the background). */
+  shortcuts: Shortcuts;
 }
 
 /** Default settings used until the user changes them. */
@@ -33,12 +37,24 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   autosaveDelayMs: 1000,
   maxActiveNotesPerColor: 1,
   symbolsMode: "element",
+  shortcuts: {
+    openColor1: "Ctrl+Shift+Alt+1",
+    openColor2: "Ctrl+Shift+Alt+2",
+    openColor3: "Ctrl+Shift+Alt+3",
+    openColor4: "Ctrl+Shift+Alt+4",
+    togglePomodoro: "Ctrl+Shift+Alt+P",
+  },
 };
+
+/** A fresh copy of the defaults, safe to change. */
+export function defaultSettings(): Settings {
+  return { ...DEFAULT_SETTINGS, shortcuts: { ...DEFAULT_SETTINGS.shortcuts } };
+}
 
 const isNumber = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
-/** What makes each setting valid; anything else falls back to the default. */
-const VALID: Record<keyof Settings, (value: unknown) => boolean> = {
+/** What makes each simple setting valid; anything else falls back to the default. */
+const VALID: Record<Exclude<keyof Settings, "shortcuts">, (value: unknown) => boolean> = {
   charLimit: (v) => isNumber(v) && Number.isInteger(v) && v > 0,
   drumHeightFraction: (v) => isNumber(v) && v > 0 && v <= 1,
   focusMinutes: (v) => isNumber(v) && v > 0,
@@ -53,7 +69,7 @@ const VALID: Record<keyof Settings, (value: unknown) => boolean> = {
  * and each problem is described so the user can fix the file.
  */
 export function parseSettings(json: string): { settings: Settings; problems: string[] } {
-  const settings: Settings = { ...DEFAULT_SETTINGS };
+  const settings = defaultSettings();
   let saved: unknown;
   try {
     saved = JSON.parse(json);
@@ -72,7 +88,7 @@ export function parseSettings(json: string): { settings: Settings; problems: str
 
   const problems: string[] = [];
   const values = saved as Record<string, unknown>;
-  for (const key of Object.keys(VALID) as (keyof Settings)[]) {
+  for (const key of Object.keys(VALID) as (keyof typeof VALID)[]) {
     const value = values[key];
     if (value === undefined) continue;
     if (VALID[key](value)) {
@@ -82,6 +98,11 @@ export function parseSettings(json: string): { settings: Settings; problems: str
         `"${key}" tem um valor inválido (${JSON.stringify(value)}); usando ${JSON.stringify(DEFAULT_SETTINGS[key])}.`,
       );
     }
+  }
+  if (values.shortcuts !== undefined) {
+    const read = parseShortcuts(values.shortcuts, DEFAULT_SETTINGS.shortcuts);
+    settings.shortcuts = read.shortcuts;
+    problems.push(...read.problems);
   }
   return { settings, problems };
 }
