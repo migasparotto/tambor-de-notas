@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { drumGeometry, placeAtRightEdge, type Rect } from "./drum";
-import { drumKeyAction, windowLayout, type PanelSize } from "./panel";
+import { canTakeKeyboard, drumKeyAction, isDrumSharp, windowLayout, type PanelSize } from "./panel";
 import { DEFAULT_SETTINGS } from "./settings";
 
 // A 1536x864 screen with the taskbar at the bottom, and a smaller one.
@@ -117,5 +117,36 @@ describe("drumKeyAction", () => {
       expect(press("Escape", open, { shift: true })).toBeNull();
       expect(press("Escape", open, { ctrl: true })).toBeNull();
     }
+  });
+});
+
+describe("canTakeKeyboard", () => {
+  it("lets the window take the keyboard only while a panel is open", () => {
+    expect(canTakeKeyboard(true)).toBe(true);
+  });
+
+  it("keeps the keyboard with the video with no panel, or one shrinking back", () => {
+    expect(canTakeKeyboard(false)).toBe(false);
+  });
+});
+
+describe("isDrumSharp", () => {
+  it("is sharp while a note is open and in use", () => {
+    expect(isDrumSharp({ panelOpen: true, focused: true, alerting: false })).toBe(true);
+  });
+
+  it("goes translucent when the keyboard leaves an open note (a click on the video)", () => {
+    expect(isDrumSharp({ panelOpen: true, focused: false, alerting: false })).toBe(false);
+  });
+
+  it("stays translucent without an open note, even if a click marked the page focused", () => {
+    expect(isDrumSharp({ panelOpen: false, focused: true, alerting: false })).toBe(false);
+    expect(isDrumSharp({ panelOpen: false, focused: false, alerting: false })).toBe(false);
+  });
+
+  it("is sharp during the end-of-cycle alert, whatever else is going on", () => {
+    for (const panelOpen of [true, false])
+      for (const focused of [true, false])
+        expect(isDrumSharp({ panelOpen, focused, alerting: true })).toBe(true);
   });
 });

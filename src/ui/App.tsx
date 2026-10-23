@@ -4,7 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
 import { fillLevel } from "../domain/noteText";
-import { drumKeyAction, type PanelSize } from "../domain/panel";
+import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
 import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
@@ -30,6 +30,13 @@ interface AppProps {
 }
 
 const STARTUP_MESSAGE_MS = 10000;
+
+/** Makes the window activatable and gives it the keyboard (does nothing outside Tauri). */
+function takeKeyboard(): void {
+  if (!isTauri()) return;
+  const win = getCurrentWindow();
+  void win.setFocusable(true).then(() => win.setFocus());
+}
 
 /** Root of the interface: a transparent window with the drum and, when open, the note panel. */
 function App({ settings, startupProblems }: AppProps) {
@@ -57,8 +64,20 @@ function App({ settings, startupProblems }: AppProps) {
   };
   const pomodoro = usePomodoro(settings, onPhaseEnd);
   const notes = useNotebook(INITIAL_COLORS, settings);
-  // The end-of-cycle alert shows the drum fully, even when the window is not focused.
-  const visible = focused || pomodoro.alert !== null;
+
+  // Without an open panel the window cannot be activated, so clicks on the drum leave the
+  // keyboard with the video; opening a note makes it activatable again and takes the keyboard.
+  const panelOpen = panel?.open ?? false;
+  useEffect(() => {
+    if (!isTauri()) return;
+    if (canTakeKeyboard(panelOpen)) takeKeyboard();
+    else void getCurrentWindow().setFocusable(false);
+  }, [panelOpen]);
+  const visible = isDrumSharp({
+    panelOpen,
+    focused,
+    alerting: pomodoro.alert !== null,
+  });
 
   const chambers: Record<string, ChamberState> = {};
   for (const color of INITIAL_COLORS) {
@@ -89,7 +108,7 @@ function App({ settings, startupProblems }: AppProps) {
     }
     setPanel({ colorId: color.id, size: panel?.size ?? "normal", open: true });
     // The keyboard comes to the app, so typing goes straight into the note.
-    if (isTauri()) void getCurrentWindow().setFocus();
+    takeKeyboard();
   };
   const shortcutMessage = useGlobalShortcuts(settings.shortcuts, onShortcut);
 

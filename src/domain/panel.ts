@@ -61,6 +61,33 @@ export function windowLayout(
   };
 }
 
+/**
+ * Whether the drum window may take the keyboard. Only while a note panel is open: then
+ * typing goes into the note. Otherwise (no panel, or one shrinking back into its chamber)
+ * clicks on the clock, stop or "+" work but the keyboard stays with the video.
+ */
+export function canTakeKeyboard(panelOpen: boolean): boolean {
+  return panelOpen;
+}
+
+/** What the drum's look depends on. */
+export interface DrumLook {
+  panelOpen: boolean;
+  /** The page says it has focus. Without an open panel it can be wrong: a click on the
+   * clock marks the page focused although the window never takes the keyboard. */
+  focused: boolean;
+  /** The end-of-cycle alert is showing. */
+  alerting: boolean;
+}
+
+/**
+ * Whether the drum is shown sharp (otherwise translucent): during the end-of-cycle alert,
+ * or while a note is open and in use. Clicks on the clock, stop or "+" never make it sharp.
+ */
+export function isDrumSharp({ panelOpen, focused, alerting }: DrumLook): boolean {
+  return alerting || (panelOpen && focused);
+}
+
 /** The keys the drum window listens to (the parts of a keyboard event it needs). */
 export interface DrumKey {
   key: string;
