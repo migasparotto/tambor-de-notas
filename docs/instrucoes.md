@@ -129,7 +129,7 @@ A nota deve continuar leve; o arquivo completo fica no Notion.
 - Formatação rápida por atalhos de Markdown (`#`, `-`, `**`, etc.).
 - Toggle list (bloco recolhível) e sumário automático (TOC) gerado pelos títulos.
 - Espaçamento de linhas e margens ajustáveis.
-- Como toggle list não existe no Markdown padrão, a forma de salvá-la no .md será proposta e debatida na etapa 2.
+- **Toggle list (decidido em 23/10/2026):** como não existe no Markdown padrão, é gravada como HTML `<details><summary>Título</summary> … </details>`, com linhas em branco em volta do conteúdo. Recolhe no GitHub, no Obsidian e na prévia do VS Code; no Notion vira um bloco toggle.
 
 ### Backlinks
 
@@ -261,6 +261,6 @@ Esses itens ficam registrados para versões futuras e evoluem conforme o projeto
 ### Pontos em aberto (decidir na etapa indicada)
 
 - **Etapa 1:** ~~desenho da tela completa e de como o editor surge do tambor~~ (decidido: variação C1, "bolha"); ~~combinação padrão dos atalhos globais~~ (decidido: Ctrl+Shift+Alt, ver "Janela").
-- **Etapa 2:** como salvar toggle list no arquivo .md.
+- **Etapa 2:** ~~como salvar toggle list no arquivo .md~~ (decidido: `<details><summary>`); para onde o `[[link]]` aponta com títulos repetidos; detalhes das cores; o que é "exportar em .md".
 - **Etapa 3:** valor final do limite de caracteres e do tempo de inatividade; em qual projeto do Todoist as tarefas caem; forma de guardar as chaves de API.
 - **Etapa 4:** escopo da IA e provedor.

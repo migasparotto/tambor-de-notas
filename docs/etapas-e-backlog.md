@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas. Começa decidindo com o Marcos as sprints internas e os pontos em aberto (como salvar toggle list no `.md`; detalhes das abas).
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). **Falta fechar o ponto 2** (para onde o `[[link]]` aponta com títulos repetidos) **antes de começar a S1.**
 
 ## Etapa 0 — Fundação ✅
 
@@ -239,7 +239,35 @@ Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o m
 
 **Pronto quando:** consigo personalizar as cores, definir o assunto, ligar notas com backlinks, usar toggle list e sumário, buscar notas e exportar em .md. Requisitos: RF06 a RF13.
 
-**Decidir antes de programar:** como salvar toggle list no arquivo .md.
+**Decidido antes de programar (23/10/2026):** toggle list salva como HTML `<details><summary>Título</summary> … </details>` (ver "Pontos em aberto da Etapa 2").
+
+### Sprints internas (aprovadas em 23/10/2026)
+
+| Sprint | Conteúdo |
+| --- | --- |
+| **S1 · Janela** | Arrastar o tambor (e espelhar na borda esquerda), lembrar a posição; **por último**, o clique passando pelos cantos transparentes (se precisar de Rust ou complicar, vira item separado, sem travar o resto) |
+| **S2 · Assunto e cores** | Campo assunto com o último usado (RF07); nome, função e troca de cor das câmaras (RF06) |
+| **S3 · Lista e busca** | Lista de notas filtrável e busca (RF11), e a decisão sobre "exportar em .md" (RF12). Monta o **índice das notas** em `src/domain/`, já pensado para os backlinks |
+| **S4 · Backlinks** | `[[link]]` clicável, sugestões ao digitar e "quem aponta para esta nota" (RF08), reaproveitando o índice da S3 |
+| **S5 · Editor** | Toggle list, sumário (TOC) e espaçamento (RF09, RF10, RF13) |
+| **S6 · Abas** | Até 3 notas abertas como abas empilhadas; os testes incluem a regra de foco do item 7 (`canTakeKeyboard`) com várias abas |
+
+Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que os backlinks usam. **Cada sprint termina com uma versão nova** pelo CD (v0.2.0, v0.3.0...).
+
+### Pontos em aberto da Etapa 2
+
+**Decidido pelo Marcos (23/10/2026):**
+
+1. **Renomear e cor da nota.** O título muda raramente; quando muda, o arquivo é renomeado e **todos os `[[links]]` que apontavam para ele são atualizados**: nada pode quebrar. A cor de uma nota nunca muda. A **câmara é só um lugar** no tambor; as notas pertencem à cor. Trocar a cor de uma câmara só muda qual cor aparece nela; quando a cor antiga volta a uma câmara, as notas dela reaparecem como estavam. No futuro haverá mais cores do que câmaras (escolhidas pelo "+"). Hoje o cabeçalho de cada nota já guarda o id da cor (`color: red`), não a câmara.
+2. **Títulos repetidos em cores diferentes são notas diferentes** e nunca são juntados; a ligação entre assuntos parecidos fica para a IA (Etapa 4).
+3. **Nome, função e destino ficam presos à cor**, não à câmara (confirmado pelo Claude; ver os detalhes ainda abertos abaixo).
+4. **Toggle no `.md`: formato A**, HTML `<details><summary>Título</summary> … </details>`. Recolhe no GitHub, no Obsidian e na prévia do VS Code; o live preview esconde as marcas. Conferido: sem impedimento no CodeMirror nem na API do Notion (ver "Editor").
+
+**Em aberto (o ponto 2 fecha antes da S1):**
+
+- **Para onde o `[[link]]` aponta** com títulos repetidos (em cores diferentes ou na mesma cor, em meses diferentes). Proposta do Claude em debate.
+- **Detalhes da cor** (decidir na S2): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor só abre pela lista (S3); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
+- **"Exportar em .md"** (RF12): as notas já são `.md`. Decidir na S3 se o requisito sai, vira "abrir a pasta da nota" ou vira "salvar uma cópia limpa em outra pasta".
 
 ### Janela
 
@@ -274,7 +302,7 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 
 ### Editor (RF09, RF10, RF13)
 
-- [ ] Toggle list (bloco recolhível)
+- [ ] Toggle list (bloco recolhível), gravada como `<details><summary>Título</summary>`, uma linha em branco, o conteúdo em Markdown, uma linha em branco e `</details>` (as linhas em branco fazem o GitHub e o Obsidian lerem o conteúdo como Markdown; o editor as põe sozinho). No live preview, as linhas `<details>`/`</details>` somem e o `<summary>` vira o título clicável do bloco. No Notion (Etapa 3), vira um bloco `toggle` com o conteúdo como filhos.
 - [ ] Sumário automático (TOC) gerado pelos títulos da nota: um índice com os subtítulos (`## texto`), clicáveis para navegar pela nota (pedido em 21/10/2026)
 - [ ] Ajuste de espaçamento de linhas e margens
 
