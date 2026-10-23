@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 22/10/2026 (boa noite)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2, S3 e S4 fechadas e aprovadas.
+_Atualizado em 22/10/2026 (boa noite, 2ª sessão)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2, S3 e S4 fechadas e aprovadas.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -32,7 +32,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
 6. **Polimento do fim da Etapa 1** (em andamento), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → atalho global com o vídeo na frente → cliques que nem ativam o tambor → CD. "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
-   - **Próximo:** o item 6, atalho global com o vídeo na frente: investigar a causa (sem mexer no código), trazer sugestão.
+   - **Próximo:** antes de tudo, o Marcos põe um vídeo na frente e aperta Ctrl+Shift+Alt+2 (teste de suspensão); depois o Claude compara o retrato e o registro do app (ver item 6) e, confirmada a causa, implementa a correção. Só então o item 7 e o CD.
 7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
 8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
 
@@ -142,6 +142,10 @@ Ordem combinada em 22/10/2026. A lógica de cada item vai em `src/domain/`, com 
    - Achado à parte, sem mudança: a dica (tooltip) de uma câmara cobre a câmara de baixo, mas o clique passa através dela.
    - Inspeção do WebView2: porta 9333 (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9333`); a 9222 é do Lenovo Vantage neste notebook.
 6. [ ] Atalho global com o vídeo na frente: o Marcos viu em 22/10/2026 que Ctrl+Shift+Alt+2 não funciona com o vídeo na frente. **Antes de programar:** investigar se o atalho chega ao app (o painel abre?), onde fica o foco do teclado, se muda entre navegador em janela normal e em tela cheia, e se o `focus.rs` pode servir para o tambor pegar o teclado de forma confiável; trazer causa e sugestão.
+   - **Investigação (22/10/2026):** com o Edge de teste (vídeo de verdade, teclas só nas janelas de teste), o atalho funcionou **40/40** em janela normal, maximizada, tela cheia (F11) e vídeo em tela cheia, também com o tempo de tecla de uma pessoa e preparando o vídeo só com clique. O painel abriu, o tambor ficou visível, o teclado foi para o editor e o "Alt falso" do `setFocus` do Tauri (truque usado quando o Windows recusa) nunca apareceu.
+   - **Causa provável:** no registro da sessão do Marcos, cada aperto às 21:54–21:55 gerou `[TAURI] Couldn't find callback id …`: o atalho **chegou ao app**, mas a tela já não tinha as funções de resposta dos atalhos, então nada abria. O notebook tinha voltado de uma **suspensão às 21:49** (dormia desde 20:57). Recarregar a tela (F5) **não** reproduz: ela registra os atalhos de novo e eles funcionam. Falta confirmar com um teste de suspensão.
+   - **Hipótese:** os atalhos morrem depois de suspender o notebook (`Couldn't find callback id`). **Correção sugerida:** registrar os atalhos de novo ao detectar o pulo de tempo (um relógio interno que de repente atrasa minutos), com a regra em `src/domain/` e teste com tempo simulado. **Alternativa:** atalhos no Rust, que traz o tambor para a frente e avisa a tela por um evento.
+   - **Teste de suspensão em andamento (noite de 22 para 23/10/2026):** o app ficou aberto com a inspeção (porta 9333) e o retrato das funções registradas está em `C:Userscacog	ambor-diagnostico` (fora do repositório), com o `LEIA-ME.txt` de como comparar. Atenção: editar arquivos do projeto faz o Vite recarregar a tela e registrar os atalhos de novo (com outros números); por isso, nada de editar antes do teste.
 7. [ ] Cliques que nem ativam o tambor (aprovado em 22/10/2026, depois do item 6): com o painel fechado, a janela fica "não ativável" (`setFocusable(false)`), e clicar no relógio, no stop ou no "+" não tira o teclado do vídeo; abrir uma cor torna a janela ativável e pede o foco. Conferir o efeito na barra de tarefas e o tambor translúcido ao clicar no relógio.
 8. [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript. **Só se o instalador do CD ficar grande.**
 
