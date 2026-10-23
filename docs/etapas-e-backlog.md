@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 22/10/2026 (boa noite, 2ª sessão)._ Etapa 0 e CI concluídos. Estamos na **Etapa 1 — MVP utilizável**: S1, S2, S3 e S4 fechadas e aprovadas.
+_Atualizado em 23/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Primeiro release publicado: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0). Próxima: **Etapa 2 — Organização**.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -32,9 +32,9 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
-   - **Próximo:** teste de suspensão feito em 23/10/2026: o atalho funcionou, e a tela recarregou sozinha ao acordar (ver item 6). Decidido não corrigir agora: o item 6 fica aberto até o teste com o app instalado, no fim da etapa. Item 7 (cliques que nem ativam o tambor) feito e aprovado em 23/10/2026. CD feito em 23/10/2026 (workflow verde, app instalado neste notebook) e app de desenvolvimento separado do instalado (`npm run app:dev`). Teste do item 6 com o app instalado passou: o item fecha como "só acontece em desenvolvimento". **Agora:** o primeiro release (tag `v0.1.0`).
-7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
-8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
+   - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
+7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
+8. **Agora: Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas. Começa decidindo com o Marcos as sprints internas e os pontos em aberto (como salvar toggle list no `.md`; detalhes das abas).
 
 ## Etapa 0 — Fundação ✅
 
@@ -62,7 +62,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 
 O **CD** (gerar o instalador do app automaticamente) vem logo depois do polimento da Etapa 1 (ver "Depois da Etapa 1 — Entrega contínua (CD)").
 
-## Etapa 1 — MVP utilizável
+## Etapa 1 — MVP utilizável ✅
 
 **Objetivo:** já dá para usar numa aula de verdade: abrir uma cor, anotar, fechar a nota e usar o pomodoro.
 
@@ -151,7 +151,7 @@ Ordem combinada em 22/10/2026. A lógica de cada item vai em `src/domain/`, com 
    - **Resultado (23/10/2026): passou.** Com o app instalado aberto desde as 12:16, o notebook dormiu das 12:17 às 13:09; na volta, Ctrl+Shift+Alt+2 com o vídeo na frente abriu o painel (Marcos). A tela **não** recarregou (mesmo início, 12:16:22, e as mesmas 6 funções de resposta de antes). Item fechado como "só acontece em desenvolvimento"; nenhuma correção necessária.
 7. [x] Cliques que nem ativam o tambor (aprovado em 22/10/2026, depois do item 6): com o painel fechado, a janela fica "não ativável" (`setFocusable(false)`), e clicar no relógio, no stop ou no "+" não tira o teclado do vídeo; abrir uma cor torna a janela ativável e pede o foco. Feito em 23/10/2026 (regra `canTakeKeyboard` em `src/domain/panel.ts`, permissão `core:window:allow-set-focusable`). Barra de tarefas sem mudança.
    - **Translucidez:** o WebView2 marca a página como "em foco" ao clicar no relógio, mesmo sem a janela ser ativada, e o aviso de "perdeu o foco" nunca chegava: o tambor ficava nítido até o Esc. **Decidido (23/10/2026):** nítido só com nota aberta e em foco, ou no aviso de fim de ciclo (regra `isDrumSharp`). Testado e aprovado pelo Marcos em 23/10/2026.
-8. [ ] Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript. **Só se o instalador do CD ficar grande.**
+8. [x] **Não necessário (23/10/2026):** o instalador do CD tem 1,7 MB. Tamanho do código do app: com o CodeMirror ele foi de 244 kB para 763 kB (257 kB comprimido), quase tudo porque o `@codemirror/lang-markdown` traz junto HTML, CSS e JavaScript. **Só se o instalador do CD ficar grande.**
 
 ### Notas (RF01, RF03, RF04, RF05)
 
@@ -205,7 +205,7 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 - [x] Fechar a nota move o arquivo para `notas/arquivadas/` e libera a cor para uma nota nova
 - [x] Testes de leitura e escrita dos arquivos .md (S3: porta de armazenamento, frontmatter e `Notebook`)
 
-## Depois da Etapa 1 — Entrega contínua (CD)
+## Depois da Etapa 1 — Entrega contínua (CD) ✅
 
 **Objetivo:** gerar o instalador do app automaticamente, sem montar à mão.
 
@@ -224,9 +224,9 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 - [x] Conferir que o instalador funciona neste notebook (23/10/2026: instalação silenciosa sem erro, em `AppData\Local\Tambor de Notas\`, com atalho no menu Iniciar; o app abre)
 - [x] Ações do GitHub na v7 (Node 24) no CI e no CD, sem o aviso de Node antigo (23/10/2026)
 - [x] Teste do item 6 do polimento com o app instalado (hibernar e apertar Ctrl+Shift+Alt+2 na volta): passou em 23/10/2026
-- [ ] Primeiro release: tag `v0.1.0`, CD verde e publicar o rascunho com o `.exe` anexado
+- [x] Primeiro release: tag `v0.1.0`, CD verde e rascunho publicado com o `.exe` anexado (23/10/2026)
 
-## Depois do CD — Separar o app de desenvolvimento do instalado
+## Depois do CD — Separar o app de desenvolvimento do instalado ✅
 
 Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o mesmo identificador, então dividem as notas, o `configuracoes.json`, o `pomodoro.json` e os atalhos globais.
 
