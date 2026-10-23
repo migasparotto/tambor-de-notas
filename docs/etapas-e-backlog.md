@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). **Falta fechar o ponto 2** (para onde o `[[link]]` aponta com títulos repetidos) **antes de começar a S1.**
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. **Agora: S1 — Janela.**
 
 ## Etapa 0 — Fundação ✅
 
@@ -237,7 +237,7 @@ Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o m
 
 **Objetivo:** as notas ficam organizadas, conectadas e fáceis de achar.
 
-**Pronto quando:** consigo personalizar as cores, definir o assunto, ligar notas com backlinks, usar toggle list e sumário, buscar notas e exportar em .md. Requisitos: RF06 a RF13.
+**Pronto quando:** consigo personalizar as cores, definir o assunto, ligar notas com backlinks, usar toggle list e sumário, buscar notas e abrir a pasta de uma nota. Requisitos: RF06 a RF13.
 
 **Decidido antes de programar (23/10/2026):** toggle list salva como HTML `<details><summary>Título</summary> … </details>` (ver "Pontos em aberto da Etapa 2").
 
@@ -247,7 +247,7 @@ Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o m
 | --- | --- |
 | **S1 · Janela** | Arrastar o tambor (e espelhar na borda esquerda), lembrar a posição; **por último**, o clique passando pelos cantos transparentes (se precisar de Rust ou complicar, vira item separado, sem travar o resto) |
 | **S2 · Assunto e cores** | Campo assunto com o último usado (RF07); nome, função e troca de cor das câmaras (RF06) |
-| **S3 · Lista e busca** | Lista de notas filtrável e busca (RF11), e a decisão sobre "exportar em .md" (RF12). Monta o **índice das notas** em `src/domain/`, já pensado para os backlinks |
+| **S3 · Lista e busca** | Lista de notas filtrável e busca (RF11), e abrir a pasta da nota (RF12). Monta o **índice das notas** em `src/domain/`, já pensado para os backlinks |
 | **S4 · Backlinks** | `[[link]]` clicável, sugestões ao digitar e "quem aponta para esta nota" (RF08), reaproveitando o índice da S3 |
 | **S5 · Editor** | Toggle list, sumário (TOC) e espaçamento (RF09, RF10, RF13) |
 | **S6 · Abas** | Até 3 notas abertas como abas empilhadas; os testes incluem a regra de foco do item 7 (`canTakeKeyboard`) com várias abas |
@@ -263,11 +263,11 @@ Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que o
 3. **Nome, função e destino ficam presos à cor**, não à câmara (confirmado pelo Claude; ver os detalhes ainda abertos abaixo).
 4. **Toggle no `.md`: formato A**, HTML `<details><summary>Título</summary> … </details>`. Recolhe no GitHub, no Obsidian e na prévia do VS Code; o live preview esconde as marcas. Conferido: sem impedimento no CodeMirror nem na API do Notion (ver "Editor").
 
-**Em aberto (o ponto 2 fecha antes da S1):**
+**Decidido também (23/10/2026):**
 
-- **Para onde o `[[link]]` aponta** com títulos repetidos (em cores diferentes ou na mesma cor, em meses diferentes). Proposta do Claude em debate.
-- **Detalhes da cor** (decidir na S2): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor só abre pela lista (S3); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
-- **"Exportar em .md"** (RF12): as notas já são `.md`. Decidir na S3 se o requisito sai, vira "abrir a pasta da nota" ou vira "salvar uma cópia limpa em outra pasta".
+5. **Para onde o `[[link]]` aponta:** no disco, o link guarda o **nome do arquivo** (formato do Obsidian), por exemplo `[[2026-10 vermelho - Aula de Python]]`, que é sempre único. Na tela aparece só o título, com uma bolinha da cor. Ao digitar `[[`, as sugestões mostram título, cor e mês, primeiro as notas da mesma cor. Um link digitado à mão (`[[Aula de Python]]`) é resolvido pela mesma cor e, entre elas, a mais recente, e trocado pelo nome do arquivo ao sair do link; se houver dúvida, fica com sublinhado tracejado até escolher nas sugestões. Ao renomear um título, os links são atualizados em todas as notas, ativas e arquivadas.
+6. **Detalhes da cor** (de acordo, para a S2): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor só abre pela lista (S3); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
+7. **RF12 virou "abrir a pasta da nota"** no Explorador do Windows, no lugar de "exportar em .md" (as notas já são `.md`). "Salvar uma cópia limpa" foi para o "Futuro".
 
 ### Janela
 
@@ -306,11 +306,11 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 - [ ] Sumário automático (TOC) gerado pelos títulos da nota: um índice com os subtítulos (`## texto`), clicáveis para navegar pela nota (pedido em 21/10/2026)
 - [ ] Ajuste de espaçamento de linhas e margens
 
-### Lista, busca e exportação (RF11, RF12)
+### Lista, busca e pasta da nota (RF11, RF12)
 
 - [ ] Lista de notas ativas e arquivadas, filtrável por cor e assunto
 - [ ] Busca por texto nas notas
-- [ ] Exportar uma nota em .md para uma pasta escolhida
+- [ ] Botão para abrir a pasta da nota no Explorador do Windows (RF12, decidido em 23/10/2026)
 
 ## Etapa 3 — Integrações
 
@@ -378,3 +378,4 @@ Ideias registradas para depois da etapa 4. Nenhuma entra antes sem ser debatida 
 - Distribuir o app para outras pessoas (instalador, atualizações).
 - Atualização automática do app instalado (plugin updater do Tauri, que exige assinar as atualizações). Ideia de 23/10/2026, ao decidir o CD.
 - Agrupar notas por assunto como uma visão de backlinks (ideia surgida ao definir o campo assunto).
+- Salvar uma cópia limpa de uma nota em outra pasta: sem o cabeçalho e com os `[[links]]` virando títulos, para compartilhar fora do app e do Notion (ideia de 23/10/2026, no lugar do antigo "exportar em .md").

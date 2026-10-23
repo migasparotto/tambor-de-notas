@@ -133,7 +133,7 @@ A nota deve continuar leve; o arquivo completo fica no Notion.
 
 ### Backlinks
 
-- Sintaxe `[[nome da nota]]`, igual ao Obsidian.
+- Sintaxe `[[nome do arquivo]]`, igual ao Obsidian (ex.: `[[2026-10 vermelho - Aula de Python]]`), que é sempre único. Na tela aparece só o título, com a bolinha da cor. Ao digitar `[[`, as sugestões mostram primeiro as notas da mesma cor; um link digitado à mão pelo título é trocado pelo nome do arquivo ao sair dele, e fica com sublinhado tracejado se houver dúvida. Títulos repetidos são notas diferentes. Ao renomear um título, os links são atualizados em todas as notas (decidido em 23/10/2026).
 - Funcionam entre notas de quaisquer cores.
 - Cada nota mostra quais outras notas apontam para ela.
 - No Notion, os backlinks viram links clicáveis entre as páginas.
@@ -197,7 +197,7 @@ O provedor de IA (qual serviço e modelo) também será escolhido nessa etapa.
 | RF09 | Toggle list | 2 |
 | RF10 | Sumário automático (TOC) | 2 |
 | RF11 | Lista e busca de notas | 2 |
-| RF12 | Exportar nota em .md | 2 |
+| RF12 | Abrir a pasta da nota no Explorador do Windows | 2 |
 | RF13 | Ajustar espaçamento de linhas e margens | 2 |
 | RF14 | Enviar nota ao Notion ao fechar e por limite de tamanho | 3 |
 | RF15 | Backlinks como links entre páginas do Notion | 3 |
@@ -261,6 +261,6 @@ Esses itens ficam registrados para versões futuras e evoluem conforme o projeto
 ### Pontos em aberto (decidir na etapa indicada)
 
 - **Etapa 1:** ~~desenho da tela completa e de como o editor surge do tambor~~ (decidido: variação C1, "bolha"); ~~combinação padrão dos atalhos globais~~ (decidido: Ctrl+Shift+Alt, ver "Janela").
-- **Etapa 2:** ~~como salvar toggle list no arquivo .md~~ (decidido: `<details><summary>`); para onde o `[[link]]` aponta com títulos repetidos; detalhes das cores; o que é "exportar em .md".
+- **Etapa 2:** ~~como salvar toggle list no arquivo .md~~ (decidido: `<details><summary>`); ~~para onde o `[[link]]` aponta~~ (decidido: nome do arquivo); ~~"exportar em .md"~~ (virou "abrir a pasta da nota").
 - **Etapa 3:** valor final do limite de caracteres e do tempo de inatividade; em qual projeto do Todoist as tarefas caem; forma de guardar as chaves de API.
 - **Etapa 4:** escopo da IA e provedor.
