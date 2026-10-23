@@ -20,11 +20,13 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - uma linha inteira `+texto+` vira subtítulo ao sair da linha (no arquivo, `## texto`);
   - **Ctrl+B** negrito, **Ctrl+I** itálico (de novo, desfaz), **Ctrl+Z** desfaz; Enter numa lista continua a lista;
   - a nota se salva sozinha 1 segundo depois que você para de digitar, e também ao fechar o app;
-  - **⤢** expande o painel, **–** ou **Esc** recolhe (a nota continua ativa) e **✓ Fechar nota** ou **Ctrl+Enter** arquiva a nota e libera a cor;
+  - **⤢** expande o painel, **–** recolhe (a nota continua ativa) e **✓ Fechar nota** ou **Ctrl+Enter** arquiva a nota e libera a cor;
+  - **Esc** (em qualquer ponto do tambor) recolhe o painel, se estiver aberto, e **devolve o teclado à janela de antes** (o vídeo), para a barra de espaço voltar a pausar o vídeo. Com o painel já recolhido, o Esc só devolve o teclado. Se aquela janela tiver sido fechada ou minimizada, nada acontece: clique no vídeo;
+  - clicar no relógio, no stop ou no **+** não tira o teclado do editor;
   - **MD** mostra o texto puro da nota, exatamente como fica no arquivo `.md` (com o cabeçalho), só para leitura; clique de novo para voltar ao editor;
   - com nota ativa, a câmara fica tingida e **enche** conforme a nota se aproxima do limite de caracteres (padrão 300);
   - as notas são arquivos `.md` em `Documentos\Tambor de Notas\notas\` (`ativas\` e `arquivadas\`), com nome `AAAA-MM cor - título.md`. Funciona com Documentos no OneDrive: se a sincronização segurar um arquivo, o app tenta de novo e avisa, sem perder o texto.
-  - se o app parar no meio de um salvamento, pode sobrar um arquivo `.tmp`. Ao abrir, o app move essas sobras para `notassobras` (como `.md`) e avisa. Elas podem ter o texto mais novo da nota; confira e apague quando quiser.
+  - se o app parar no meio de um salvamento, pode sobrar um arquivo `.tmp`. Ao abrir, o app move essas sobras para `notas\sobras\` (como `.md`) e avisa. Elas podem ter o texto mais novo da nota; confira e apague quando quiser.
 - **Pomodoro** no centro do tambor (padrão: 25 min de foco e 5 de pausa, em `src/domain/settings.ts`):
   - clique no relógio para dar play ou pausa; o quadradinho abaixo é o stop, que volta ao foco cheio;
   - o relógio fica cinza parado, branco focando, bege-rosado pausado e âmbar na pausa de descanso;

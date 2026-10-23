@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { drumGeometry, placeAtRightEdge, type Rect } from "./drum";
-import { panelKeyAction, windowLayout, type PanelSize } from "./panel";
+import { drumKeyAction, windowLayout, type PanelSize } from "./panel";
 import { DEFAULT_SETTINGS } from "./settings";
 
 // A 1536x864 screen with the taskbar at the bottom, and a smaller one.
@@ -78,33 +78,44 @@ describe("windowLayout", () => {
   });
 });
 
-describe("panelKeyAction", () => {
+describe("drumKeyAction", () => {
   const press = (
     key: string,
+    panelOpen: boolean,
     mods: Partial<Record<"ctrl" | "shift" | "alt" | "meta", boolean>> = {},
   ) =>
-    panelKeyAction({
-      key,
-      ctrlKey: mods.ctrl ?? false,
-      shiftKey: mods.shift ?? false,
-      altKey: mods.alt ?? false,
-      metaKey: mods.meta ?? false,
-    });
+    drumKeyAction(
+      {
+        key,
+        ctrlKey: mods.ctrl ?? false,
+        shiftKey: mods.shift ?? false,
+        altKey: mods.alt ?? false,
+        metaKey: mods.meta ?? false,
+      },
+      panelOpen,
+    );
 
-  it("collapses the panel on Esc", () => {
-    expect(press("Escape")).toBe("collapse");
+  it("collapses the panel and gives the keyboard back on Esc when the panel is open", () => {
+    expect(press("Escape", true)).toBe("collapseAndLeave");
   });
 
-  it("closes the note on Ctrl+Enter", () => {
-    expect(press("Enter", { ctrl: true })).toBe("closeNote");
+  it("only gives the keyboard back on Esc when the panel is already collapsed", () => {
+    expect(press("Escape", false)).toBe("leave");
+  });
+
+  it("closes the note on Ctrl+Enter, only with the panel open", () => {
+    expect(press("Enter", true, { ctrl: true })).toBe("closeNote");
+    expect(press("Enter", false, { ctrl: true })).toBeNull();
   });
 
   it("leaves other keys to the editor", () => {
-    expect(press("Enter")).toBeNull();
-    expect(press("a", { ctrl: true })).toBeNull();
-    expect(press("Enter", { ctrl: true, shift: true })).toBeNull();
-    expect(press("Enter", { ctrl: true, alt: true })).toBeNull();
-    expect(press("Escape", { shift: true })).toBeNull();
-    expect(press("Escape", { ctrl: true })).toBeNull();
+    for (const open of [true, false]) {
+      expect(press("Enter", open)).toBeNull();
+      expect(press("a", open, { ctrl: true })).toBeNull();
+      expect(press("Enter", open, { ctrl: true, shift: true })).toBeNull();
+      expect(press("Enter", open, { ctrl: true, alt: true })).toBeNull();
+      expect(press("Escape", open, { shift: true })).toBeNull();
+      expect(press("Escape", open, { ctrl: true })).toBeNull();
+    }
   });
 });

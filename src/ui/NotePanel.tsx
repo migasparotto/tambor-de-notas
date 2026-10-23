@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import type { NoteColor } from "../domain/chambers";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
-import { panelKeyAction, type PanelSize } from "../domain/panel";
+import type { PanelSize } from "../domain/panel";
 import type { SymbolsMode } from "../domain/settings";
 import { NoteEditor } from "./NoteEditor";
 
@@ -65,16 +65,6 @@ export function NotePanel(props: NotePanelProps) {
       aria-label={`Nota ${color.name}`}
       onTransitionEnd={(e) => {
         if (e.target === e.currentTarget && e.propertyName === "width" && !open) props.onHidden();
-      }}
-      // Capture phase: the panel sees Esc and Ctrl+Enter before the editor does.
-      onKeyDownCapture={(e) => {
-        if (!grown || e.nativeEvent.isComposing) return;
-        const action = panelKeyAction(e);
-        if (action === null) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if (action === "collapse") props.onCollapse();
-        else props.onCloseNote();
       }}
       className="absolute flex flex-col overflow-hidden"
       style={{

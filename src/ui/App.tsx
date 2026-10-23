@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
 import { fillLevel } from "../domain/noteText";
-import type { PanelSize } from "../domain/panel";
+import { drumKeyAction, type PanelSize } from "../domain/panel";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
 import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
 import { Drum, type ChamberState, type DrumSpin } from "./Drum";
 import { NotePanel } from "./NotePanel";
+import { returnFocus } from "./returnFocus";
 import { useAppWindow } from "./useAppWindow";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
@@ -92,6 +93,39 @@ function App({ settings, startupProblems }: AppProps) {
   };
   const shortcutMessage = useGlobalShortcuts(settings.shortcuts, onShortcut);
 
+  /** Closes the open note (archives it) and shrinks the panel back into its chamber. */
+  const closeNote = (colorId: string) => {
+    void notes.close(colorId).then((closed) => {
+      if (closed) setPanel((p) => (p ? { ...p, open: false } : p));
+    });
+  };
+
+  /** Esc and Ctrl+Enter, wherever the keyboard is in the drum window (not only in the panel). */
+  const onKey = (e: KeyboardEvent) => {
+    if (e.isComposing) return;
+    const action = drumKeyAction(e, panel?.open ?? false);
+    if (action === null) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (action === "closeNote") {
+      if (panel) closeNote(panel.colorId);
+      return;
+    }
+    if (action === "collapseAndLeave" && panel) setPanel({ ...panel, open: false });
+    returnFocus();
+  };
+  // Registered once; this ref always points to the latest handler.
+  const latestOnKey = useRef(onKey);
+  useEffect(() => {
+    latestOnKey.current = onKey;
+  });
+  useEffect(() => {
+    // Capture phase: the window sees these keys before the editor does.
+    const listener = (e: KeyboardEvent) => latestOnKey.current(e);
+    window.addEventListener("keydown", listener, true);
+    return () => window.removeEventListener("keydown", listener, true);
+  }, []);
+
   const panelColor = INITIAL_COLORS.find((c) => c.id === panel?.colorId);
   const chamberIndex = INITIAL_COLORS.findIndex((c) => c.id === panel?.colorId);
   const chamberCenter = geometry.chambers[chamberIndex];
@@ -107,6 +141,9 @@ function App({ settings, startupProblems }: AppProps) {
     >
       <div
         className="absolute"
+        // Clicks on the drum (clock, stop, "+", the ring) work but never take the keyboard
+        // away from the editor; opening a color focuses its own editor.
+        onMouseDown={(e) => e.preventDefault()}
         style={{
           left: layout.drumOrigin.x,
           top: layout.drumOrigin.y,
@@ -154,11 +191,7 @@ function App({ settings, startupProblems }: AppProps) {
             setPanel({ ...panel, size: panel.size === "normal" ? "expanded" : "normal" })
           }
           onCollapse={() => setPanel({ ...panel, open: false })}
-          onCloseNote={() => {
-            void notes.close(panel.colorId).then((closed) => {
-              if (closed) setPanel((p) => (p ? { ...p, open: false } : p));
-            });
-          }}
+          onCloseNote={() => closeNote(panel.colorId)}
           onHidden={() => setPanel((p) => (p && !p.open ? null : p))}
         />
       )}

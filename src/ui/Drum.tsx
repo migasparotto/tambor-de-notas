@@ -172,7 +172,9 @@ export function Drum({
           <button
             key={chamber.id}
             type="button"
-            disabled
+            // aria-disabled, not disabled: a disabled button swallows the click before the drum
+            // can keep the keyboard in the editor (see the onMouseDown in App).
+            aria-disabled="true"
             title={`${chamber.name} — chega na Etapa ${chamber.stage}`}
             aria-label={`${chamber.name} — chega na Etapa ${chamber.stage}`}
             className="flex cursor-not-allowed items-center justify-center rounded-full bg-transparent p-0 font-bold text-[#8D94A0]"
@@ -215,11 +217,11 @@ export function Drum({
 
       <button
         type="button"
-        disabled={pomodoro.status === "idle"}
+        aria-disabled={pomodoro.status === "idle"}
         title="Parar pomodoro"
         aria-label="Parar pomodoro"
-        onClick={onStopPomodoro}
-        className="flex cursor-pointer items-center justify-center rounded-[5px] border border-[#3A3E46] bg-[#23262C] p-0 disabled:cursor-default disabled:opacity-40"
+        onClick={pomodoro.status === "idle" ? undefined : onStopPomodoro}
+        className="flex cursor-pointer items-center justify-center rounded-[5px] border border-[#3A3E46] bg-[#23262C] p-0 aria-disabled:cursor-default aria-disabled:opacity-40"
         style={around(g.stop.center, g.stop.size)}
       >
         <span className="block size-[7px] rounded-[1px]" style={{ background: STOP_MARK }} />
@@ -240,7 +242,7 @@ export function Drum({
 
       <button
         type="button"
-        disabled
+        aria-disabled="true"
         title="Girar o tambor — chega numa versão futura"
         aria-label="Girar o tambor (versão futura)"
         className="rounded-full bg-transparent p-0 text-[#CFD3DA]"

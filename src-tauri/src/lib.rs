@@ -1,3 +1,5 @@
+mod focus;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -10,7 +12,11 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .setup(|_app| {
+            focus::start_watching();
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![greet, focus::return_focus])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

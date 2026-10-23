@@ -61,8 +61,8 @@ export function windowLayout(
   };
 }
 
-/** The keys the open panel listens to (the parts of a keyboard event it needs). */
-export interface PanelKey {
+/** The keys the drum window listens to (the parts of a keyboard event it needs). */
+export interface DrumKey {
   key: string;
   ctrlKey: boolean;
   shiftKey: boolean;
@@ -70,14 +70,18 @@ export interface PanelKey {
   metaKey: boolean;
 }
 
+/** What a key does in the drum window. */
+export type DrumKeyAction = "collapseAndLeave" | "leave" | "closeNote";
+
 /**
- * What a key does in the open panel: Esc collapses it (the note stays active)
- * and Ctrl+Enter closes the note. Other keys, or the same keys with other modifiers, do nothing.
+ * What a key does anywhere in the drum window. Esc gives the keyboard back to the window
+ * that had it before (the video), collapsing the panel first if it is open; the note stays
+ * active. Ctrl+Enter closes the open note. Other keys, or other modifiers, do nothing.
  */
-export function panelKeyAction(press: PanelKey): "collapse" | "closeNote" | null {
+export function drumKeyAction(press: DrumKey, panelOpen: boolean): DrumKeyAction | null {
   const { key, ctrlKey, shiftKey, altKey, metaKey } = press;
   if (shiftKey || altKey || metaKey) return null;
-  if (key === "Escape" && !ctrlKey) return "collapse";
-  if (key === "Enter" && ctrlKey) return "closeNote";
+  if (key === "Escape" && !ctrlKey) return panelOpen ? "collapseAndLeave" : "leave";
+  if (key === "Enter" && ctrlKey && panelOpen) return "closeNote";
   return null;
 }
