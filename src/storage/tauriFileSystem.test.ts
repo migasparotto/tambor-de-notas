@@ -1,7 +1,7 @@
 import { clearMocks, mockIPC } from "@tauri-apps/api/mocks";
 import { BaseDirectory } from "@tauri-apps/plugin-fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { NOTES_ROOT, appDataFileSystem, tauriFileSystem } from "./tauriFileSystem";
+import { NOTES_ROOT, appDataFileSystem, notesRootFor, tauriFileSystem } from "./tauriFileSystem";
 
 // Goes through the real plugin code, with Tauri's IPC mock standing in for the Rust side.
 describe("tauriFileSystem", () => {
@@ -92,5 +92,20 @@ describe("tauriFileSystem", () => {
 
   it("lists only files, not folders", async () => {
     expect(await tauriFileSystem.readDir("ativas")).toEqual(["Aula.md"]);
+  });
+});
+
+describe("notesRootFor", () => {
+  it("keeps the real notes for the installed app", () => {
+    expect(notesRootFor(false)).toBe("Tambor de Notas/notas");
+  });
+
+  it("puts the development app's notes in a separate test folder", () => {
+    expect(notesRootFor(true)).toBe("Tambor de Notas (Dev)/notas");
+    expect(notesRootFor(true)).not.toBe(notesRootFor(false));
+  });
+
+  it("uses the test folder while developing (and in the tests)", () => {
+    expect(NOTES_ROOT).toBe(notesRootFor(true));
   });
 });

@@ -24,6 +24,7 @@
       "identifier": "fs:scope",
       "allow": [
         { "path": "$DOCUMENT/Tambor de Notas/notas/**" },
+        { "path": "$DOCUMENT/Tambor de Notas (Dev)/notas/**" },
         { "path": "$APPDATA" },
         { "path": "$APPDATA/**" }
       ]

@@ -11,7 +11,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Passos extras dos comandos rápidos
 
-- **`executar pmp bom dia`:** além dos passos gerais, abrir o app com `npm run tauri dev` (em segundo plano) para o Marcos ver como está.
+- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o Marcos ver como está. Se o app instalado estiver aberto, avisar que os atalhos ficam com ele.
 
 ## Regras do projeto
 
@@ -24,4 +24,4 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Comandos
 
-`npm run tauri dev` (abre o app) · `npm test` · `npm run lint` · `npm run format` · `npm run build`
+`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run lint` · `npm run format` · `npm run build`

@@ -69,16 +69,37 @@ Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt
 
 ```bash
 npm install
-npm run tauri dev
+npm run app:dev
 ```
 
 A primeira execução compila as dependências em Rust e pode levar alguns minutos.
+
+### App de desenvolvimento e app instalado
+
+O `npm run app:dev` abre o **Tambor de Notas (Dev)**, separado do app instalado, para que os testes não mexam nas notas e nas configurações de verdade:
+
+|                                        | App instalado                     | App de desenvolvimento (`npm run app:dev`) |
+| -------------------------------------- | --------------------------------- | ------------------------------------------ |
+| Notas                                  | `Documentos\Tambor de Notas\`     | `Documentos\Tambor de Notas (Dev)\`        |
+| `configuracoes.json` e `pomodoro.json` | `%APPDATA%\com.tambordenotas.app` | `%APPDATA%\com.tambordenotas.app.dev`      |
+| Marca no tambor                        | —                                 | "DEV" em âmbar, acima do relógio           |
+
+Os dois usam os mesmos atalhos. Quem abrir por último avisa que eles "já estão em uso" e fica sem eles; para usar os dois ao mesmo tempo, troque os atalhos no `configuracoes.json` do app de desenvolvimento. A configuração extra do app de desenvolvimento fica em `src-tauri/tauri.dev.conf.json`. Use `npm run app:dev`, e não `npm run tauri dev`, que abriria o app de desenvolvimento com as configurações do instalado.
+
+### Instalador (CD)
+
+O workflow [CD](.github/workflows/cd.yml) gera o instalador do Windows (`.exe`), que não pede administrador:
+
+- **Com uma tag de versão** (`git tag v0.1.0` e `git push origin v0.1.0`): cria um release em rascunho com o instalador anexado, para conferir e publicar à mão na página de Releases. A tag precisa bater com a versão em `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, senão o CD para com um erro.
+- **À mão** (Actions → CD → Run workflow, ou `gh workflow run cd.yml`): só gera o instalador, que fica nos arquivos da execução por 7 dias.
+
+O instalador não tem assinatura digital, então o Windows mostra "O Windows protegeu o computador": clique em "Mais informações" e "Executar assim mesmo".
 
 ### Comandos úteis
 
 | Comando              | O que faz                                         |
 | -------------------- | ------------------------------------------------- |
-| `npm run tauri dev`  | Abre o app em modo de desenvolvimento             |
+| `npm run app:dev`    | Abre o app de desenvolvimento ("DEV")             |
 | `npm test`           | Roda os testes automatizados (Vitest)             |
 | `npm run test:watch` | Roda os testes de novo a cada arquivo salvo       |
 | `npm run lint`       | Procura erros e quebras de camada (ESLint)        |
@@ -100,7 +121,7 @@ A pasta `src-tauri/` contém a parte em Rust do Tauri (janela e acesso ao sistem
 
 ## Configuração
 
-As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json`, criado com os valores padrão na primeira vez que o app abre. Cada vez que o app abre, ele acrescenta ao arquivo as configurações que faltam (por exemplo, as que chegam numa versão nova), com o valor padrão, sem mexer nas que você já mudou. Para mudar, edite o arquivo e reabra o app:
+As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoes.json` (no app de desenvolvimento, em `com.tambordenotas.app.dev`), criado com os valores padrão na primeira vez que o app abre. Cada vez que o app abre, ele acrescenta ao arquivo as configurações que faltam (por exemplo, as que chegam numa versão nova), com o valor padrão, sem mexer nas que você já mudou. Para mudar, edite o arquivo e reabra o app:
 
 | Configuração             | Padrão      | O que é                                                                                                              |
 | ------------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |

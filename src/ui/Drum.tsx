@@ -24,6 +24,8 @@ interface DrumProps {
   onStopPomodoro: () => void;
   /** Turn the chambers once; a new `id` starts a new turn. Null: stay still. */
   spin: DrumSpin | null;
+  /** A small mark above the clock, like "DEV" for the development app. Null: none. */
+  badge: string | null;
 }
 
 /** One end-of-cycle movement of the chambers. */
@@ -94,6 +96,7 @@ export function Drum({
   onTogglePomodoro,
   onStopPomodoro,
   spin,
+  badge,
 }: DrumProps) {
   const chambersRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -195,6 +198,24 @@ export function Drum({
         className="rounded-full bg-[#1B1D22]"
         style={{ ...around(g.center, 2 * g.hubRadius), boxShadow: "0 0 0 1px #343840" }}
       />
+
+      {badge && (
+        <span
+          title="App de desenvolvimento (npm run app:dev)"
+          className="text-center font-bold tracking-wider text-amber-400"
+          style={{
+            ...around(
+              { x: g.clock.center.x, y: g.clock.center.y - 0.75 * g.clock.height },
+              g.clock.width,
+              g.cycles.height,
+            ),
+            fontSize: g.cycles.fontSize * 0.85,
+            lineHeight: `${g.cycles.height}px`,
+          }}
+        >
+          {badge}
+        </span>
+      )}
 
       <button
         type="button"

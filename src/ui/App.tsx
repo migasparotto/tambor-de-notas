@@ -182,6 +182,8 @@ function App({ settings, startupProblems }: AppProps) {
           onTogglePomodoro={pomodoro.toggle}
           onStopPomodoro={pomodoro.stop}
           spin={spin}
+          // So it is clear which app is open: this one, or the installed one.
+          badge={import.meta.env.DEV ? "DEV" : null}
         />
       </div>
 

@@ -32,7 +32,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 4. ~~S3 — Notas~~: concluída e aprovada. Notas `.md` em `Documentos\Tambor de Notas\notas\` (plugin `fs` com escopo mínimo e sem apagar, salvamento atômico, OneDrive tratado, teste no disco real); painel bolha com título, expandir, recolher, fechar e arquivar; câmara tingida enchendo; salvamento ao fechar a janela. Configurações em `configuracoes.json` (tamanho do tambor e demais) e ciclos do dia em `pomodoro.json`, na pasta do app. O `+texto+` aparece como digitado; o negrito na tela vem com o editor da S4.
 5. ~~S4 — Editor e atalhos~~: concluída e aprovada. ~~Biblioteca do editor~~: decidido **CodeMirror 6 com live preview feito por nós** (ver "Notas"). ~~Modo dos símbolos~~: "só dentro do trecho", em `settings.ts`. ~~Editor com live preview~~ (títulos, negrito, itálico, código, links, listas, `---`, Ctrl+B/Ctrl+I), com testes das regras de edição, ligado ao caderno e conferido no app e **aprovado pelo Marcos**. Atalhos globais (Ctrl+Shift+Alt, configuráveis, com aviso de conflito) e Esc/Ctrl+Enter no painel, aprovados em 22/10/2026.
 6. **Polimento do fim da Etapa 1** (em andamento), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → atalho global com o vídeo na frente (falta o teste com o app instalado) → ~~cliques que nem ativam o tambor~~ (aprovado) → CD. "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
-   - **Próximo:** teste de suspensão feito em 23/10/2026: o atalho funcionou, e a tela recarregou sozinha ao acordar (ver item 6). Decidido não corrigir agora: o item 6 fica aberto até o teste com o app instalado, no fim da etapa. Item 7 (cliques que nem ativam o tambor) feito e aprovado em 23/10/2026. **Agora:** o CD (decisões registradas em "Depois da Etapa 1 — Entrega contínua (CD)"; falta o workflow, aprovado antes do commit) e, com o instalador, o teste do item 6 com o app instalado.
+   - **Próximo:** teste de suspensão feito em 23/10/2026: o atalho funcionou, e a tela recarregou sozinha ao acordar (ver item 6). Decidido não corrigir agora: o item 6 fica aberto até o teste com o app instalado, no fim da etapa. Item 7 (cliques que nem ativam o tambor) feito e aprovado em 23/10/2026. CD feito em 23/10/2026 (workflow verde, app instalado neste notebook) e app de desenvolvimento separado do instalado (`npm run app:dev`). **Agora:** o Marcos faz o teste do item 6 com o app instalado (hibernar e apertar Ctrl+Shift+Alt+2 na volta). Se passar, o item 6 fecha como "só acontece em desenvolvimento" e vem o primeiro release (tag `v0.1.0`). Até lá, o app de desenvolvimento fica fechado.
 7. **CD — Entrega contínua:** depois do polimento, antes da Etapa 2.
 8. **Etapa 2 — Organização**, que inclui "até 3 notas abertas" como abas.
 
@@ -219,15 +219,18 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 - Sem assinatura digital por enquanto (o Windows mostra um aviso ao instalar). Atualização automática fica fora (ver "Futuro").
 
 - [x] Decidir quando o instalador é gerado e onde ele fica
-- [ ] Criar o workflow do GitHub Actions que gera o instalador do Windows
-- [ ] Conferir que o instalador funciona neste notebook
+- [x] Criar o workflow do GitHub Actions que gera o instalador do Windows (`.github/workflows/cd.yml`, aprovado em 23/10/2026; verde rodado à mão)
+- [x] Conferir que o instalador funciona neste notebook (23/10/2026: instalação silenciosa sem erro, em `AppData\Local\Tambor de Notas\`, com atalho no menu Iniciar; o app abre)
+- [x] Ações do GitHub na v7 (Node 24) no CI e no CD, sem o aviso de Node antigo (23/10/2026)
+- [ ] Teste do item 6 do polimento com o app instalado (hibernar e apertar Ctrl+Shift+Alt+2 na volta)
+- [ ] Primeiro release: tag `v0.1.0`, CD verde e publicar o rascunho com o `.exe` anexado
 
 ## Depois do CD — Separar o app de desenvolvimento do instalado
 
 Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o mesmo identificador, então dividem as notas, o `configuracoes.json`, o `pomodoro.json` e os atalhos globais.
 
-- [ ] Propor como separar (configuração só para o `tauri dev` com outro identificador e o nome "Tambor de Notas (Dev)", pasta de notas de teste, e atalhos: outra combinação ou aviso claro), **aprovar com o Marcos antes de implementar**
-- [ ] Implementar a solução aprovada
+- [x] Propor como separar, aprovado pelo Marcos em 23/10/2026: configuração só para o desenvolvimento, pasta de notas de teste e os mesmos atalhos, confiando no aviso de "já está em uso"
+- [x] Implementar (23/10/2026): `npm run app:dev` usa `src-tauri/tauri.dev.conf.json` (identificador `com.tambordenotas.app.dev`, nome "Tambor de Notas (Dev)"), com configurações próprias em `%APPDATA%\com.tambordenotas.app.dev` (copiadas do instalado na primeira vez); notas em `Documentos\Tambor de Notas (Dev)\notas\` (regra `notesRootFor`, com teste); marca "DEV" em âmbar acima do relógio. Conferido no app: identificador e nome certos, pastas separadas, marca visível e aviso dos atalhos ocupados pelo instalado.
 
 ## Etapa 2 — Organização
 

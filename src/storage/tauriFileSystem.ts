@@ -9,11 +9,17 @@ import {
 import type { FileSystem } from "./fileSystem";
 
 /**
- * The notes folder, inside the user's Documents. Tauri asks Windows where Documents is,
- * so it also works when Documents lives in OneDrive. Must match the scope in
+ * The notes folder, inside the user's Documents: the real notes for the installed app,
+ * test notes for the one opened with `npm run app:dev`. Tauri asks Windows where Documents
+ * is, so it also works when Documents lives in OneDrive. Must match the scope in
  * `src-tauri/capabilities/default.json`.
  */
-export const NOTES_ROOT = "Tambor de Notas/notas";
+export function notesRootFor(dev: boolean): string {
+  return dev ? "Tambor de Notas (Dev)/notas" : "Tambor de Notas/notas";
+}
+
+/** The notes folder of the app that is running. */
+export const NOTES_ROOT = notesRootFor(import.meta.env.DEV);
 
 /** The real disk, through the Tauri fs plugin, limited to `root` inside `baseDir`. */
 function tauriFileSystemIn(baseDir: BaseDirectory, root: string): FileSystem {
