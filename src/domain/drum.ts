@@ -1,3 +1,5 @@
+import type { DrumEdge } from "./placement";
+
 /** A point in window pixels (logical, before display scaling). */
 export interface Point {
   x: number;
@@ -52,10 +54,34 @@ function onCircle(center: Point, radius: number, degrees: number): Point {
 }
 
 /**
- * Computes the drum layout: a half ring against the right edge whose full height is
- * `heightFraction` of `screenHeight`. All sizes derive from that one radius.
+ * Computes the drum layout: a half ring against the screen edge (right by default) whose
+ * full height is `heightFraction` of `screenHeight`. All sizes derive from that one radius.
+ * Against the left edge the drawing is mirrored, with the open side facing that edge.
  */
-export function drumGeometry(screenHeight: number, heightFraction: number): DrumGeometry {
+export function drumGeometry(
+  screenHeight: number,
+  heightFraction: number,
+  edge: DrumEdge = "right",
+): DrumGeometry {
+  const g = rightEdgeGeometry(screenHeight, heightFraction);
+  return edge === "right" ? g : mirrored(g);
+}
+
+/** The same drum, flipped left to right inside its window. */
+function mirrored(g: DrumGeometry): DrumGeometry {
+  const flip = (p: Point): Point => ({ x: g.width - p.x, y: p.y });
+  return {
+    ...g,
+    center: flip(g.center),
+    chambers: g.chambers.map(flip),
+    plus: { ...g.plus, center: flip(g.plus.center) },
+    clock: { ...g.clock, center: flip(g.clock.center) },
+    stop: { ...g.stop, center: flip(g.stop.center) },
+    cycles: { ...g.cycles, center: flip(g.cycles.center) },
+  };
+}
+
+function rightEdgeGeometry(screenHeight: number, heightFraction: number): DrumGeometry {
   const fraction = clamp(heightFraction, DRUM_HEIGHT_LIMITS.min, DRUM_HEIGHT_LIMITS.max);
   const R = (screenHeight * fraction) / 2;
   const width = R + EDGE_GAP + SHADOW_PAD;
@@ -94,13 +120,5 @@ export function drumGeometry(screenHeight: number, heightFraction: number): Drum
       height: stopSize,
       fontSize: Math.max(12, 0.11 * R),
     },
-  };
-}
-
-/** Places a window of the given size against the right edge of the work area, centered vertically. */
-export function placeAtRightEdge(workArea: Rect, width: number, height: number): Point {
-  return {
-    x: workArea.x + workArea.width - width,
-    y: workArea.y + (workArea.height - height) / 2,
   };
 }

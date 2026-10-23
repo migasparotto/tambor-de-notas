@@ -6,11 +6,12 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — atualmente na **Etapa 1 (MVP utilizável)**. As sprints S1 (janela e tambor), S2 (pomodoro), S3 (notas) e S4 (editor e atalhos) estão concluídas. Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — a **Etapa 1 (MVP utilizável)** está concluída e o instalador do Windows está em [Releases](https://github.com/migasparotto/tambor-de-notas/releases). Atualmente na **Etapa 2 (Organização)**, sprint S1 (janela). Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
 
 ## O que já funciona
 
 - Janela **transparente, sem bordas e sempre por cima**: aparece só o tambor, encostado na borda direita da tela e centralizado na vertical.
+- **Arraste o tambor** pelo anel ou pelo centro (fora dos botões) para cima, para baixo ou para a borda esquerda: ele fica na borda do lado da tela onde você soltar e, na esquerda, aparece espelhado, com o painel abrindo para a direita. O app lembra onde ele ficou.
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
 - Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
 - **Notas** (uma nota ativa por cor):
@@ -33,7 +34,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
   - ao fim do foco, conta um ciclo (`×N`, ao lado do stop) e a pausa começa sozinha; ao fim da pausa, o relógio volta ao foco e espera o play;
   - no fim de cada fase, o relógio pisca por alguns segundos e o tambor fica nítido. As câmaras dão um giro completo, desacelerando, com o som de catraca de um tambor de revólver, e param com um "clac" (1,8 s). O som é gerado pelo app, sem arquivo de áudio. Se o Windows estiver com "efeitos de animação" desligados, o tambor não gira, mas o som toca;
   - o contador `×N` mostra os ciclos **do dia**: ele volta ao reabrir o app e começa do zero num dia novo.
-- O tambor fica **translúcido** quando outra janela está em foco e **nítido** quando você clica nele.
+- O tambor fica **translúcido** quando não está em uso e **nítido** com uma nota aberta (e no aviso de fim de ciclo). Sem nota aberta, clicar no relógio, no stop ou no "+" não tira o teclado do vídeo.
 - **Atalhos globais**, que funcionam mesmo com o app em segundo plano (por exemplo, com o vídeo da aula em foco):
 
   | Atalho           | O que faz                                      |
@@ -46,7 +47,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 
   O atalho de cor traz o teclado para a nota, e você já pode digitar. Apertado de novo com a nota aberta, recolhe o painel. Se outro programa já usar uma combinação, o app avisa ao abrir. Os atalhos podem ser trocados nas configurações.
 
-Como a janela não tem bordas, para fechar o app clique no tambor e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
+Como a janela não tem bordas, para fechar o app abra uma nota (clique numa cor) e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
 
 ## Tecnologias
 
@@ -152,7 +153,7 @@ Os atalhos ficam assim no arquivo. Só é preciso escrever os que mudarem; os ou
 
 Cada atalho precisa de Ctrl, Alt ou Super (a tecla Windows), junto com uma letra, um número ou F1 a F24. Um texto vazio (`""`) desliga o atalho. Se duas ações tiverem a mesma combinação, todos os atalhos voltam ao padrão.
 
-Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia.
+Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia e `janela.json` guarda onde o tambor ficou (`"edge"`: `"right"` ou `"left"`; `"centerY"`: a altura do centro, de 0 no topo a 1 embaixo).
 
 Copie `.env.example` para `.env` se precisar de configuração local. O arquivo `.env` nunca vai para o repositório.
 

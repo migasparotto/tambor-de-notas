@@ -3,11 +3,15 @@ import { createAppDataStore, type AppDataStore } from "../storage/appDataStore";
 import { MemoryFileSystem } from "../storage/memoryFileSystem";
 import {
   CYCLES_FILE,
+  PLACEMENT_FILE,
   SETTINGS_FILE,
   loadDailyCycles,
+  loadPlacement,
   loadSettings,
   saveDailyCycles,
+  savePlacement,
 } from "./appData";
+import { DEFAULT_PLACEMENT } from "./placement";
 import { DEFAULT_SETTINGS, parseSettings, serializeSettings } from "./settings";
 
 describe("app data", () => {
@@ -90,6 +94,31 @@ describe("app data", () => {
       expect(await loadDailyCycles(today, store)).toEqual({ date: "2026-10-21", cycles: 0 });
       await store.write(CYCLES_FILE, "lixo");
       expect(await loadDailyCycles(today, store)).toEqual({ date: "2026-10-21", cycles: 0 });
+    });
+  });
+
+  describe("drum placement", () => {
+    it("starts at the default place the first time, without creating a file", async () => {
+      expect(await loadPlacement(store)).toEqual(DEFAULT_PLACEMENT);
+      expect(fs.files.has(PLACEMENT_FILE)).toBe(false);
+    });
+
+    it("opens where the drum was left", async () => {
+      await savePlacement({ edge: "left", centerY: 0.2 }, store);
+      expect(await loadPlacement(store)).toEqual({ edge: "left", centerY: 0.2 });
+    });
+
+    it("uses the default if the file is broken", async () => {
+      await store.write(PLACEMENT_FILE, "{ quebrado");
+      expect(await loadPlacement(store)).toEqual(DEFAULT_PLACEMENT);
+    });
+
+    it("uses the default if the disk cannot be read", async () => {
+      const failing: AppDataStore = {
+        read: () => Promise.reject(new Error("disco indisponível")),
+        write: () => Promise.resolve(),
+      };
+      expect(await loadPlacement(failing)).toEqual(DEFAULT_PLACEMENT);
     });
   });
 });

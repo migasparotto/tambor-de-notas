@@ -2,6 +2,12 @@ import type { AppDataStore } from "../storage/appDataStore";
 import { defaultAppDataStore } from "../storage/defaultStore";
 import { cyclesForToday, parseDailyCycles, type DailyCycles } from "./dailyCycles";
 import {
+  DEFAULT_PLACEMENT,
+  parsePlacement,
+  serializePlacement,
+  type DrumPlacement,
+} from "./placement";
+import {
   completeSettings,
   defaultSettings,
   parseSettings,
@@ -12,6 +18,7 @@ import {
 /** File names in the app folder (AppData). */
 export const SETTINGS_FILE = "configuracoes.json";
 export const CYCLES_FILE = "pomodoro.json";
+export const PLACEMENT_FILE = "janela.json";
 
 /**
  * Loads the settings from the app folder. The first time, writes a file with the
@@ -63,4 +70,24 @@ export function saveDailyCycles(
   store: AppDataStore = defaultAppDataStore(),
 ): Promise<void> {
   return store.write(CYCLES_FILE, `${JSON.stringify(cycles)}\n`);
+}
+
+/** Where the drum was left last time (the default the first time, or if the file cannot be read). */
+export async function loadPlacement(
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<DrumPlacement> {
+  try {
+    const saved = await store.read(PLACEMENT_FILE);
+    return saved === null ? DEFAULT_PLACEMENT : parsePlacement(saved);
+  } catch {
+    return DEFAULT_PLACEMENT;
+  }
+}
+
+/** Saves where the drum is, so it opens there next time. */
+export function savePlacement(
+  placement: DrumPlacement,
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<void> {
+  return store.write(PLACEMENT_FILE, serializePlacement(placement));
 }

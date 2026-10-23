@@ -4,6 +4,7 @@ import { LogicalPosition, LogicalSize } from "@tauri-apps/api/dpi";
 import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
 import { drumGeometry, type DrumGeometry, type Rect } from "../domain/drum";
 import { windowLayout, type PanelSize, type WindowLayout } from "../domain/panel";
+import type { DrumPlacement } from "../domain/placement";
 
 interface Screen {
   workArea: Rect;
@@ -17,23 +18,25 @@ const browserScreen = (): Screen => ({
 });
 
 /**
- * Sizes and places the app window: just the drum, or the drum plus the editor panel.
+ * Sizes and places the app window: just the drum, or the drum plus the editor panel,
+ * against the edge and at the height of `placement`.
  * The new layout is shown only after the window has its new size, so the drum does not jump.
- * Also reports whether the app has focus (used for the translucent look).
+ * Also reports whether the app has focus (used for the translucent look) and the work area.
  */
 export function useAppWindow(
   heightFraction: number,
   panel: PanelSize | null,
-): { geometry: DrumGeometry; layout: WindowLayout; focused: boolean } {
+  placement: DrumPlacement,
+): { geometry: DrumGeometry; layout: WindowLayout; focused: boolean; workArea: Rect } {
   const [screen, setScreen] = useState<Screen>(browserScreen);
   const [focused, setFocused] = useState(() => document.hasFocus());
   const geometry = useMemo(
-    () => drumGeometry(screen.height, heightFraction),
-    [screen.height, heightFraction],
+    () => drumGeometry(screen.height, heightFraction, placement.edge),
+    [screen.height, heightFraction, placement.edge],
   );
   const wanted = useMemo(
-    () => windowLayout(geometry, screen.workArea, panel),
-    [geometry, screen.workArea, panel],
+    () => windowLayout(geometry, screen.workArea, panel, placement),
+    [geometry, screen.workArea, panel, placement],
   );
   // Inside Tauri, the layout in use is the one the window has already been resized for.
   const [applied, setApplied] = useState(wanted);
@@ -95,5 +98,5 @@ export function useAppWindow(
     };
   }, [wanted]);
 
-  return { geometry, layout, focused };
+  return { geometry, layout, focused, workArea: screen.workArea };
 }

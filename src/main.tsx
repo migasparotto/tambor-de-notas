@@ -1,14 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { loadSettings } from "./domain/appData";
+import { loadPlacement, loadSettings } from "./domain/appData";
 import App from "./ui/App";
 import "./index.css";
 
-// Settings come first, so the drum is drawn at the saved size from the start.
-void loadSettings().then(({ settings, problems }) => {
+// Settings and the drum placement come first, so the drum is drawn at the saved size and spot from the start.
+void Promise.all([loadSettings(), loadPlacement()]).then(([{ settings, problems }, placement]) => {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
-      <App settings={settings} startupProblems={problems} />
+      <App settings={settings} startupProblems={problems} initialPlacement={placement} />
     </React.StrictMode>,
   );
 });

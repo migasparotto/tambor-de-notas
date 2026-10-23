@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { savePlacement } from "../domain/appData";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
 import { fillLevel } from "../domain/noteText";
+import type { Point } from "../domain/drum";
 import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
+import { isDrag, placementWhileDragging, type DrumPlacement } from "../domain/placement";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
 import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
@@ -27,6 +30,16 @@ interface AppProps {
   settings: Settings;
   /** Problems found in the settings file, shown once at start-up. */
   startupProblems: string[];
+  /** Where the drum was left last time. */
+  initialPlacement: DrumPlacement;
+}
+
+/** A press on the drum that may turn into a drag. */
+interface DrumDrag {
+  start: Point;
+  /** How far below the drum center the drum was grabbed. */
+  grabOffsetY: number;
+  moving: boolean;
 }
 
 const STARTUP_MESSAGE_MS = 10000;
@@ -39,8 +52,9 @@ function takeKeyboard(): void {
 }
 
 /** Root of the interface: a transparent window with the drum and, when open, the note panel. */
-function App({ settings, startupProblems }: AppProps) {
+function App({ settings, startupProblems, initialPlacement }: AppProps) {
   const [panel, setPanel] = useState<PanelState | null>(null);
+  const [placement, setPlacement] = useState(initialPlacement);
   const [startupMessage, setStartupMessage] = useState(
     startupProblems.length > 0 ? startupProblems.join(" ") : null,
   );
@@ -48,10 +62,46 @@ function App({ settings, startupProblems }: AppProps) {
     const timer = setTimeout(() => setStartupMessage(null), STARTUP_MESSAGE_MS);
     return () => clearTimeout(timer);
   }, []);
-  const { geometry, layout, focused } = useAppWindow(
+  const { geometry, layout, focused, workArea } = useAppWindow(
     settings.drumHeightFraction,
     panel?.size ?? null,
+    placement,
   );
+
+  // Dragging the drum by its ring or hub (not by a button): it follows the pointer up and
+  // down, sticks to the nearer side edge, and is saved where it is dropped.
+  const drag = useRef<DrumDrag | null>(null);
+  const dragPlacement = (e: PointerEvent, d: DrumDrag) =>
+    placementWhileDragging(
+      workArea,
+      geometry.height,
+      { x: e.screenX, y: e.screenY },
+      d.grabOffsetY,
+    );
+  const onDrumPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
+    const centerY = layout.window.y + layout.drumOrigin.y + geometry.center.y;
+    drag.current = {
+      start: { x: e.screenX, y: e.screenY },
+      grabOffsetY: e.screenY - centerY,
+      moving: false,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onDrumPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d || (!d.moving && !isDrag(d.start, { x: e.screenX, y: e.screenY }))) return;
+    d.moving = true;
+    setPlacement(dragPlacement(e, d));
+  };
+  const onDrumPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    drag.current = null;
+    if (!d?.moving) return;
+    const dropped = dragPlacement(e, d);
+    setPlacement(dropped);
+    if (isTauri()) void savePlacement(dropped).catch(() => undefined);
+  };
   const [spin, setSpin] = useState<DrumSpin | null>(null);
   useEffect(() => wakeAudioOnFirstInput(), []);
   /** End of a pomodoro phase: the ratchet sound and the drum spin, as set in the settings. */
@@ -159,10 +209,14 @@ function App({ settings, startupProblems }: AppProps) {
       }}
     >
       <div
-        className="absolute"
         // Clicks on the drum (clock, stop, "+", the ring) work but never take the keyboard
         // away from the editor; opening a color focuses its own editor.
         onMouseDown={(e) => e.preventDefault()}
+        onPointerDown={onDrumPointerDown}
+        onPointerMove={onDrumPointerMove}
+        onPointerUp={onDrumPointerUp}
+        onPointerCancel={() => (drag.current = null)}
+        className="absolute cursor-grab"
         style={{
           left: layout.drumOrigin.x,
           top: layout.drumOrigin.y,

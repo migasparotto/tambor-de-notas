@@ -1,4 +1,5 @@
-import { placeAtRightEdge, type DrumGeometry, type Point, type Rect } from "./drum";
+import type { DrumGeometry, Point, Rect } from "./drum";
+import { DEFAULT_PLACEMENT, placeDrum, type DrumPlacement } from "./placement";
 
 /** The editor panel size: normal, or expanded to read or edit a long note. */
 export type PanelSize = "normal" | "expanded";
@@ -26,22 +27,32 @@ function panelSize(drum: DrumGeometry, size: PanelSize): { width: number; height
 }
 
 /**
- * Lays out the window: the drum always stays where it is on the screen (against the
- * right edge), and the open panel sits to its left, centered on it, inside the work area.
+ * Lays out the window: the drum always stays where it is on the screen (against its edge,
+ * at its height), and the open panel sits beside it, on the side away from the edge,
+ * centered on it and inside the work area. `drum` must be drawn for the same edge.
  */
 export function windowLayout(
   drum: DrumGeometry,
   workArea: Rect,
   panel: PanelSize | null,
+  placement: DrumPlacement = DEFAULT_PLACEMENT,
 ): WindowLayout {
-  const spot = placeAtRightEdge(workArea, drum.width, drum.height);
+  const spot = placeDrum(workArea, drum.width, drum.height, placement);
   const drumRect = { ...spot, width: drum.width, height: drum.height };
   if (panel === null) return { window: drumRect, drumOrigin: { x: 0, y: 0 }, panel: null };
 
   const wanted = panelSize(drum, panel);
   const workBottom = workArea.y + workArea.height;
-  const right = spot.x + drum.center.x - drum.outerRadius - PANEL_GAP;
-  const left = Math.max(workArea.x + SCREEN_MARGIN, right - wanted.width);
+  const workRight = workArea.x + workArea.width;
+  let left: number;
+  let right: number;
+  if (placement.edge === "right") {
+    right = spot.x + drum.center.x - drum.outerRadius - PANEL_GAP;
+    left = Math.max(workArea.x + SCREEN_MARGIN, right - wanted.width);
+  } else {
+    left = spot.x + drum.center.x + drum.outerRadius + PANEL_GAP;
+    right = Math.min(workRight - SCREEN_MARGIN, left + wanted.width);
+  }
   const height = Math.min(wanted.height, workArea.height - 2 * SCREEN_MARGIN);
   const centerY = spot.y + drum.center.y;
   const top = Math.min(
@@ -49,9 +60,12 @@ export function windowLayout(
     workBottom - SCREEN_MARGIN - height,
   );
 
-  const winLeft = Math.max(workArea.x, left - SHADOW_PAD);
+  const winLeft = placement.edge === "right" ? Math.max(workArea.x, left - SHADOW_PAD) : drumRect.x;
+  const winRight =
+    placement.edge === "right"
+      ? drumRect.x + drumRect.width
+      : Math.min(workRight, right + SHADOW_PAD);
   const winTop = Math.max(workArea.y, Math.min(spot.y, top - SHADOW_PAD));
-  const winRight = drumRect.x + drumRect.width;
   const winBottom = Math.min(workBottom, Math.max(spot.y + drum.height, top + height + SHADOW_PAD));
 
   return {

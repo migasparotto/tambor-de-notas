@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DRUM_HEIGHT_LIMITS, drumGeometry, placeAtRightEdge, type Point } from "./drum";
+import { DRUM_HEIGHT_LIMITS, drumGeometry, type Point } from "./drum";
 import { DEFAULT_SETTINGS } from "./settings";
 
 // The drum size is a setting, so tests use the configured fraction and a few others.
@@ -88,9 +88,24 @@ describe("drumGeometry", () => {
   });
 });
 
-describe("placeAtRightEdge", () => {
-  it("touches the right edge and centers vertically, including offset work areas", () => {
-    const workArea = { x: 1920, y: 40, width: 1920, height: 1000 };
-    expect(placeAtRightEdge(workArea, 200, 400)).toEqual({ x: 3640, y: 340 });
+describe("drumGeometry against the left edge", () => {
+  it.each(cases)("mirrors the drum on a %ipx screen at %f", (screen, fraction) => {
+    const right = drumGeometry(screen, fraction);
+    const left = drumGeometry(screen, fraction, "left");
+    const flip = (p: Point) => ({ x: right.width - p.x, y: p.y });
+    expect(left.width).toBe(right.width);
+    expect(left.height).toBe(right.height);
+    expect(left.center).toEqual(flip(right.center));
+    expect(left.chambers).toEqual(right.chambers.map(flip));
+    expect(left.clock.center).toEqual(flip(right.clock.center));
+    expect(left.stop.center).toEqual(flip(right.stop.center));
+    expect(left.cycles.center).toEqual(flip(right.cycles.center));
+    expect(left.plus.center).toEqual(flip(right.plus.center));
+  });
+
+  it("keeps the open side facing the left edge", () => {
+    const left = drumGeometry(1080, DEFAULT_SETTINGS.drumHeightFraction, "left");
+    expect(left.center.x).toBeLessThan(left.width / 2);
+    expect(left.chambers.every((c) => c.x > left.center.x)).toBe(true);
   });
 });
