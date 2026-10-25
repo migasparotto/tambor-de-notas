@@ -3,7 +3,9 @@ import { MemoryFileSystem } from "../storage/memoryFileSystem";
 import { createNotesStore, type NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
 import { INITIAL_COLORS } from "./chambers";
-import { leftoversMessage, Notebook, type NotebookEvents } from "./notebook";
+import { createAppDataStore, type AppDataStore } from "../storage/appDataStore";
+import { COLORS_FILE, loadColorsData, saveColorsData } from "./appData";
+import { leftoversMessage, Notebook, type ColorsDataStore, type NotebookEvents } from "./notebook";
 import { parseNote, serializeNote } from "./noteFile";
 import { DEFAULT_SETTINGS } from "./settings";
 
@@ -416,5 +418,140 @@ describe("Notebook", () => {
     notebook.edit(BLUE, "# Termo");
     await notebook.flush();
     expect(files()).toHaveLength(2);
+  });
+  describe("subject", () => {
+    let appFs: MemoryFileSystem;
+    let appStore: AppDataStore;
+    let colorsStore: ColorsDataStore;
+
+    const remembered = async () => loadColorsData(appStore);
+    const makeWithColors = () =>
+      new Notebook({
+        store,
+        colorsStore,
+        colors: INITIAL_COLORS,
+        settings: { autosaveDelayMs: DELAY, maxActiveNotesPerColor: MAX_ACTIVE },
+        events,
+      });
+
+    beforeEach(async () => {
+      appFs = new MemoryFileSystem();
+      appStore = createAppDataStore(appFs, { attempts: 1, delayMs: 0 });
+      colorsStore = {
+        load: () => loadColorsData(appStore),
+        save: (data) => saveColorsData(data, appStore),
+      };
+      await saveColorsData(
+        { red: { lastSubject: "Cálculo" }, blue: { lastSubject: "Física" } },
+        appStore,
+      );
+      notebook = makeWithColors();
+      await notebook.load();
+    });
+
+    it("offers each color its own last subject before the note exists", () => {
+      expect(notebook.subject(RED)).toBe("Cálculo");
+      expect(notebook.subject(BLUE)).toBe("Física");
+      expect(notebook.subject("green")).toBe("");
+    });
+
+    it("starts a new note with the last subject of its color", async () => {
+      notebook.edit(RED, "# Aula");
+      await vi.advanceTimersByTimeAsync(DELAY);
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").subject).toBe("Cálculo");
+    });
+
+    it("does not create a file when only the subject is changed", async () => {
+      notebook.editSubject(RED, "Álgebra");
+      await vi.advanceTimersByTimeAsync(DELAY);
+      expect(files()).toEqual([]);
+      expect(notebook.hasNote(RED)).toBe(false);
+      expect(notebook.subject(RED)).toBe("Álgebra");
+
+      notebook.edit(RED, "# Aula");
+      await vi.advanceTimersByTimeAsync(DELAY);
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").subject).toBe("Álgebra");
+    });
+
+    it("saves a subject change by itself after the configured delay", async () => {
+      notebook.edit(RED, "# Aula");
+      await vi.advanceTimersByTimeAsync(DELAY);
+      notebook.editSubject(RED, "Álgebra");
+      await vi.advanceTimersByTimeAsync(DELAY - 1);
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").subject).toBe("Cálculo");
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").subject).toBe("Álgebra");
+    });
+
+    it("remembers the saved subject only for its color, and offers it to the next note", async () => {
+      notebook.edit(RED, "# Aula");
+      notebook.editSubject(RED, "Álgebra");
+      await notebook.close(RED);
+
+      expect(await remembered()).toEqual({
+        red: { lastSubject: "Álgebra" },
+        blue: { lastSubject: "Física" },
+      });
+      expect(notebook.subject(RED)).toBe("Álgebra");
+      const reopened = makeWithColors();
+      await reopened.load();
+      expect(reopened.subject(RED)).toBe("Álgebra");
+    });
+
+    it("keeps the last subject when a note is saved with a blank subject", async () => {
+      notebook.edit(RED, "# Aula");
+      notebook.editSubject(RED, "");
+      await notebook.close(RED);
+
+      expect((await remembered()).red).toEqual({ lastSubject: "Cálculo" });
+      expect(notebook.subject(RED)).toBe("Cálculo");
+    });
+
+    it("shows the subject of a note that already exists, not the last one", async () => {
+      const date = new Date().toISOString();
+      const old = {
+        id: "x",
+        colorId: RED,
+        subject: "",
+        text: "# Antiga",
+        createdAt: date,
+        updatedAt: date,
+      };
+      await store.create("antiga", serializeNote(old));
+      const reopened = makeWithColors();
+      await reopened.load();
+      expect(reopened.subject(RED)).toBe("");
+    });
+
+    it("opens with no subjects, and the notes intact, if cores.json is broken", async () => {
+      notebook.edit(RED, "# Aula");
+      await notebook.confirmTitle(RED);
+      await appStore.write(COLORS_FILE, "{ quebrado");
+
+      const reopened = makeWithColors();
+      await reopened.load();
+      expect(reopened.subject(BLUE)).toBe("");
+      expect(reopened.text(RED)).toBe("# Aula");
+      expect(events.onError).not.toHaveBeenCalled();
+    });
+
+    it("still saves the note if cores.json cannot be written, and says so", async () => {
+      colorsStore.save = () => Promise.reject(new Error("disco cheio"));
+      notebook.edit(RED, "# Aula");
+      notebook.editSubject(RED, "Álgebra");
+      await vi.advanceTimersByTimeAsync(DELAY);
+
+      expect(parseNote(fs.files.get(`ativas/${UNTITLED_RED}`) ?? "").subject).toBe("Álgebra");
+      expect(events.onError).toHaveBeenCalledWith(new Error("disco cheio"));
+    });
+
+    it("without cores.json, remembers the subject while the app is open", async () => {
+      notebook = make();
+      notebook.edit(RED, "# Aula");
+      notebook.editSubject(RED, "Álgebra");
+      await notebook.close(RED);
+      expect(notebook.subject(RED)).toBe("Álgebra");
+    });
   });
 });

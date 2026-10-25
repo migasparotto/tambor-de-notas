@@ -1,7 +1,9 @@
 import { defaultNotesStore } from "../storage/defaultStore";
 import type { NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
+import { loadColorsData, saveColorsData } from "./appData";
 import type { NoteColor } from "./chambers";
+import { lastSubject, rememberSubject, type ColorsData } from "./colorData";
 import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 import { titleOf } from "./noteText";
 import type { Settings } from "./settings";
@@ -26,8 +28,16 @@ export function leftoversMessage(count: number): string | null {
   return `${what} para notas\\sobras\\. Confira se falta algo nas notas e apague as sobras quando quiser.`;
 }
 
+/** Where the colors data (`cores.json`) is read and saved. */
+export interface ColorsDataStore {
+  load: () => Promise<ColorsData>;
+  save: (data: ColorsData) => Promise<void>;
+}
+
 export interface NotebookOptions {
   store: NotesStore;
+  /** Without it, the last subject of each color is remembered only while the app is open. */
+  colorsStore?: ColorsDataStore;
   colors: readonly NoteColor[];
   settings: Pick<Settings, "autosaveDelayMs" | "maxActiveNotesPerColor">;
   events?: NotebookEvents;
@@ -53,6 +63,8 @@ export class Notebook {
   private readonly entries = new Map<string, Entry[]>();
   /** Disk operations run one at a time, in order, so two saves never overlap. */
   private queue: Promise<void> = Promise.resolve();
+  /** What is remembered about each color (the last subject), read on load. */
+  private colorsData: ColorsData = {};
 
   constructor(private readonly options: NotebookOptions) {}
 
@@ -62,7 +74,8 @@ export class Notebook {
    * ones are kept and the others reported. Unreadable files are reported and skipped.
    */
   async load(): Promise<void> {
-    const { store, events, settings } = this.options;
+    const { store, events, settings, colorsStore } = this.options;
+    if (colorsStore) this.colorsData = await colorsStore.load();
     // First, leftovers of interrupted saves go to `sobras/` (in the queue, so a second
     // load running at the same time finds nothing left to move).
     try {
@@ -121,23 +134,29 @@ export class Notebook {
     return entry !== undefined && (entry.fileName !== null || entry.note.text !== "");
   }
 
+  /**
+   * The subject of the color's current note. With no note yet, the last subject used
+   * in the color, which the next note starts with ("" if there is none).
+   */
+  subject(colorId: string): string {
+    return this.current(colorId)?.note.subject ?? lastSubject(this.colorsData, colorId);
+  }
+
   /** Changes the color's current note, creating it if needed, and schedules the autosave. */
   edit(colorId: string, text: string): void {
-    let entry = this.current(colorId);
-    if (!entry) {
-      const now = new Date().toISOString();
-      const note = {
-        id: crypto.randomUUID(),
-        colorId,
-        subject: "",
-        text,
-        createdAt: now,
-        updatedAt: now,
-      };
-      entry = { note, fileName: null, dirty: true };
-      this.notesOf(colorId).push(entry);
-    }
+    const entry = this.currentOrNew(colorId);
     entry.note.text = text;
+    entry.dirty = true;
+    this.scheduleAutosave(entry);
+  }
+
+  /**
+   * Changes the subject of the color's current note, creating it if needed, and schedules
+   * the autosave. The color remembers the subject when the note is saved.
+   */
+  editSubject(colorId: string, subject: string): void {
+    const entry = this.currentOrNew(colorId);
+    entry.note.subject = subject;
     entry.dirty = true;
     this.scheduleAutosave(entry);
   }
@@ -215,6 +234,24 @@ export class Notebook {
     return this.entries.get(colorId)?.at(-1);
   }
 
+  /** The color's current note, or a new empty one with the color's last subject. */
+  private currentOrNew(colorId: string): Entry {
+    const existing = this.current(colorId);
+    if (existing) return existing;
+    const now = new Date().toISOString();
+    const note = {
+      id: crypto.randomUUID(),
+      colorId,
+      subject: lastSubject(this.colorsData, colorId),
+      text: "",
+      createdAt: now,
+      updatedAt: now,
+    };
+    const entry: Entry = { note, fileName: null, dirty: true };
+    this.notesOf(colorId).push(entry);
+    return entry;
+  }
+
   private async save(entry: Entry): Promise<void> {
     if (!entry.dirty) return;
     if (entry.fileName === null && entry.note.text === "") return;
@@ -229,6 +266,18 @@ export class Notebook {
     }
     // If the user typed during the save, the next autosave picks it up.
     if (entry.note.text === savedText) entry.dirty = false;
+    await this.rememberSubject(entry.note);
+  }
+
+  /** The note's subject becomes its color's last subject; `cores.json` is saved if it changed. */
+  private async rememberSubject(note: Note): Promise<void> {
+    const next = rememberSubject(this.colorsData, note.colorId, note.subject);
+    if (next === this.colorsData) return;
+    this.colorsData = next;
+    // The note is already saved: a failure here only means the subject is not offered next time.
+    await this.options.colorsStore?.save(next).catch((error: unknown) => {
+      this.options.events?.onError?.(error);
+    });
   }
 
   /** `AAAA-MM cor - título`, from the note's creation date, color and (by default) current title. */
@@ -254,9 +303,18 @@ export class Notebook {
   }
 }
 
-/** The app's notebook, on the default notes store (the notes folder in Documents). */
-export function createAppNotebook(options: Omit<NotebookOptions, "store">): Notebook {
-  return new Notebook({ ...options, store: defaultNotesStore() });
+/**
+ * The app's notebook, on the default notes store (the notes folder in Documents),
+ * remembering the colors data in `cores.json` in the app folder.
+ */
+export function createAppNotebook(
+  options: Omit<NotebookOptions, "store" | "colorsStore">,
+): Notebook {
+  return new Notebook({
+    ...options,
+    store: defaultNotesStore(),
+    colorsStore: { load: () => loadColorsData(), save: (data) => saveColorsData(data) },
+  });
 }
 
 /** A message the user can understand, for any error from the notes. */
