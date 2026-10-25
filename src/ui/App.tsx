@@ -14,6 +14,7 @@ import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
 import { Drum, type ChamberState, type DrumSpin } from "./Drum";
 import { NotePanel } from "./NotePanel";
 import { returnFocus } from "./returnFocus";
+import { startTrayIcon } from "./trayIcon";
 import { useAppWindow } from "./useAppWindow";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
@@ -104,6 +105,10 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   };
   const [spin, setSpin] = useState<DrumSpin | null>(null);
   useEffect(() => wakeAudioOnFirstInput(), []);
+  useEffect(() => {
+    if (isTauri())
+      startTrayIcon().catch((error: unknown) => console.error("Ícone na bandeja:", error));
+  }, []);
   /** End of a pomodoro phase: the ratchet sound and the drum spin, as set in the settings. */
   const onPhaseEnd = () => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

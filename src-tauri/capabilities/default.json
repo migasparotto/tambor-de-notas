@@ -10,6 +10,8 @@
     "core:window:allow-set-position",
     "core:window:allow-show",
     "core:window:allow-destroy",
+    "core:window:allow-close",
+    "core:app:allow-default-window-icon",
     "core:window:allow-set-focus",
     "core:window:allow-set-focusable",
     "global-shortcut:allow-register",

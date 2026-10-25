@@ -15,3 +15,4 @@ O que aparece na tela: tambor, editor, botões, lista de notas, configurações.
 - `useAppWindow.ts`: tamanho e posição da janela (o tambor nunca sai do lugar).
 - `useNotebook.ts`: liga o caderno (`domain/notebook.ts`) ao React e salva tudo ao fechar a janela.
 - `usePomodoro.ts`: liga o pomodoro ao React.
+- `trayIcon.ts`: o ícone na bandeja do Windows, com o menu "Sair" (fecha pelo caminho normal, salvando as notas).
