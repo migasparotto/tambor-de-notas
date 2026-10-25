@@ -1,5 +1,6 @@
 import type { AppDataStore } from "../storage/appDataStore";
 import { defaultAppDataStore } from "../storage/defaultStore";
+import { parseColorsData, serializeColorsData, type ColorsData } from "./colorData";
 import { cyclesForToday, parseDailyCycles, type DailyCycles } from "./dailyCycles";
 import {
   DEFAULT_PLACEMENT,
@@ -19,6 +20,7 @@ import {
 export const SETTINGS_FILE = "configuracoes.json";
 export const CYCLES_FILE = "pomodoro.json";
 export const PLACEMENT_FILE = "janela.json";
+export const COLORS_FILE = "cores.json";
 
 /**
  * Loads the settings from the app folder. The first time, writes a file with the
@@ -90,4 +92,24 @@ export function savePlacement(
   store: AppDataStore = defaultAppDataStore(),
 ): Promise<void> {
   return store.write(PLACEMENT_FILE, serializePlacement(placement));
+}
+
+/** What the app remembers about each color (no data the first time, or if the file cannot be read). */
+export async function loadColorsData(
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<ColorsData> {
+  try {
+    const saved = await store.read(COLORS_FILE);
+    return saved === null ? {} : parseColorsData(saved);
+  } catch {
+    return {};
+  }
+}
+
+/** Saves what the app remembers about each color. */
+export function saveColorsData(
+  data: ColorsData,
+  store: AppDataStore = defaultAppDataStore(),
+): Promise<void> {
+  return store.write(COLORS_FILE, serializeColorsData(data));
 }

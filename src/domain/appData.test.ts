@@ -2,12 +2,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAppDataStore, type AppDataStore } from "../storage/appDataStore";
 import { MemoryFileSystem } from "../storage/memoryFileSystem";
 import {
+  COLORS_FILE,
   CYCLES_FILE,
   PLACEMENT_FILE,
   SETTINGS_FILE,
+  loadColorsData,
   loadDailyCycles,
   loadPlacement,
   loadSettings,
+  saveColorsData,
   saveDailyCycles,
   savePlacement,
 } from "./appData";
@@ -119,6 +122,31 @@ describe("app data", () => {
         write: () => Promise.resolve(),
       };
       expect(await loadPlacement(failing)).toEqual(DEFAULT_PLACEMENT);
+    });
+  });
+
+  describe("colors data", () => {
+    it("starts empty the first time, without creating a file", async () => {
+      expect(await loadColorsData(store)).toEqual({});
+      expect(fs.files.has(COLORS_FILE)).toBe(false);
+    });
+
+    it("reads back what was saved", async () => {
+      await saveColorsData({ red: { lastSubject: "Cálculo" } }, store);
+      expect(await loadColorsData(store)).toEqual({ red: { lastSubject: "Cálculo" } });
+    });
+
+    it("starts empty if the file is broken", async () => {
+      await store.write(COLORS_FILE, "{ quebrado");
+      expect(await loadColorsData(store)).toEqual({});
+    });
+
+    it("starts empty if the disk cannot be read", async () => {
+      const failing: AppDataStore = {
+        read: () => Promise.reject(new Error("disco indisponível")),
+        write: () => Promise.resolve(),
+      };
+      expect(await loadColorsData(failing)).toEqual({});
     });
   });
 });
