@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 24/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Primeiro release publicado: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0). Próxima: **Etapa 2 — Organização**.
+_Atualizado em 25/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD. **Próximo:** conferir o CD verde e publicar o rascunho do release v0.2.0; depois, **S2 — Assunto e cores** (ver "Assunto" e "Cores"; detalhes da cor no ponto 6 de "Pontos em aberto da Etapa 2"), começando pela lógica em `src/domain/`.
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Próximo (pmp bom dia):** **S2 — Assunto e cores** (ver "Assunto" e "Cores"; detalhes da cor no ponto 6 de "Pontos em aberto da Etapa 2"), começando pela lógica em `src/domain/`. Antes de implementar, o Claude traz o plano com três decisões, uma por vez: (1) onde o campo assunto aparece no painel; (2) se o "último assunto usado" é por cor ou geral; (3) como fica o menu do botão direito para trocar a cor da câmara.
 
 ## Etapa 0 — Fundação ✅
 
@@ -225,6 +225,7 @@ Teste de ida e volta do `.md` (21/10/2026), em pasta temporária fora do projeto
 - [x] Ações do GitHub na v7 (Node 24) no CI e no CD, sem o aviso de Node antigo (23/10/2026)
 - [x] Teste do item 6 do polimento com o app instalado (hibernar e apertar Ctrl+Shift+Alt+2 na volta): passou em 23/10/2026
 - [x] Primeiro release: tag `v0.1.0`, CD verde e rascunho publicado com o `.exe` anexado (23/10/2026)
+- [x] Segundo release: tag `v0.2.0` (fim da S1 da Etapa 2), CI e CD verdes e rascunho publicado com o `.exe` anexado (25/10/2026). Notas de lançamento: só o que mudou para quem usa, escritas à mão (o botão "Gerar notas de lançamento" do GitHub depende de pull requests, que o projeto não usa)
 
 ## Depois do CD — Separar o app de desenvolvimento do instalado ✅
 
