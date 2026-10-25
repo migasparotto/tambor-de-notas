@@ -16,6 +16,7 @@ import { NotePanel } from "./NotePanel";
 import { returnFocus } from "./returnFocus";
 import { startTrayIcon } from "./trayIcon";
 import { useAppWindow } from "./useAppWindow";
+import { useClickThrough } from "./useClickThrough";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
 import { usePomodoro } from "./usePomodoro";
@@ -103,6 +104,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     setPlacement(dropped);
     if (isTauri()) void savePlacement(dropped).catch(() => undefined);
   };
+  // With just the drum showing, clicks on the transparent corners reach the video behind.
+  useClickThrough(geometry, layout.panel === null, () => drag.current !== null);
   const [spin, setSpin] = useState<DrumSpin | null>(null);
   useEffect(() => wakeAudioOnFirstInput(), []);
   useEffect(() => {

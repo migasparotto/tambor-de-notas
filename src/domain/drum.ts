@@ -81,6 +81,20 @@ function mirrored(g: DrumGeometry): DrumGeometry {
   };
 }
 
+/** How far past the drum outline (in pixels) the cursor still counts as over the drum. */
+export const HOVER_MARGIN = 6;
+
+/**
+ * Whether a point in the drum window is over the drum. Everything the drum draws (ring,
+ * chambers, clock, buttons) lies inside its outer circle; the corners outside it are
+ * transparent and should let clicks through. A point that was over stays over until it is
+ * `HOVER_MARGIN` past the outline, so the window does not flicker with the cursor on the edge.
+ */
+export function isOverDrum(g: DrumGeometry, point: Point, wasOver: boolean): boolean {
+  const reach = g.outerRadius + (wasOver ? HOVER_MARGIN : 0);
+  return Math.hypot(point.x - g.center.x, point.y - g.center.y) <= reach;
+}
+
 function rightEdgeGeometry(screenHeight: number, heightFraction: number): DrumGeometry {
   const fraction = clamp(heightFraction, DRUM_HEIGHT_LIMITS.min, DRUM_HEIGHT_LIMITS.max);
   const R = (screenHeight * fraction) / 2;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DRUM_HEIGHT_LIMITS, drumGeometry, type Point } from "./drum";
+import { DRUM_HEIGHT_LIMITS, HOVER_MARGIN, drumGeometry, isOverDrum, type Point } from "./drum";
 import { DEFAULT_SETTINGS } from "./settings";
 
 // The drum size is a setting, so tests use the configured fraction and a few others.
@@ -107,5 +107,49 @@ describe("drumGeometry against the left edge", () => {
     const left = drumGeometry(1080, DEFAULT_SETTINGS.drumHeightFraction, "left");
     expect(left.center.x).toBeLessThan(left.width / 2);
     expect(left.chambers.every((c) => c.x > left.center.x)).toBe(true);
+  });
+});
+
+describe("isOverDrum", () => {
+  const edges = ["right", "left"] as const;
+  const all = cases.flatMap(([h, f]) => edges.map((edge) => [h, f, edge] as const));
+  /** A point `offset` pixels past the outline, straight away from the screen edge. */
+  const pastOutline = (screen: number, fraction: number, offset: number) => {
+    const g = drumGeometry(screen, fraction);
+    return { g, point: { x: g.center.x - g.outerRadius - offset, y: g.center.y } };
+  };
+
+  it.each(all)("on %ipx, %f, %s edge: every control is over the drum", (h, f, edge) => {
+    const g = drumGeometry(h, f, edge);
+    const controls = [
+      g.center,
+      ...g.chambers,
+      g.plus.center,
+      g.clock.center,
+      g.stop.center,
+      g.cycles.center,
+    ];
+    for (const point of controls) expect(isOverDrum(g, point, false)).toBe(true);
+  });
+
+  it.each(all)("on %ipx, %f, %s edge: the window corners let clicks through", (h, f, edge) => {
+    const g = drumGeometry(h, f, edge);
+    const away = edge === "right" ? 0 : g.width; // the corners on the side away from the edge
+    for (const y of [0, g.height]) expect(isOverDrum(g, { x: away, y }, true)).toBe(false);
+  });
+
+  it("only counts as over once the cursor reaches the outline", () => {
+    const { g, point } = pastOutline(1080, DEFAULT_SETTINGS.drumHeightFraction, 1);
+    expect(isOverDrum(g, point, false)).toBe(false);
+  });
+
+  it("stays over within the margin past the outline, so the window does not flicker", () => {
+    const { g, point } = pastOutline(1080, DEFAULT_SETTINGS.drumHeightFraction, HOVER_MARGIN);
+    expect(isOverDrum(g, point, true)).toBe(true);
+  });
+
+  it("lets go once the cursor is past the margin", () => {
+    const { g, point } = pastOutline(1080, DEFAULT_SETTINGS.drumHeightFraction, HOVER_MARGIN + 1);
+    expect(isOverDrum(g, point, true)).toBe(false);
   });
 });
