@@ -298,6 +298,7 @@ Decidido pelo Marcos em 25/10/2026 (sem programar ainda): **sem menu de botão d
 - [ ] **Editar no cabeçalho da nota aberta:** o rótulo vira "● NÚCLEO DE ESTUDO ATIVO". Clicar no texto edita o nome e a função; clicar no círculo (preenchido com a cor da nota) deixa trocar o tom da cor, **sem permitir tons já em uso**.
 - [ ] **Proposta no começo da S3:** trocar o tom mexe na regra "a cor de uma nota nunca muda" e no nome do arquivo (`AAAA-MM cor - título.md`). O Claude traz a proposta antes de programar.
 - [ ] Notas antigas mantêm sua cor quando a câmara muda.
+- [ ] **`cores.json` quebrado não é sobrescrito** (pedido de 25/10/2026): quando o arquivo passar a guardar nome, função e tom, um arquivo quebrado deve ser movido para as sobras ou deixado intacto, com aviso ao abrir, como o `configuracoes.json`. Hoje (S2), com só o último assunto, o próximo assunto usado regrava o arquivo.
 
 ### Assunto (RF07)
 
