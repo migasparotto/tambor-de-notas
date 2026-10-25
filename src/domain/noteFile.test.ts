@@ -4,6 +4,7 @@ import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 const note: Note = {
   id: "8f1c",
   colorId: "red",
+  subject: "Cálculo: limites",
   text: '# Aula de Python: "listas" 🐍\n## Listas\nCriar: [1, 2]',
   createdAt: "2026-10-21T19:05:00.000Z",
   updatedAt: "2026-10-21T19:30:00.000Z",
@@ -17,6 +18,7 @@ describe("serializeNote", () => {
         'id: "8f1c"',
         'title: "Aula de Python: \\"listas\\" 🐍"',
         'color: "red"',
+        'subject: "Cálculo: limites"',
         'createdAt: "2026-10-21T19:05:00.000Z"',
         'updatedAt: "2026-10-21T19:30:00.000Z"',
         "---",
@@ -54,11 +56,26 @@ describe("parseNote", () => {
       "color: red",
       "createdAt: 2026-10-21T19:05:00.000Z",
       "updatedAt: 2026-10-21T19:30:00.000Z",
-      'subject: "Cálculo"',
+      "subject: Cálculo",
+      "tags: aula",
       "---",
       "Título",
     ].join("\n");
-    expect(parseNote(content)).toMatchObject({ id: "8f1c", colorId: "red", text: "Título" });
+    expect(parseNote(content)).toMatchObject({
+      id: "8f1c",
+      colorId: "red",
+      subject: "Cálculo",
+      text: "Título",
+    });
+  });
+
+  it("opens a note saved before the subject existed with an empty subject", () => {
+    const content = serializeNote(note).replace('subject: "Cálculo: limites"\n', "");
+    expect(parseNote(content)).toEqual({ ...note, subject: "" });
+  });
+
+  it("keeps an empty subject", () => {
+    expect(parseNote(serializeNote({ ...note, subject: "" })).subject).toBe("");
   });
 
   it("refuses a file without frontmatter", () => {

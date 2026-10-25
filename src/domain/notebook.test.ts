@@ -350,7 +350,14 @@ describe("Notebook", () => {
     describe("when a color has more active notes on disk than allowed", () => {
       const saveRed = (fileName: string, text: string, day: number) => {
         const date = `2026-10-0${day}T00:00:00.000Z`;
-        const note = { id: text, colorId: RED, text, createdAt: date, updatedAt: date };
+        const note = {
+          id: text,
+          colorId: RED,
+          subject: "",
+          text,
+          createdAt: date,
+          updatedAt: date,
+        };
         return store.save("active", fileName, serializeNote(note));
       };
 

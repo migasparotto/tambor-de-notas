@@ -5,6 +5,8 @@ export interface Note {
   id: string;
   /** Id of the note color; never changes after the note is created. */
   colorId: string;
+  /** The subject (the class matter, e.g. "Cálculo"); empty when not set. */
+  subject: string;
   text: string;
   /** ISO dates, e.g. "2026-10-21T19:05:00.000Z". */
   createdAt: string;
@@ -12,7 +14,7 @@ export interface Note {
 }
 
 const FENCE = "---";
-const FIELDS = ["id", "title", "color", "createdAt", "updatedAt"] as const;
+const FIELDS = ["id", "title", "color", "subject", "createdAt", "updatedAt"] as const;
 const UNTITLED = "sem título";
 
 /** Turns a note into the `.md` file content: frontmatter, then the Markdown text. */
@@ -21,6 +23,7 @@ export function serializeNote(note: Note): string {
     id: note.id,
     title: titleOf(note.text),
     color: note.colorId,
+    subject: note.subject,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
   };
@@ -29,7 +32,10 @@ export function serializeNote(note: Note): string {
   return [FENCE, ...header, FENCE, toDiskMarkdown(note.text)].join("\n");
 }
 
-/** Reads a `.md` file back into a note. Throws if the frontmatter is missing or incomplete. */
+/**
+ * Reads a `.md` file back into a note. Throws if the frontmatter is missing or incomplete.
+ * `subject` is optional: notes saved before it existed open with an empty subject.
+ */
 export function parseNote(content: string): Note {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
   const end = lines.indexOf(FENCE, 1);
@@ -51,6 +57,7 @@ export function parseNote(content: string): Note {
   return {
     id: field("id"),
     colorId: field("color"),
+    subject: fields.get("subject") ?? "",
     text: lines.slice(end + 1).join("\n"),
     createdAt: field("createdAt"),
     updatedAt: field("updatedAt"),

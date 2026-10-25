@@ -126,7 +126,14 @@ export class Notebook {
     let entry = this.current(colorId);
     if (!entry) {
       const now = new Date().toISOString();
-      const note = { id: crypto.randomUUID(), colorId, text, createdAt: now, updatedAt: now };
+      const note = {
+        id: crypto.randomUUID(),
+        colorId,
+        subject: "",
+        text,
+        createdAt: now,
+        updatedAt: now,
+      };
       entry = { note, fileName: null, dirty: true };
       this.notesOf(colorId).push(entry);
     }
