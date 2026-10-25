@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 25/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2.
+_Atualizado em 25/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Próximo (pmp bom dia):** **S2 — Assunto e cores** (ver "Assunto" e "Cores"; detalhes da cor no ponto 6 de "Pontos em aberto da Etapa 2"), começando pela lógica em `src/domain/`. Antes de implementar, o Claude traz o plano com três decisões, uma por vez: (1) onde o campo assunto aparece no painel; (2) se o "último assunto usado" é por cor ou geral; (3) como fica o menu do botão direito para trocar a cor da câmara.
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
 
 ## Etapa 0 — Fundação ✅
 
@@ -247,11 +247,12 @@ Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o m
 | Sprint | Conteúdo |
 | --- | --- |
 | **S1 · Janela** | Arrastar o tambor (e espelhar na borda esquerda), lembrar a posição; **por último**, o clique passando pelos cantos transparentes (se precisar de Rust ou complicar, vira item separado, sem travar o resto) |
-| **S2 · Assunto e cores** | Campo assunto com o último usado (RF07); nome, função e troca de cor das câmaras (RF06) |
-| **S3 · Lista e busca** | Lista de notas filtrável e busca (RF11), e abrir a pasta da nota (RF12). Monta o **índice das notas** em `src/domain/`, já pensado para os backlinks |
-| **S4 · Backlinks** | `[[link]]` clicável, sugestões ao digitar e "quem aponta para esta nota" (RF08), reaproveitando o índice da S3 |
-| **S5 · Editor** | Toggle list, sumário (TOC) e espaçamento (RF09, RF10, RF13) |
-| **S6 · Abas** | Até 3 notas abertas como abas empilhadas; os testes incluem a regra de foco do item 7 (`canTakeKeyboard`) com várias abas |
+| **S2 · Assunto** | Campo assunto com o último usado, por cor (RF07); cria o arquivo das cores `cores.json` |
+| **S3 · Outro lado do tambor** | O "+" gira o tambor 180°; a câmara vazia mostra as notas ativas das cores fora do tambor e a opção de cor nova; editar nome, função e tom da cor no cabeçalho da nota (RF06). Saiu do "Futuro" em 25/10/2026 |
+| **S4 · Lista e busca** | Lista de notas filtrável e busca (RF11), e abrir a pasta da nota (RF12). Monta o **índice das notas** em `src/domain/`, já pensado para os backlinks |
+| **S5 · Backlinks** | `[[link]]` clicável, sugestões ao digitar e "quem aponta para esta nota" (RF08), reaproveitando o índice da S4 |
+| **S6 · Editor** | Toggle list, sumário (TOC) e espaçamento (RF09, RF10, RF13) |
+| **S7 · Abas** | Até 3 notas abertas como abas empilhadas; os testes incluem a regra de foco do item 7 (`canTakeKeyboard`) com várias abas |
 
 Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que os backlinks usam. **Cada sprint termina com uma versão nova** pelo CD (v0.2.0, v0.3.0...).
 
@@ -267,7 +268,7 @@ Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que o
 **Decidido também (23/10/2026):**
 
 5. **Para onde o `[[link]]` aponta:** no disco, o link guarda o **nome do arquivo** (formato do Obsidian), por exemplo `[[2026-10 vermelho - Aula de Python]]`, que é sempre único. Na tela aparece só o título, com uma bolinha da cor. Ao digitar `[[`, as sugestões mostram título, cor e mês, primeiro as notas da mesma cor. Um link digitado à mão (`[[Aula de Python]]`) é resolvido pela mesma cor e, entre elas, a mais recente, e trocado pelo nome do arquivo ao sair do link; se houver dúvida, fica com sublinhado tracejado até escolher nas sugestões. Ao renomear um título, os links são atualizados em todas as notas, ativas e arquivadas.
-6. **Detalhes da cor** (de acordo, para a S2): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor só abre pela lista (S3); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
+6. **Detalhes da cor** (de acordo, para a S3): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor abre pelo outro lado do tambor (S3) e pela lista (S4); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
 7. **RF12 virou "abrir a pasta da nota"** no Explorador do Windows, no lugar de "exportar em .md" (as notas já são `.md`). "Salvar uma cópia limpa" foi para o "Futuro".
 
 ### Janela ✅ (S1, concluída em 24/10/2026)
@@ -287,14 +288,22 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 - [ ] Até 3 notas abertas por vez, mostradas como **abas empilhadas** com o título de cada uma, no estilo de pastas de arquivo (a aba de trás aparece acima, só com o título; a da frente mostra a nota inteira). Serve para anotar vários contextos na mesma aula.
 - Preparado na S3: a regra "uma nota ativa por cor" virou o valor `maxActiveNotesPerColor` (padrão 1) em `src/domain/settings.ts`. Falta decidir se o limite é por cor ou no total, como escolher a aba ativa e como os atalhos funcionam com abas.
 
-### Cores (RF06)
+### Outro lado do tambor e cores (RF06) — S3
 
-- [ ] Editar nome e função de cada cor
-- [ ] Trocar a cor de uma câmara pelo botão direito
-- [ ] Alternativa: câmara "+" para criar uma cor nova e escolher qual cor em uso ela substitui
-- [ ] Notas antigas mantêm sua cor quando a câmara muda
+Decidido pelo Marcos em 25/10/2026 (sem programar ainda): **sem menu de botão direito**; nada disso fica dentro da nota, para não sobrecarregar o painel, exceto a edição no cabeçalho.
+
+- [ ] Clicar no "+" gira o tambor para o outro lado, onde há uma câmara vazia. **Giro:** igual à animação do fim do ciclo, mas de 180° em vez de 360°.
+- [ ] Clicar na câmara vazia mostra **só as notas ativas das cores que estão fora do tambor** (guardadas porque a câmara trocou de cor), para continuar. Notas fechadas ou arquivadas não aparecem.
+- [ ] Na mesma câmara, a opção de **adicionar uma cor nova** (nome, função, assunto, título etc.). A cor nova **toma o lugar de uma câmara da frente, e o Marcos escolhe qual**.
+- [ ] **Editar no cabeçalho da nota aberta:** o rótulo vira "● NÚCLEO DE ESTUDO ATIVO". Clicar no texto edita o nome e a função; clicar no círculo (preenchido com a cor da nota) deixa trocar o tom da cor, **sem permitir tons já em uso**.
+- [ ] **Proposta no começo da S3:** trocar o tom mexe na regra "a cor de uma nota nunca muda" e no nome do arquivo (`AAAA-MM cor - título.md`). O Claude traz a proposta antes de programar.
+- [ ] Notas antigas mantêm sua cor quando a câmara muda.
 
 ### Assunto (RF07)
+
+- Decidido (25/10/2026): o campo fica numa **linha própria entre o cabeçalho e o título**, compacta (fonte menor e mais apagada que o título, para não parecer um segundo título). O rótulo da cor continua no cabeçalho como está.
+- Decidido (25/10/2026): o "último assunto usado" é **lembrado por cor** (cada cor tem o seu), guardado no arquivo das cores **`cores.json`** na pasta do app, criado já nesta sprint.
+- Plano aprovado (25/10/2026), um commit por item: (1) assunto no arquivo da nota (`subject` no cabeçalho; notas antigas abrem com o assunto vazio); (2) último assunto por cor em `cores.json` (apagar o campo não apaga a memória); (3) a nota nova nasce com o último assunto da cor, e mudar o assunto salva sozinho; (4) linha compacta no painel, Enter no assunto leva ao título; (5) teste do Marcos, CI verde, README e versão v0.3.0.
 
 - [ ] Campo assunto em cada nota
 - [ ] Preencher automaticamente com o último assunto usado
@@ -380,7 +389,6 @@ As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criad
 Ideias registradas para depois da etapa 4. Nenhuma entra antes sem ser debatida comigo.
 
 - Gravação de áudio e transcrição.
-- Animação de giro do tambor e câmaras do "outro lado" (conteúdo a definir).
 - Distribuir o app para outras pessoas (instalador, atualizações).
 - Atualização automática do app instalado (plugin updater do Tauri, que exige assinar as atualizações). Ideia de 23/10/2026, ao decidir o CD.
 - Agrupar notas por assunto como uma visão de backlinks (ideia surgida ao definir o campo assunto).

@@ -34,7 +34,7 @@ O Tambor de Notas é um app desktop de anotações rápidas para usar durante au
 - **Forma (mockup aprovado na etapa 1):** um meio anel em arco, encostado na borda direita da tela, com a abertura virada para a borda. As 7 câmaras são redondas e ficam ao longo do arco. O relógio do pomodoro fica no centro, no formato `88:88`. Um botão "+" fica na ponta de baixo do arco, separado das câmaras.
 - **Tamanho:** o tambor ocupa no máximo **1/3 da altura da tela** (valor padrão), para não tampar o vídeo da aula. O tamanho é uma configuração.
 - **Câmara de cor:** sem nota ativa, aparece só o contorno. Com nota ativa, a câmara fica preenchida e **enche conforme a nota se aproxima do limite de caracteres**.
-- **Versão futura:** o tambor poderá girar com animação e revelar câmaras do "outro lado". O conteúdo dessas câmaras ainda não foi definido. Até lá, o "+" aparece, mas não gira.
+- **Outro lado do tambor (Etapa 2, decidido em 25/10/2026):** clicar no "+" gira o tambor 180° (a mesma animação do fim do ciclo, só que meia volta) e revela uma câmara vazia. Clicando nela aparecem as **notas ativas das cores que estão fora do tambor** (guardadas porque a câmara trocou de cor), para continuar, e a opção de **adicionar uma cor nova** (nome, função, assunto, título etc.). Notas fechadas ou arquivadas não aparecem ali. Nada disso fica dentro da nota, para não sobrecarregar o painel.
 
 ## Decisões técnicas
 
@@ -99,7 +99,8 @@ A **nota inteira** tem uma cor. A cor indica a **função** da nota, não a mat�
 | Roxo | Tarefa | Todoist (não vai ao Notion) |
 
 - Essas são as **cores iniciais**. Cada cor tem nome e função editáveis.
-- **Trocar a cor de uma câmara:** clique com o botão direito na câmara e escolha outra cor. Alternativa, se o botão direito for difícil: ao girar o tambor aparece uma câmara vazia com "+"; ali crio uma cor nova e escolho qual cor em uso ela substitui.
+- **Trocar a cor de uma câmara:** pelo "+" e o outro lado do tambor (ver "O tambor"). Uma cor nova toma o lugar de uma câmara da frente, e eu escolho qual. Sem menu de botão direito (decidido em 25/10/2026).
+- **Editar uma cor:** no cabeçalho da nota aberta, o rótulo aparece como "● NÚCLEO DE ESTUDO ATIVO". Clicar no texto edita o nome e a função; clicar no círculo (preenchido com a cor) deixa trocar o tom da cor, sem permitir tons já em uso. Como isso mexe na regra de a cor nunca mudar e no nome do arquivo, a proposta vem no começo da S3 da Etapa 2.
 - **A cor de uma nota existente nunca muda.** Trocar a cor de uma câmara afeta só notas novas; notas antigas mantêm a cor e a função que tinham.
 - Notas de cores diferentes podem se ligar por backlinks quando tratam do mesmo assunto.
 
@@ -252,7 +253,6 @@ As chaves de API **não** ficam nesses arquivos: são guardadas pelo armazenamen
 ### Fora do escopo desta versão
 
 - Gravação de áudio e transcrição.
-- Câmaras do "outro lado" do tambor e a animação de giro completa.
 - Sincronização de mão dupla com o Notion.
 - Distribuição do app para outras pessoas.
 
