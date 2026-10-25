@@ -5,9 +5,13 @@ import { savePlacement } from "../domain/appData";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
 import { fillLevel } from "../domain/noteText";
-import type { Point } from "../domain/drum";
 import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
-import { isDrag, placementWhileDragging, type DrumPlacement } from "../domain/placement";
+import {
+  placementWhileDragging,
+  startPress,
+  type DrumPlacement,
+  type DrumPress,
+} from "../domain/placement";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
 import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
@@ -38,10 +42,9 @@ interface AppProps {
 
 /** A press on the drum that may turn into a drag. */
 interface DrumDrag {
-  start: Point;
+  press: DrumPress;
   /** How far below the drum center the drum was grabbed. */
   grabOffsetY: number;
-  moving: boolean;
 }
 
 const STARTUP_MESSAGE_MS = 10000;
@@ -70,9 +73,11 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     placement,
   );
 
-  // Dragging the drum by its ring or hub (not by a button): it follows the pointer up and
-  // down, sticks to the nearer side edge, and is saved where it is dropped.
+  // Dragging the drum by its ring or hub (not by a button), after holding it still for a
+  // moment: it follows the pointer up and down, sticks to the nearer side edge, and is saved
+  // where it is dropped. A press that moves too soon is just a click.
   const drag = useRef<DrumDrag | null>(null);
+  const [grabbed, setGrabbed] = useState(false);
   const dragPlacement = (e: PointerEvent, d: DrumDrag) =>
     placementWhileDragging(
       workArea,
@@ -84,22 +89,27 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     if (e.button !== 0 || (e.target as HTMLElement).closest("button")) return;
     const centerY = layout.window.y + layout.drumOrigin.y + geometry.center.y;
     drag.current = {
-      start: { x: e.screenX, y: e.screenY },
+      press: startPress({ x: e.screenX, y: e.screenY }, settings.dragHoldMs, () =>
+        setGrabbed(true),
+      ),
       grabOffsetY: e.screenY - centerY,
-      moving: false,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const onDrumPointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
-    if (!d || (!d.moving && !isDrag(d.start, { x: e.screenX, y: e.screenY }))) return;
-    d.moving = true;
-    setPlacement(dragPlacement(e, d));
+    if (d?.press.move({ x: e.screenX, y: e.screenY })) setPlacement(dragPlacement(e, d));
+  };
+  const endPress = () => {
+    drag.current?.press.cancel();
+    drag.current = null;
+    setGrabbed(false);
   };
   const onDrumPointerUp = (e: PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
-    drag.current = null;
-    if (!d?.moving) return;
+    const dragged = d?.press.release() ?? false;
+    endPress();
+    if (!d || !dragged) return;
     const dropped = dragPlacement(e, d);
     setPlacement(dropped);
     if (isTauri()) void savePlacement(dropped).catch(() => undefined);
@@ -223,8 +233,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         onPointerDown={onDrumPointerDown}
         onPointerMove={onDrumPointerMove}
         onPointerUp={onDrumPointerUp}
-        onPointerCancel={() => (drag.current = null)}
-        className="absolute cursor-grab"
+        onPointerCancel={endPress}
+        className={`absolute ${grabbed ? "cursor-grabbing" : "cursor-grab"}`}
         style={{
           left: layout.drumOrigin.x,
           top: layout.drumOrigin.y,
@@ -246,6 +256,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           spin={spin}
           // So it is clear which app is open: this one, or the installed one.
           badge={import.meta.env.DEV ? "DEV" : null}
+          grabbed={grabbed}
         />
       </div>
 

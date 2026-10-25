@@ -38,6 +38,8 @@ export interface Settings {
   cycleEndDurationMs: number;
   /** Volume of the app sounds, from 0 (silent) to 1. */
   soundVolume: number;
+  /** How long the drum must be held still before it can be dragged, in milliseconds. */
+  dragHoldMs: number;
   /** Global shortcuts (they work with the app in the background). */
   shortcuts: Shortcuts;
 }
@@ -55,6 +57,7 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   cycleEndAnimation: "spin",
   cycleEndDurationMs: 1800,
   soundVolume: 0.6,
+  dragHoldMs: 300,
   shortcuts: {
     openColor1: "Ctrl+Shift+Alt+1",
     openColor2: "Ctrl+Shift+Alt+2",
@@ -84,6 +87,7 @@ const VALID: Record<Exclude<keyof Settings, "shortcuts">, (value: unknown) => bo
   cycleEndAnimation: (v) => CYCLE_END_ANIMATIONS.includes(v as CycleEndAnimation),
   cycleEndDurationMs: (v) => isNumber(v) && v >= 200 && v <= 10000,
   soundVolume: (v) => isNumber(v) && v >= 0 && v <= 1,
+  dragHoldMs: (v) => isNumber(v) && v >= 0 && v <= 5000,
 };
 
 /**

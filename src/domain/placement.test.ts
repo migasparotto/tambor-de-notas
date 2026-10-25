@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Rect } from "./drum";
+import { DEFAULT_SETTINGS } from "./settings";
 import {
   DEFAULT_PLACEMENT,
   DRAG_THRESHOLD,
@@ -8,6 +9,7 @@ import {
   placeDrum,
   placementWhileDragging,
   serializePlacement,
+  startPress,
 } from "./placement";
 
 // A second monitor to the right, with the taskbar on top, so offsets are not zero.
@@ -93,5 +95,74 @@ describe("parsePlacement and serializePlacement", () => {
     expect(serializePlacement({ edge: "right", centerY: 0.123456 })).toBe(
       '{\n  "edge": "right",\n  "centerY": 0.123\n}\n',
     );
+  });
+});
+
+describe("startPress", () => {
+  // The hold time is a setting, so tests use the configured value.
+  const hold = DEFAULT_SETTINGS.dragHoldMs;
+  const start = { x: 100, y: 100 };
+  const shaky = { x: 100 + DRAG_THRESHOLD + 1, y: 100 };
+  const far = { x: 100, y: 300 };
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it("grabs the drum once it is held still for the configured time", () => {
+    const onGrab = vi.fn();
+    const press = startPress(start, hold, onGrab);
+    vi.advanceTimersByTime(hold - 1);
+    expect(onGrab).not.toHaveBeenCalled();
+    expect(press.state).toBe("waiting");
+    vi.advanceTimersByTime(1);
+    expect(onGrab).toHaveBeenCalledOnce();
+    expect(press.state).toBe("grabbed");
+  });
+
+  it("allows a tiny tremble while waiting", () => {
+    const onGrab = vi.fn();
+    const press = startPress(start, hold, onGrab);
+    expect(press.move({ x: 100 + DRAG_THRESHOLD, y: 100 })).toBe(false);
+    vi.advanceTimersByTime(hold);
+    expect(onGrab).toHaveBeenCalledOnce();
+  });
+
+  it("is just a click if it moves before the time, even when held longer", () => {
+    const onGrab = vi.fn();
+    const press = startPress(start, hold, onGrab);
+    vi.advanceTimersByTime(hold / 2);
+    expect(press.move(shaky)).toBe(false);
+    vi.advanceTimersByTime(hold * 2);
+    expect(onGrab).not.toHaveBeenCalled();
+    expect(press.move(far)).toBe(false);
+    expect(press.release()).toBe(false);
+  });
+
+  it("drags when it moves after being grabbed, and the drop is saved", () => {
+    const press = startPress(start, hold, () => undefined);
+    vi.advanceTimersByTime(hold);
+    expect(press.move(far)).toBe(true);
+    expect(press.state).toBe("dragging");
+    expect(press.release()).toBe(true);
+  });
+
+  it("released before the time is just a click and never grabs later", () => {
+    const onGrab = vi.fn();
+    const press = startPress(start, hold, onGrab);
+    expect(press.release()).toBe(false);
+    vi.advanceTimersByTime(hold * 2);
+    expect(onGrab).not.toHaveBeenCalled();
+  });
+
+  it("released right after the grab, without moving, does not move the drum", () => {
+    const press = startPress(start, hold, () => undefined);
+    vi.advanceTimersByTime(hold);
+    expect(press.release()).toBe(false);
+  });
+
+  it("cancelled while waiting never grabs", () => {
+    const onGrab = vi.fn();
+    startPress(start, hold, onGrab).cancel();
+    vi.advanceTimersByTime(hold * 2);
+    expect(onGrab).not.toHaveBeenCalled();
   });
 });

@@ -11,7 +11,8 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 ## O que já funciona
 
 - Janela **transparente, sem bordas e sempre por cima**: aparece só o tambor, encostado na borda direita da tela e centralizado na vertical.
-- **Arraste o tambor** pelo anel ou pelo centro (fora dos botões) para cima, para baixo ou para a borda esquerda: ele fica na borda do lado da tela onde você soltar e, na esquerda, aparece espelhado, com o painel abrindo para a direita. O app lembra onde ele ficou.
+- **Arraste o tambor** pelo anel ou pelo centro (fora dos botões): segure o botão parado por um instante (0,3 s) até o anel ganhar um contorno claro e o cursor virar a mão fechada, e então mova para cima, para baixo ou para a borda esquerda. Um clique, mesmo tremido, nunca arrasta. Ele fica na borda do lado da tela onde você soltar e, na esquerda, aparece espelhado, com o painel abrindo para a direita. O app lembra onde ele ficou.
+- Os **cantos vazios** da janela, fora do círculo do tambor, deixam o clique passar para o que está atrás (o vídeo).
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
 - Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
 - **Notas** (uma nota ativa por cor):
@@ -47,7 +48,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 
   O atalho de cor traz o teclado para a nota, e você já pode digitar. Apertado de novo com a nota aberta, recolhe o painel. Se outro programa já usar uma combinação, o app avisa ao abrir. Os atalhos podem ser trocados nas configurações.
 
-Como a janela não tem bordas, para fechar o app abra uma nota (clique numa cor) e aperte **Alt+F4**. O que estiver digitado é salvo antes de fechar.
+Para fechar o app, use o **ícone na bandeja** do Windows (perto do relógio): clique nele e escolha **Sair**. Com uma nota aberta, **Alt+F4** também fecha. Nos dois casos, o que estiver digitado é salvo antes de fechar.
 
 ## Tecnologias
 
@@ -137,6 +138,7 @@ As configurações do app ficam em `%APPDATA%\com.tambordenotas.app\configuracoe
 | `cycleEndAnimation`      | `"spin"`    | Animação no fim de cada fase: `"spin"` (giro completo), `"jolt"` (tranco curto) ou `"off"`                           |
 | `cycleEndDurationMs`     | 1800        | Duração da catraca e do giro, em milissegundos (de 200 a 10000)                                                      |
 | `soundVolume`            | 0.6         | Volume dos sons do app, de 0 (mudo) a 1                                                                              |
+| `dragHoldMs`             | 300         | Tempo, em milissegundos, segurando o tambor parado até ele poder ser arrastado (de 0 a 5000)                         |
 | `shortcuts`              | (abaixo)    | Atalhos globais                                                                                                      |
 
 Os atalhos ficam assim no arquivo. Só é preciso escrever os que mudarem; os outros continuam com o padrão:

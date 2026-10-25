@@ -44,6 +44,57 @@ export function isDrag(start: Point, now: Point): boolean {
 }
 
 /**
+ * What a press on the drum is doing: waiting to see if it is held still, just a click
+ * (it moved too soon), grabbed (held still long enough), or dragging (grabbed, then moved).
+ */
+export type PressState = "waiting" | "click" | "grabbed" | "dragging";
+
+/** A press on the drum, from the button going down until it comes back up. */
+export interface DrumPress {
+  readonly state: PressState;
+  /** The pointer moved to `point` (screen pixels). True when the drum should follow it. */
+  move(point: Point): boolean;
+  /** The button came up. True when the drum was dragged, so the drop should be saved. */
+  release(): boolean;
+  /** Ends the press without a drop (e.g. the pointer was cancelled). */
+  cancel(): void;
+}
+
+/**
+ * Starts a press at `start`. Only a press held still (within DRAG_THRESHOLD) for `holdMs`
+ * grabs the drum, calling `onGrab`; after that, moving drags it. Moving before that makes
+ * the press just a click for good, so a shaky click never moves the drum.
+ */
+export function startPress(start: Point, holdMs: number, onGrab: () => void): DrumPress {
+  let state: PressState = "waiting";
+  const timer = setTimeout(() => {
+    if (state !== "waiting") return;
+    state = "grabbed";
+    onGrab();
+  }, holdMs);
+  const end = () => {
+    clearTimeout(timer);
+    return state === "dragging";
+  };
+  return {
+    get state() {
+      return state;
+    },
+    move(point) {
+      if (state === "waiting" && isDrag(start, point)) {
+        clearTimeout(timer);
+        state = "click";
+      } else if (state === "grabbed") {
+        state = "dragging";
+      }
+      return state === "dragging";
+    },
+    release: end,
+    cancel: () => void end(),
+  };
+}
+
+/**
  * Where the drum goes while it is dragged. It follows the pointer up and down (keeping the
  * spot where it was grabbed, `grabOffsetY` below its center) and sticks to the edge of the
  * half of the screen the pointer is on. The result is always a spot the drum really fits in.

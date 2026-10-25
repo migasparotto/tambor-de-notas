@@ -26,6 +26,8 @@ interface DrumProps {
   spin: DrumSpin | null;
   /** A small mark above the clock, like "DEV" for the development app. Null: none. */
   badge: string | null;
+  /** The drum is held, ready to be dragged: its ring gets a light outline. */
+  grabbed: boolean;
 }
 
 /** One end-of-cycle movement of the chambers. */
@@ -97,6 +99,7 @@ export function Drum({
   onStopPomodoro,
   spin,
   badge,
+  grabbed,
 }: DrumProps) {
   const chambersRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -129,7 +132,7 @@ export function Drum({
           ...around(g.center, 2 * g.outerRadius),
           boxSizing: "border-box",
           border: `${g.outerRadius - g.innerRadius}px solid ${RING}`,
-          boxShadow: `0 0 0 1px ${EDGE}, inset 0 0 0 1px ${EDGE}, 0 4px 12px rgba(0,0,0,.35)`,
+          boxShadow: `0 0 0 ${grabbed ? "2px rgba(255,255,255,.55)" : `1px ${EDGE}`}, inset 0 0 0 1px ${EDGE}, 0 4px 12px rgba(0,0,0,.35)`,
         }}
       />
 
