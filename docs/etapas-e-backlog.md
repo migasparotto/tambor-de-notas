@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 23/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Primeiro release publicado: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0). Próxima: **Etapa 2 — Organização**.
+_Atualizado em 24/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Primeiro release publicado: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0). Próxima: **Etapa 2 — Organização**.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. **Agora: S1 — Janela** (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). **Próximo:** arrasto só depois de segurar parado (ver "Janela"); depois, fim da S1 com a versão v0.2.0 pelo CD.
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 (S1 Janela → S2 Assunto e cores → S3 Lista e busca → S4 Backlinks → S5 Editor → S6 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD. **Próximo:** conferir o CD verde e publicar o rascunho do release v0.2.0; depois, **S2 — Assunto e cores** (ver "Assunto" e "Cores"; detalhes da cor no ponto 6 de "Pontos em aberto da Etapa 2"), começando pela lógica em `src/domain/`.
 
 ## Etapa 0 — Fundação ✅
 
@@ -269,7 +269,7 @@ Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que o
 6. **Detalhes da cor** (de acordo, para a S2): mudar o nome ou a função de uma cor vale para todas as notas dela; uma nota ativa de uma cor fora do tambor só abre pela lista (S3); os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa.
 7. **RF12 virou "abrir a pasta da nota"** no Explorador do Windows, no lugar de "exportar em .md" (as notas já são `.md`). "Salvar uma cópia limpa" foi para o "Futuro".
 
-### Janela
+### Janela ✅ (S1, concluída em 24/10/2026)
 
 As duas tarefas mexem na janela, e lembrar a posição usa o armazenamento criado na S3 da Etapa 1.
 
