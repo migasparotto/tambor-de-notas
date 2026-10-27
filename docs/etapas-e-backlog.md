@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 25/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
+_Atualizado em 27/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Itens 1 a 4 feitos em 27/10/2026 (lógica com testes e a linha do assunto no painel). **Próximo (pmp bom dia):** o Marcos faz o roteiro de teste do item 4 (ver "Assunto"); com a aprovação, item 5: CI verde, README e versão v0.3.0. Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
 
 ## Etapa 0 — Fundação ✅
 
@@ -306,8 +306,14 @@ Decidido pelo Marcos em 25/10/2026 (sem programar ainda): **sem menu de botão d
 - Decidido (25/10/2026): o "último assunto usado" é **lembrado por cor** (cada cor tem o seu), guardado no arquivo das cores **`cores.json`** na pasta do app, criado já nesta sprint.
 - Plano aprovado (25/10/2026), um commit por item: (1) assunto no arquivo da nota (`subject` no cabeçalho; notas antigas abrem com o assunto vazio); (2) último assunto por cor em `cores.json` (apagar o campo não apaga a memória); (3) a nota nova nasce com o último assunto da cor, e mudar o assunto salva sozinho; (4) linha compacta no painel, Enter no assunto leva ao título; (5) teste do Marcos, CI verde, README e versão v0.3.0.
 
-- [ ] Campo assunto em cada nota
-- [ ] Preencher automaticamente com o último assunto usado
+- [x] Campo assunto em cada nota (itens 1 e 4, feitos em 27/10/2026; **falta o teste do Marcos**)
+- [x] Preencher automaticamente com o último assunto usado, por cor, em `cores.json` (itens 2 e 3, feitos em 27/10/2026; **falta o teste do Marcos**)
+- [ ] **Roteiro de teste do item 4** (no app DEV; começar saindo pela bandeja e reabrindo, para carregar o código novo):
+  1. Nota nova (vermelho): a linha "Assunto" é menor e mais apagada que o título; o cursor começa no título; Enter no assunto leva ao fim do título; Esc no assunto recolhe e devolve o teclado ao vídeo; Ctrl+Enter no assunto fecha a nota; com o cursor no assunto, Ctrl+Shift+Alt+P e Ctrl+Shift+Alt+1 funcionam.
+  2. Outra nota da mesma cor: vem com o último assunto; trocar o assunto e conferir `subject:` pelo botão MD.
+  3. Outra cor: o assunto vem vazio (cada cor lembra o seu).
+  4. Reabrir o app: cada cor traz o seu último assunto; notas de antes desta versão abrem com o assunto vazio, intactas. Arquivo: `%APPDATA%\com.tambordenotas.app.dev\cores.json`.
+- [ ] Item 5: CI verde, README e versão v0.3.0, depois da aprovação do roteiro.
 
 ### Backlinks (RF08)
 
