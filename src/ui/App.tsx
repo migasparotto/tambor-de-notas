@@ -264,6 +264,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         <NotePanel
           key={panel.colorId}
           color={panelColor}
+          subject={notes.subject(panel.colorId)}
           text={notes.text(panel.colorId)}
           markdown={notes.markdown(panel.colorId)}
           charLimit={settings.charLimit}
@@ -280,6 +281,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           size={panel.size}
           message={notes.message}
           onChange={(text) => notes.edit(panel.colorId, text)}
+          onSubjectChange={(subject) => notes.editSubject(panel.colorId, subject)}
           onConfirmTitle={() => void notes.confirmTitle(panel.colorId)}
           onToggleSize={() =>
             setPanel({ ...panel, size: panel.size === "normal" ? "expanded" : "normal" })

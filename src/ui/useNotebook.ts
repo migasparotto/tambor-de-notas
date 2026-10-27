@@ -44,6 +44,12 @@ export function useNotebook(
 
   return {
     text: (colorId: string) => notebook.text(colorId),
+    /** The note subject, or the color's last subject when there is no note yet. */
+    subject: (colorId: string) => notebook.subject(colorId),
+    editSubject: (colorId: string, subject: string) => {
+      notebook.editSubject(colorId, subject);
+      redraw();
+    },
     /** The note as written in its .md file (for "ver Markdown"). */
     markdown: (colorId: string) => notebook.markdown(colorId),
     hasNote: (colorId: string) => notebook.hasNote(colorId),

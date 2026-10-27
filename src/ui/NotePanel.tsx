@@ -1,13 +1,15 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { NoteColor } from "../domain/chambers";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
 import type { SymbolsMode } from "../domain/settings";
-import { NoteEditor } from "./NoteEditor";
+import { NoteEditor, type NoteEditorHandle } from "./NoteEditor";
 
 interface NotePanelProps {
   color: NoteColor;
+  /** The note subject (the class matter); for a new note, the color's last subject. */
+  subject: string;
   text: string;
   /** The note as written in its .md file, shown by "ver Markdown". */
   markdown: string;
@@ -23,6 +25,7 @@ interface NotePanelProps {
   size: PanelSize;
   message: string | null;
   onChange: (text: string) => void;
+  onSubjectChange: (subject: string) => void;
   onConfirmTitle: () => void;
   onToggleSize: () => void;
   onCollapse: () => void;
@@ -41,6 +44,7 @@ export function NotePanel(props: NotePanelProps) {
   const [mounted, setMounted] = useState(false);
   // "Ver Markdown": the plain file text instead of the editor (which stays alive, hidden).
   const [showMarkdown, setShowMarkdown] = useState(false);
+  const editor = useRef<NoteEditorHandle>(null);
 
   useEffect(() => {
     // Wait one frame so the browser draws the small bubble before growing it.
@@ -111,8 +115,26 @@ export function NotePanel(props: NotePanelProps) {
             </button>
           </header>
 
-          <div className={showMarkdown ? "hidden" : "flex min-h-0 flex-1 flex-col"}>
+          <div className={showMarkdown ? "hidden" : "flex min-h-0 flex-1 flex-col gap-1"}>
+            <input
+              type="text"
+              value={props.subject}
+              onChange={(e) => props.onSubjectChange(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter goes on to the title; Esc and Ctrl+Enter are handled by the window.
+                if (e.key !== "Enter" || e.ctrlKey || e.nativeEvent.isComposing) return;
+                e.preventDefault();
+                editor.current?.focusTitle();
+              }}
+              placeholder="Assunto"
+              aria-label="Assunto da nota"
+              title="Assunto (a matéria); a próxima nota desta cor começa com ele"
+              autoComplete="off"
+              spellCheck={false}
+              className="m-0 w-full rounded border-0 bg-transparent px-0 py-0.5 text-[12px] text-white/55 outline-none placeholder:text-white/30 focus:text-white/80"
+            />
             <NoteEditor
+              ref={editor}
               text={text}
               onChange={props.onChange}
               onConfirmTitle={props.onConfirmTitle}

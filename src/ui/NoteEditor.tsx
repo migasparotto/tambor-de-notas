@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { markdown } from "@codemirror/lang-markdown";
 import { EditorState } from "@codemirror/state";
@@ -21,6 +21,13 @@ interface NoteEditorProps {
   onConfirmTitle: () => void;
   /** When the Markdown symbols show (from the settings). */
   symbolsMode: SymbolsMode;
+  ref?: Ref<NoteEditorHandle>;
+}
+
+/** What the panel can ask of the editor. */
+export interface NoteEditorHandle {
+  /** Puts the keyboard in the editor, at the end of the title line. */
+  focusTitle: () => void;
 }
 
 const theme = EditorView.theme(
@@ -73,8 +80,17 @@ const theme = EditorView.theme(
  * hiding the symbols ("live preview"). Its contract is `text` in and `onChange` out,
  * the same as the simple field it replaced.
  */
-export function NoteEditor({ text, onChange, onConfirmTitle, symbolsMode }: NoteEditorProps) {
+export function NoteEditor({ text, onChange, onConfirmTitle, symbolsMode, ref }: NoteEditorProps) {
   const host = useRef<HTMLDivElement>(null);
+  const editor = useRef<EditorView | null>(null);
+  useImperativeHandle(ref, () => ({
+    focusTitle: () => {
+      const view = editor.current;
+      if (!view) return;
+      view.dispatch({ selection: { anchor: view.state.doc.line(1).to } });
+      view.focus();
+    },
+  }));
   // The editor is created once; these refs always point to the latest callbacks.
   const callbacks = useRef({ onChange, onConfirmTitle });
   useEffect(() => {
@@ -108,8 +124,12 @@ export function NoteEditor({ text, onChange, onConfirmTitle, symbolsMode }: Note
         ],
       }),
     });
+    editor.current = view;
     view.focus();
-    return () => view.destroy();
+    return () => {
+      editor.current = null;
+      view.destroy();
+    };
     // The editor is created when the panel opens; later changes come from the editor itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
