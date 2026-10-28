@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 27/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento) e CD concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
+_Atualizado em 28/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento), CD e Dependabot concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -233,6 +233,13 @@ Pedido do Marcos em 23/10/2026. Hoje o app do `tauri dev` e o instalado usam o m
 
 - [x] Propor como separar, aprovado pelo Marcos em 23/10/2026: configuração só para o desenvolvimento, pasta de notas de teste e os mesmos atalhos, confiando no aviso de "já está em uso"
 - [x] Implementar (23/10/2026): `npm run app:dev` usa `src-tauri/tauri.dev.conf.json` (identificador `com.tambordenotas.app.dev`, nome "Tambor de Notas (Dev)"), com configurações próprias em `%APPDATA%\com.tambordenotas.app.dev` (copiadas do instalado na primeira vez); notas em `Documentos\Tambor de Notas (Dev)\notas\` (regra `notesRootFor`, com teste); marca "DEV" em âmbar acima do relógio. Conferido no app: identificador e nome certos, pastas separadas, marca visível e aviso dos atalhos ocupados pelo instalado.
+
+## Dependabot ✅
+
+Pedido do Marcos em 28/10/2026: manter as dependências atualizadas e receber avisos de segurança.
+
+- [x] `.github/dependabot.yml` (28/10/2026): npm, cargo (`src-tauri`) e GitHub Actions, toda semana, um PR agrupado por tipo. Nenhuma dependência alterada agora.
+- [ ] Ligar no GitHub (Settings → Code security) os "Dependabot alerts" e os "Dependabot security updates" (o Marcos faz, é configuração da conta)
 
 ## Etapa 2 — Organização
 
