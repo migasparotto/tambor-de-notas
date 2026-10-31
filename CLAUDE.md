@@ -22,6 +22,10 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - Notas são arquivos `.md` locais com frontmatter; sem banco de dados.
 - **IA:** nada é implementado antes da conversa de escopo no início da etapa 4.
 
+## Armadilhas
+
+- A simulação do `cargo update` (`--dry-run`) só lista as versões que mudam, não as dependências que passam a apontar para outra versão. Sempre conferir o diff real do `Cargo.lock` antes de aprovar uma atualização.
+
 ## Comandos
 
 `npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run lint` · `npm run format` · `npm run build`
