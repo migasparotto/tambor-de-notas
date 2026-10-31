@@ -21,12 +21,15 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - **Testes:** Vitest, com fake timers para tudo que envolve tempo (ex.: pomodoro).
 - Notas são arquivos `.md` locais com frontmatter; sem banco de dados.
 - **IA:** nada é implementado antes da conversa de escopo no início da etapa 4.
+- **PRs do Dependabot:**
+  - Patch (qualquer biblioteca) ou minor só de desenvolvimento, com CI verde, e com CD verde quando a atualização mexer no build: pode fazer o merge sem perguntar ao Marcos e avisar no resumo.
+  - Major, minor que entra no app final, ou qualquer coisa que exija mudar código: parar e perguntar ao Marcos.
+  - Atualização que entrou a mais no grupo: segue a mesma regra acima, sem precisar parar só por isso.
 
 ## Armadilhas
 
 - A simulação do `cargo update` (`--dry-run`) só lista as versões que mudam, não as dependências que passam a apontar para outra versão. Sempre conferir o diff real do `Cargo.lock` antes de aprovar uma atualização.
-- O CI atual (`ci.yml`) não compila o Rust: roda só lint, formatação, testes e o build da interface. CI verde não comprova mudanças no `Cargo.lock` ou no código Rust. Até o CI ser ajustado, toda atualização de dependência do Rust precisa de `cargo check --locked` e `cargo test --locked` rodados à mão.
-- O CI também não gera o instalador. Mudanças que afetam o build do Tauri (ícones, NSIS, empacotamento) só se comprovam rodando o CD.
+- O CI não gera o instalador. Mudanças que afetam o build do Tauri (ícones, NSIS, empacotamento) só se comprovam rodando o CD.
 - Notas de lançamento: escrever as notas só depois do CD e não rodar o CD de novo numa tag em rascunho.
 
 ## Comandos
