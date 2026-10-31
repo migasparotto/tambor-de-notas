@@ -25,6 +25,9 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 ## Armadilhas
 
 - A simulação do `cargo update` (`--dry-run`) só lista as versões que mudam, não as dependências que passam a apontar para outra versão. Sempre conferir o diff real do `Cargo.lock` antes de aprovar uma atualização.
+- O CI atual (`ci.yml`) não compila o Rust: roda só lint, formatação, testes e o build da interface. CI verde não comprova mudanças no `Cargo.lock` ou no código Rust. Até o CI ser ajustado, toda atualização de dependência do Rust precisa de `cargo check --locked` e `cargo test --locked` rodados à mão.
+- O CI também não gera o instalador. Mudanças que afetam o build do Tauri (ícones, NSIS, empacotamento) só se comprovam rodando o CD.
+- Notas de lançamento: escrever as notas só depois do CD e não rodar o CD de novo numa tag em rascunho.
 
 ## Comandos
 
