@@ -18,3 +18,29 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+
+  rust:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      # The Tauri compile needs the built interface (../dist).
+      - run: npm ci
+      - run: npm run build
+
+      - run: cargo fmt --check
+        working-directory: src-tauri
+      - run: cargo check --locked
+        working-directory: src-tauri
+      - run: cargo test --locked
+        working-directory: src-tauri
