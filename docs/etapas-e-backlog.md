@@ -22,7 +22,7 @@ O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 
 
 ## Próximo passo
 
-_Atualizado em 31/10/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento), CD e Dependabot concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, S2 (Assunto).
+_Atualizado em 01/11/2026._ Etapa 0, CI, **Etapa 1 — MVP utilizável** (S1 a S4 e o polimento), CD e Dependabot concluídos. Releases publicados: [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) e [v0.2.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.2.0) (fim da S1 da Etapa 2). Agora: **Etapa 2 — Organização**, fechando a S2 (Assunto) com a v0.3.0.
 
 Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (conferido na tela); atalhos **Ctrl+Shift+Alt**, com o plugin global-shortcut aprovado; sprints internas aprovadas (ver "Sprints internas" na Etapa 1).
 
@@ -34,7 +34,7 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
 6. ~~**Polimento do fim da Etapa 1**~~ (concluído em 23/10/2026; só falta o item 8, condicional), na ordem: ~~sobras de `.tmp`~~ (aprovado) → ~~som e animação do tambor~~ (aprovado) → ~~completar `configuracoes.json`~~ (aprovado) → ~~Esc devolve o teclado ao vídeo~~ (aprovado) → ~~atalho global com o vídeo na frente~~ (só em desenvolvimento) → ~~cliques que nem ativam o tambor~~ (aprovado) → ~~CD~~ (feito). "Ver Markdown" está feito e aprovado. Ver a lista "Polimento" abaixo.
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
-8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Itens 1 a 4 feitos em 27/10/2026 (lógica com testes e a linha do assunto no painel). **Próximo (pmp bom dia):** primeiro, revisar o alerta do tokio e o PR do TypeScript 7, e resolver o alerta do glib (ver "Dependabot"). Depois, o Marcos faz o roteiro de teste do item 4 (ver "Assunto"); com a aprovação, item 5: CI verde, README, notas de lançamento pelo `CHANGELOG.md` e versão v0.3.0. Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
+8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo Marcos (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo Marcos em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Itens 1 a 4 feitos em 27/10/2026 (lógica com testes e a linha do assunto no painel). Roteiro do item 4 aprovado pelo Marcos em 01/11/2026 e alertas do Dependabot resolvidos (ver "Dependabot"). **Próximo:** o Marcos revisa o `CHANGELOG.md` no PR da v0.3.0; depois, merge, tag `v0.3.0`, CD (o caminho por tag com o `tauri-action` v1 se comprova aqui) e publicar o rascunho. Em seguida, começar a **S3 — Outro lado do tambor**. Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
 
 ## Etapa 0 — Fundação ✅
 
@@ -240,14 +240,14 @@ Pedido do Marcos em 28/10/2026: manter as dependências atualizadas e receber av
 
 - [x] `.github/dependabot.yml` (28/10/2026): npm, cargo (`src-tauri`) e GitHub Actions, toda semana, um PR agrupado por tipo. Nenhuma dependência alterada agora.
 - [x] Ligar no GitHub (Settings → Code security) os "Dependabot alerts" e os "Dependabot security updates" (feito pelo Marcos em 28/10/2026)
-- [ ] Resolver os 2 alertas moderados que o Dependabot achou no Rust (28/10/2026):
-  - [x] **tokio**: condição de corrida em `tokio::time::Interval`; corrigido na 1.54.1 (PR #5, 31/10/2026)
-  - [ ] **No próximo pmp bom dia:** revisar se o alerta do tokio (#2) fechou. Em 31/10/2026 ele seguia aberto, apesar de a `main` e o gráfico de dependências estarem na 1.54.1. Se continuar aberto, decidimos juntos se dispensamos.
-  - [ ] **glib**: uso indevido de memória em `glib::VariantStrIter`; corrigido na 0.20.0 (vem por baixo do Tauri, talvez dependa de o Tauri atualizar)
+- [x] Resolver os alertas moderados que o Dependabot achou (concluído em 01/11/2026):
+  - [x] **tokio**: condição de corrida em `tokio::time::Interval`; corrigido na 1.54.1 (PR #5, 31/10/2026). O alerta #2 fechou sozinho em 31/10/2026.
+  - [x] **glib**: uso indevido de memória em `glib::VariantStrIter`; corrigido na 0.20.0. Alerta #1 dispensado em 01/11/2026 como "código vulnerável não usado": o glib só entra no build do Linux, e nenhuma versão do Tauri, nem a 3.0.0-alpha.5 e a branch `dev`, usa outro gtk que não o 0.18 (que traz o glib 0.18). **Se o app passar a ter versão para Linux, reabrir o alerta do glib.**
+  - [x] **minimatch** (só de desenvolvimento, vem pelo ESLint): negação de serviço com padrão de busca malicioso; alerta #3 corrigido em 01/11/2026 (PR #11). A linha 10 não tem versão corrigida, então um `overrides` no `package.json` força a 11.0.3, sem mudar o ESLint. **Tirar o `overrides` quando o ESLint aceitar a 11.**
 - [x] PRs abertos do Dependabot resolvidos em 31/10/2026: Rust (#3), `tauri-action` v1 (#2) e npm (#8, que substituiu o #4). O caminho do CD por tag com a v1 será comprovado na própria v0.3.0.
 - [x] CI compila e testa o Rust no Windows: `cargo fmt --check`, `cargo check --locked` e `cargo test --locked` (PR #9, 31/10/2026)
-- [ ] **No próximo pmp bom dia:** revisar se o Dependabot abriu o PR separado do TypeScript 7. Em 31/10/2026, com o `typescript` já fora do grupo npm (PR #7), ele ainda não tinha aberto. Esse PR fica aberto como lembrete e **não deve ser juntado**.
-- [ ] **Na v0.3.0:** as notas de lançamento passam a vir de um `CHANGELOG.md` lido pelo CD, em vez de serem escritas à mão no GitHub.
+- [x] PR separado do TypeScript 7: até 01/11/2026 o Dependabot não abriu, provavelmente porque o `typescript-eslint` exige versão abaixo da 6.1.0 (não confirmado). Paramos de esperar por ele: o lembrete é a tarefa futura abaixo. Se ele abrir, **não juntar**.
+- [x] **Na v0.3.0:** as notas de lançamento vêm do `CHANGELOG.md`, lido pelo CD com `scripts/release-notes.mjs` (com testes), em vez de serem escritas à mão no GitHub (01/11/2026).
 - [ ] **Tarefa futura:** migrar para o TypeScript 7 quando o `typescript-eslint` aceitar (hoje exige versão abaixo da 6.1.0).
 
 ## Etapa 2 — Organização
@@ -322,14 +322,14 @@ Decidido pelo Marcos em 25/10/2026 (sem programar ainda): **sem menu de botão d
 - Decidido (25/10/2026): o "último assunto usado" é **lembrado por cor** (cada cor tem o seu), guardado no arquivo das cores **`cores.json`** na pasta do app, criado já nesta sprint.
 - Plano aprovado (25/10/2026), um commit por item: (1) assunto no arquivo da nota (`subject` no cabeçalho; notas antigas abrem com o assunto vazio); (2) último assunto por cor em `cores.json` (apagar o campo não apaga a memória); (3) a nota nova nasce com o último assunto da cor, e mudar o assunto salva sozinho; (4) linha compacta no painel, Enter no assunto leva ao título; (5) teste do Marcos, CI verde, README e versão v0.3.0.
 
-- [x] Campo assunto em cada nota (itens 1 e 4, feitos em 27/10/2026; **falta o teste do Marcos**)
-- [x] Preencher automaticamente com o último assunto usado, por cor, em `cores.json` (itens 2 e 3, feitos em 27/10/2026; **falta o teste do Marcos**)
-- [ ] **Roteiro de teste do item 4** (no app DEV; começar saindo pela bandeja e reabrindo, para carregar o código novo):
+- [x] Campo assunto em cada nota (itens 1 e 4, feitos em 27/10/2026; aprovados pelo Marcos em 01/11/2026)
+- [x] Preencher automaticamente com o último assunto usado, por cor, em `cores.json` (itens 2 e 3, feitos em 27/10/2026; aprovados pelo Marcos em 01/11/2026)
+- [x] **Roteiro de teste do item 4**, aprovado pelo Marcos em 01/11/2026 (no app DEV; começar saindo pela bandeja e reabrindo, para carregar o código novo):
   1. Nota nova (vermelho): a linha "Assunto" é menor e mais apagada que o título; o cursor começa no título; Enter no assunto leva ao fim do título; Esc no assunto recolhe e devolve o teclado ao vídeo; Ctrl+Enter no assunto fecha a nota; com o cursor no assunto, Ctrl+Shift+Alt+P e Ctrl+Shift+Alt+1 funcionam.
   2. Outra nota da mesma cor: vem com o último assunto; trocar o assunto e conferir `subject:` pelo botão MD.
   3. Outra cor: o assunto vem vazio (cada cor lembra o seu).
   4. Reabrir o app: cada cor traz o seu último assunto; notas de antes desta versão abrem com o assunto vazio, intactas. Arquivo: `%APPDATA%\com.tambordenotas.app.dev\cores.json`.
-- [ ] Item 5: CI verde, README e versão v0.3.0, depois da aprovação do roteiro.
+- [ ] Item 5: CI verde, README, `CHANGELOG.md` e versão v0.3.0. Falta o Marcos revisar o `CHANGELOG.md`; depois, merge, tag e CD.
 
 ### Backlinks (RF08)
 
