@@ -30,7 +30,9 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 - A simulação do `cargo update` (`--dry-run`) só lista as versões que mudam, não as dependências que passam a apontar para outra versão. Sempre conferir o diff real do `Cargo.lock` antes de aprovar uma atualização.
 - O CI não gera o instalador. Mudanças que afetam o build do Tauri (ícones, NSIS, empacotamento) só se comprovam rodando o CD.
-- Notas de lançamento: escrever as notas só depois do CD e não rodar o CD de novo numa tag em rascunho.
+- Notas de lançamento: ficam no `CHANGELOG.md`, escritas antes da tag, e o CD as lê (`scripts/release-notes.mjs`). Não rodar o CD de novo numa tag em rascunho, nem editar as notas só no rascunho: o que importa fica no `CHANGELOG.md`.
+- Se o app passar a ter versão para Linux, reabrir o alerta do glib.
+- O `overrides` do `minimatch` no `package.json` força a 11.x, fora da faixa que o ESLint pede (`^10`), por causa de um alerta só corrigido na 11. Tirar quando o ESLint aceitar a 11.
 
 ## Comandos
 

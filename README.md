@@ -6,7 +6,7 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — a **Etapa 1 (MVP utilizável)** está concluída e o instalador do Windows está em [Releases](https://github.com/migasparotto/tambor-de-notas/releases). Atualmente na **Etapa 2 (Organização)**, sprint S1 (janela). Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — a **Etapa 1 (MVP utilizável)** está concluída e o instalador do Windows está em [Releases](https://github.com/migasparotto/tambor-de-notas/releases). Atualmente na **Etapa 2 (Organização)**, com as sprints S1 (janela) e S2 (assunto) concluídas. O que mudou em cada versão está no [CHANGELOG.md](CHANGELOG.md). Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
 
 ## O que já funciona
 
@@ -18,6 +18,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - **Notas** (uma nota ativa por cor):
   - clique numa câmara de cor: o painel da nota nasce na câmara e cresce ao lado do tambor, na cor da nota;
   - o editor mostra o texto **formatado enquanto você digita** (títulos, negrito, itálico, código, links, listas, linha `---`), mas o que fica salvo é o Markdown puro; os símbolos (`#`, `**`...) só aparecem quando o cursor está dentro daquele trecho;
+  - a linha **Assunto**, acima do título, guarda a matéria da nota (como "Cálculo"). Cada cor lembra o último assunto usado, e a nota nova da cor já vem com ele; Enter no assunto leva ao título;
   - a primeira linha é o **título** (maior, com "Título…"); Enter no título dá nome ao arquivo;
   - uma linha inteira `+texto+` vira subtítulo ao sair da linha (no arquivo, `## texto`);
   - **Ctrl+B** negrito, **Ctrl+I** itálico (de novo, desfaz), **Ctrl+Z** desfaz; Enter numa lista continua a lista;
@@ -92,7 +93,7 @@ Os dois usam os mesmos atalhos. Quem abrir por último avisa que eles "já estã
 
 O workflow [CD](.github/workflows/cd.yml) gera o instalador do Windows (`.exe`), que não pede administrador:
 
-- **Com uma tag de versão** (`git tag v0.1.0` e `git push origin v0.1.0`): cria um release em rascunho com o instalador anexado, para conferir e publicar à mão na página de Releases. A tag precisa bater com a versão em `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, senão o CD para com um erro.
+- **Com uma tag de versão** (`git tag v0.1.0` e `git push origin v0.1.0`): cria um release em rascunho com o instalador anexado, para conferir e publicar à mão na página de Releases. A tag precisa bater com a versão em `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, senão o CD para com um erro. As notas do release vêm da seção da versão no [CHANGELOG.md](CHANGELOG.md), que precisa existir antes da tag.
 - **À mão** (Actions → CD → Run workflow, ou `gh workflow run cd.yml`): só gera o instalador, que fica nos arquivos da execução por 7 dias.
 
 O instalador não tem assinatura digital, então o Windows mostra "O Windows protegeu o computador": clique em "Mais informações" e "Executar assim mesmo".
