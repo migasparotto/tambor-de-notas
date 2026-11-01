@@ -1,7 +1,7 @@
 import { defaultNotesStore } from "../storage/defaultStore";
 import type { NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
-import { loadColorsData, saveColorsData } from "./appData";
+import { loadColorsData, saveColorsData, type LoadedColorsData } from "./appData";
 import type { NoteColor } from "./chambers";
 import { lastSubject, rememberSubject, type ColorsData } from "./colorData";
 import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
@@ -28,9 +28,13 @@ export function leftoversMessage(count: number): string | null {
   return `${what} para notas\\sobras\\. Confira se falta algo nas notas e apague as sobras quando quiser.`;
 }
 
+/** The notice shown when `cores.json` cannot be used. */
+export const COLORS_BLOCKED_MESSAGE =
+  "Não consegui ler o arquivo cores.json. O app abriu com as cores padrão e não vai alterar o arquivo: corrija-o, ou apague-o, e reabra o app.";
+
 /** Where the colors data (`cores.json`) is read and saved. */
 export interface ColorsDataStore {
-  load: () => Promise<ColorsData>;
+  load: () => Promise<LoadedColorsData>;
   save: (data: ColorsData) => Promise<void>;
 }
 
@@ -65,6 +69,8 @@ export class Notebook {
   private queue: Promise<void> = Promise.resolve();
   /** What is remembered about each color (the last subject), read on load. */
   private colorsData: ColorsData = {};
+  /** True when `cores.json` is broken: it is left as it is, and changes last only while open. */
+  private colorsBlocked = false;
 
   constructor(private readonly options: NotebookOptions) {}
 
@@ -75,7 +81,12 @@ export class Notebook {
    */
   async load(): Promise<void> {
     const { store, events, settings, colorsStore } = this.options;
-    if (colorsStore) this.colorsData = await colorsStore.load();
+    if (colorsStore) {
+      const { data, blocked } = await colorsStore.load();
+      this.colorsData = data;
+      this.colorsBlocked = blocked;
+      if (blocked) events?.onNotice?.(COLORS_BLOCKED_MESSAGE);
+    }
     // First, leftovers of interrupted saves go to `sobras/` (in the queue, so a second
     // load running at the same time finds nothing left to move).
     try {
@@ -274,6 +285,7 @@ export class Notebook {
     const next = rememberSubject(this.colorsData, note.colorId, note.subject);
     if (next === this.colorsData) return;
     this.colorsData = next;
+    if (this.colorsBlocked) return;
     // The note is already saved: a failure here only means the subject is not offered next time.
     await this.options.colorsStore?.save(next).catch((error: unknown) => {
       this.options.events?.onError?.(error);

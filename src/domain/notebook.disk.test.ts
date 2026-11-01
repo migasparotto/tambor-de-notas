@@ -2,10 +2,13 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createAppDataStore } from "../storage/appDataStore";
 import { nodeFileSystem } from "../storage/nodeFileSystem";
 import { createNotesStore } from "../storage/notesStore";
+import { COLORS_FILE, loadColorsData, saveColorsData } from "./appData";
 import { INITIAL_COLORS } from "./chambers";
-import { Notebook } from "./notebook";
+import { resolveColors } from "./colorData";
+import { COLORS_BLOCKED_MESSAGE, Notebook } from "./notebook";
 import { parseNote } from "./noteFile";
 import { DEFAULT_SETTINGS } from "./settings";
 
@@ -103,6 +106,45 @@ describe("Notebook on the real disk", () => {
     const note = parseNote(await fileText("arquivadas", TITLED_RED));
     expect(note.subject).toBe("Cálculo");
     expect(note.text).toBe("# Aula de Python\ntexto");
+  });
+
+  it("keeps a broken cores.json intact, warning and still saving the note", async () => {
+    await writeFile(join(root, COLORS_FILE), "{ quebrado");
+    const appStore = createAppDataStore(nodeFileSystem(root));
+    const onNotice = vi.fn();
+    const notebook = new Notebook({
+      store: createNotesStore(nodeFileSystem(root)),
+      colorsStore: {
+        load: () => loadColorsData(appStore),
+        save: (data) => saveColorsData(data, appStore),
+      },
+      colors: INITIAL_COLORS,
+      settings: DEFAULT_SETTINGS,
+      events: { onNotice },
+    });
+    await notebook.load();
+    notebook.edit(RED, "# Aula\ntexto");
+    notebook.editSubject(RED, "Cálculo");
+    await notebook.flush();
+
+    expect(onNotice).toHaveBeenCalledWith(COLORS_BLOCKED_MESSAGE);
+    expect(await fileText(COLORS_FILE)).toBe("{ quebrado");
+    expect(await filesIn("ativas")).toEqual([UNTITLED_RED]);
+    expect(notebook.subject(RED)).toBe("Cálculo");
+  });
+
+  it("saves and reads back a created color and a chamber change in cores.json", async () => {
+    const appStore = createAppDataStore(nodeFileSystem(root));
+    const color = { name: "Dúvida", role: "Perguntas", hex: "#112233" };
+    await saveColorsData({ doubt: { ...color, chamber: 0 }, blue: { chamber: null } }, appStore);
+
+    const { data, blocked } = await loadColorsData(appStore);
+    expect(blocked).toBe(false);
+    const { colors, chambers } = resolveColors(data);
+    expect(chambers[0]).toBe("doubt");
+    expect(chambers).not.toContain("blue");
+    expect(colors.find((c) => c.id === "doubt")).toMatchObject(color);
+    expect(colors.find((c) => c.id === "blue")).toBeDefined();
   });
 
   it("leaves no .tmp file behind after saving", async () => {

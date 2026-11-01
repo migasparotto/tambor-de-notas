@@ -157,7 +157,7 @@ Os atalhos ficam assim no arquivo. Só é preciso escrever os que mudarem; os ou
 
 Cada atalho precisa de Ctrl, Alt ou Super (a tecla Windows), junto com uma letra, um número ou F1 a F24. Um texto vazio (`""`) desliga o atalho. Se duas ações tiverem a mesma combinação, todos os atalhos voltam ao padrão.
 
-Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia e `janela.json` guarda onde o tambor ficou (`"edge"`: `"right"` ou `"left"`; `"centerY"`: a altura do centro, de 0 no topo a 1 embaixo). `cores.json` guarda o último assunto usado em cada cor (por exemplo, `{ "red": { "lastSubject": "Cálculo" } }`); se ele faltar ou estiver quebrado, o app abre com os assuntos vazios.
+Um valor inválido volta ao padrão, e o app mostra um aviso ao abrir. Na mesma pasta, `pomodoro.json` guarda os ciclos do dia e `janela.json` guarda onde o tambor ficou (`"edge"`: `"right"` ou `"left"`; `"centerY"`: a altura do centro, de 0 no topo a 1 embaixo). `cores.json` guarda o último assunto usado em cada cor (por exemplo, `{ "red": { "lastSubject": "Cálculo" } }`); se ele faltar, o app abre com os assuntos vazios; se estiver quebrado, o app abre com as cores padrão, avisa e não altera o arquivo até ele ser corrigido ou apagado.
 
 Copie `.env.example` para `.env` se precisar de configuração local. O arquivo `.env` nunca vai para o repositório.
 

@@ -127,26 +127,27 @@ describe("app data", () => {
 
   describe("colors data", () => {
     it("starts empty the first time, without creating a file", async () => {
-      expect(await loadColorsData(store)).toEqual({});
+      expect(await loadColorsData(store)).toEqual({ data: {}, blocked: false });
       expect(fs.files.has(COLORS_FILE)).toBe(false);
     });
 
     it("reads back what was saved", async () => {
-      await saveColorsData({ red: { lastSubject: "Cálculo" } }, store);
-      expect(await loadColorsData(store)).toEqual({ red: { lastSubject: "Cálculo" } });
+      const data = { red: { lastSubject: "Cálculo" } };
+      await saveColorsData(data, store);
+      expect(await loadColorsData(store)).toEqual({ data, blocked: false });
     });
 
-    it("starts empty if the file is broken", async () => {
+    it("starts empty and blocked if the file is broken", async () => {
       await store.write(COLORS_FILE, "{ quebrado");
-      expect(await loadColorsData(store)).toEqual({});
+      expect(await loadColorsData(store)).toEqual({ data: {}, blocked: true });
     });
 
-    it("starts empty if the disk cannot be read", async () => {
+    it("starts empty and blocked if the disk cannot be read", async () => {
       const failing: AppDataStore = {
         read: () => Promise.reject(new Error("disco indisponível")),
         write: () => Promise.resolve(),
       };
-      expect(await loadColorsData(failing)).toEqual({});
+      expect(await loadColorsData(failing)).toEqual({ data: {}, blocked: true });
     });
   });
 });
