@@ -14,4 +14,6 @@ A lógica do app: pomodoro, criar e fechar nota, nota ativa por cor, contagem de
 
 ## Assunto (Etapa 2, S2)
 
-- `colorData.ts`: o que o app lembra de cada cor, no arquivo `cores.json` (hoje, o último assunto usado). Arquivo faltando ou quebrado vira "nada lembrado", sem erro.
+- `colorData.ts`: o que o app lembra de cada cor, no arquivo `cores.json` (último assunto, nome, função, tom e câmara).
+- `colorRules.ts`: criar e editar cor, ocupar câmara, tons livres e cores fora do tambor. Nenhuma cor é apagada.
+- `notices.ts`: a fila de avisos, mostrados um depois do outro. Arquivo faltando ou quebrado vira "nada lembrado", sem erro.

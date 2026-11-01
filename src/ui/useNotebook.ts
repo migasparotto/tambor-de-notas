@@ -5,42 +5,34 @@ import type { NoteColor } from "../domain/chambers";
 import { createAppNotebook, notesErrorMessage } from "../domain/notebook";
 import type { Settings } from "../domain/settings";
 
-const MESSAGE_MS = 8000;
-
 /**
  * Connects the notebook (the notes rules) to React: loads the active notes,
  * redraws when they change, saves everything when the window closes and
- * shows a short message when something fails.
+ * sends a short message to `onNotice` when something fails.
  */
 export function useNotebook(
   colors: readonly NoteColor[],
   settings: Pick<Settings, "autosaveDelayMs" | "maxActiveNotesPerColor">,
+  onNotice: (notice: string) => void,
 ) {
   const [, setVersion] = useState(0);
   const redraw = () => setVersion((v) => v + 1);
-  const [message, setMessage] = useState<string | null>(null);
-  const report = (error: unknown) => setMessage(notesErrorMessage(error));
+  const report = (error: unknown) => onNotice(notesErrorMessage(error));
 
   const [notebook] = useState(() =>
     createAppNotebook({
       colors,
       settings,
-      events: { onChange: redraw, onError: report, onNotice: setMessage },
+      events: { onChange: redraw, onError: report, onNotice },
     }),
   );
 
   useEffect(() => {
-    notebook.load().catch(report);
+    notebook.load().catch((error: unknown) => onNotice(notesErrorMessage(error)));
     if (!isTauri()) return;
     const closing = getCurrentWindow().onCloseRequested(() => notebook.flush());
     return () => void closing.then((stop) => stop());
-  }, [notebook]);
-
-  useEffect(() => {
-    if (message === null) return;
-    const timer = setTimeout(() => setMessage(null), MESSAGE_MS);
-    return () => clearTimeout(timer);
-  }, [message]);
+  }, [notebook, onNotice]);
 
   return {
     text: (colorId: string) => notebook.text(colorId),
@@ -70,6 +62,5 @@ export function useNotebook(
         redraw();
       }
     },
-    message,
   };
 }

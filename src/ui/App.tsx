@@ -23,6 +23,7 @@ import { useAppWindow } from "./useAppWindow";
 import { useClickThrough } from "./useClickThrough";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
+import { useNotices } from "./useNotices";
 import { usePomodoro } from "./usePomodoro";
 
 /** The open panel: which color, how big, and whether it is open or shrinking back. */
@@ -47,8 +48,6 @@ interface DrumDrag {
   grabOffsetY: number;
 }
 
-const STARTUP_MESSAGE_MS = 10000;
-
 /** Makes the window activatable and gives it the keyboard (does nothing outside Tauri). */
 function takeKeyboard(): void {
   if (!isTauri()) return;
@@ -60,13 +59,10 @@ function takeKeyboard(): void {
 function App({ settings, startupProblems, initialPlacement }: AppProps) {
   const [panel, setPanel] = useState<PanelState | null>(null);
   const [placement, setPlacement] = useState(initialPlacement);
-  const [startupMessage, setStartupMessage] = useState(
-    startupProblems.length > 0 ? startupProblems.join(" ") : null,
-  );
+  const { notice, addNotice } = useNotices();
   useEffect(() => {
-    const timer = setTimeout(() => setStartupMessage(null), STARTUP_MESSAGE_MS);
-    return () => clearTimeout(timer);
-  }, []);
+    if (startupProblems.length > 0) addNotice(startupProblems.join(" "));
+  }, [startupProblems, addNotice]);
   const { geometry, layout, focused, workArea } = useAppWindow(
     settings.drumHeightFraction,
     panel?.size ?? null,
@@ -131,7 +127,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     if (animation) setSpin((previous) => ({ id: (previous?.id ?? 0) + 1, ...animation }));
   };
   const pomodoro = usePomodoro(settings, onPhaseEnd);
-  const notes = useNotebook(INITIAL_COLORS, settings);
+  const notes = useNotebook(INITIAL_COLORS, settings, addNotice);
 
   // Without an open panel the window cannot be activated, so clicks on the drum leave the
   // keyboard with the video; opening a note makes it activatable again and takes the keyboard.
@@ -178,7 +174,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     // The keyboard comes to the app, so typing goes straight into the note.
     takeKeyboard();
   };
-  const shortcutMessage = useGlobalShortcuts(settings.shortcuts, onShortcut);
+  useGlobalShortcuts(settings.shortcuts, onShortcut, addNotice);
 
   /** Closes the open note (archives it) and shrinks the panel back into its chamber. */
   const closeNote = (colorId: string) => {
@@ -279,7 +275,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           }}
           open={panel.open}
           size={panel.size}
-          message={notes.message}
+          message={notice}
           onChange={(text) => notes.edit(panel.colorId, text)}
           onSubjectChange={(subject) => notes.editSubject(panel.colorId, subject)}
           onConfirmTitle={() => void notes.confirmTitle(panel.colorId)}
@@ -292,12 +288,12 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         />
       )}
 
-      {(startupMessage ?? shortcutMessage ?? (panel ? null : notes.message)) && (
+      {!panel && notice && (
         <p
           role="status"
           className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
         >
-          {startupMessage ?? shortcutMessage ?? notes.message}
+          {notice}
         </p>
       )}
     </main>

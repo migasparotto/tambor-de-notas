@@ -1,4 +1,4 @@
-import { INITIAL_COLORS, type NoteColor } from "./chambers";
+import { COLOR_PALETTE, INITIAL_COLORS, type NoteColor } from "./chambers";
 
 /** What the app remembers about one color. Without a field, the initial color's value is used. */
 export interface ColorData {
@@ -20,10 +20,6 @@ export interface ResolvedColors {
   chambers: (string | null)[];
 }
 
-/** Where a new color's notes go, until the destination can be chosen (Etapa 3). */
-const NEW_COLOR_DESTINATION = "notion";
-const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-
 const isChamber = (value: unknown): value is number | null =>
   value === null ||
   (typeof value === "number" &&
@@ -38,7 +34,7 @@ function parseEntry(entry: Record<string, unknown>): ColorData {
     ...(typeof lastSubject === "string" && { lastSubject }),
     ...(typeof name === "string" && name.trim() !== "" && { name }),
     ...(typeof role === "string" && { role }),
-    ...(typeof hex === "string" && HEX_COLOR.test(hex) && { hex }),
+    ...(typeof hex === "string" && COLOR_PALETTE.includes(hex) && { hex }),
     ...(isChamber(chamber) && { chamber }),
   };
 }
@@ -89,7 +85,6 @@ export function resolveColors(
       name: entry.name,
       role: entry.role ?? "",
       hex: entry.hex,
-      destination: NEW_COLOR_DESTINATION,
     });
   }
 
