@@ -143,8 +143,10 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     alerting: pomodoro.alert !== null,
   });
 
+  const { colors, chambers: chamberColors } = notes.colors();
+  const colorIn = (colorId: string | null) => colors.find((c) => c.id === colorId) ?? null;
   const chambers: Record<string, ChamberState> = {};
-  for (const color of INITIAL_COLORS) {
+  for (const color of colors) {
     chambers[color.id] = {
       active: notes.hasNote(color.id),
       fill: fillLevel(notes.text(color.id), settings.charLimit),
@@ -163,14 +165,15 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       pomodoro.toggle();
       return;
     }
-    const color = INITIAL_COLORS[colorIndexOf(action) ?? -1];
-    if (!color) return;
+    // The shortcut opens the chamber (the place), whichever color is in it now.
+    const colorId = chamberColors[colorIndexOf(action) ?? -1];
+    if (!colorId) return;
     const openColorId = panel?.open ? panel.colorId : null;
-    if (panel && colorShortcutEffect(color.id, { openColorId, focused }) === "collapse") {
+    if (panel && colorShortcutEffect(colorId, { openColorId, focused }) === "collapse") {
       setPanel({ ...panel, open: false });
       return;
     }
-    setPanel({ colorId: color.id, size: panel?.size ?? "normal", open: true });
+    setPanel({ colorId, size: panel?.size ?? "normal", open: true });
     // The keyboard comes to the app, so typing goes straight into the note.
     takeKeyboard();
   };
@@ -209,9 +212,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     return () => window.removeEventListener("keydown", listener, true);
   }, []);
 
-  const panelColor = INITIAL_COLORS.find((c) => c.id === panel?.colorId);
-  const chamberIndex = INITIAL_COLORS.findIndex((c) => c.id === panel?.colorId);
-  const chamberCenter = geometry.chambers[chamberIndex];
+  const panelColor = colorIn(panel?.colorId ?? null);
+  const chamberCenter = geometry.chambers[panel ? chamberColors.indexOf(panel.colorId) : -1];
 
   return (
     <main
@@ -240,7 +242,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       >
         <Drum
           geometry={geometry}
-          colors={INITIAL_COLORS}
+          colors={chamberColors.map(colorIn)}
           chambers={chambers}
           openColorId={panel?.open ? panel.colorId : null}
           onOpenColor={openColor}

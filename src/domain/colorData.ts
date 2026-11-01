@@ -1,4 +1,4 @@
-import { COLOR_PALETTE, INITIAL_COLORS, type NoteColor } from "./chambers";
+import { COLOR_PALETTE, INITIAL_COLORS, NEUTRAL_TONE, type NoteColor } from "./chambers";
 
 /** What the app remembers about one color. Without a field, the initial color's value is used. */
 export interface ColorData {
@@ -97,6 +97,11 @@ export function resolveColors(
     if (data[id]?.chamber === undefined && chambers[place] === null) chambers[place] = id;
   });
   return { colors, chambers };
+}
+
+/** How a note whose color is not in the file appears: named after the id, in a neutral tone. */
+export function unknownColor(id: string): NoteColor {
+  return { id, name: id, role: "Cor desconhecida", hex: NEUTRAL_TONE };
 }
 
 /** The colors data as file text, readable and editable by hand. */

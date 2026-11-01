@@ -3,8 +3,15 @@ import type { NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
 import { loadColorsData, saveColorsData, type LoadedColorsData } from "./appData";
 import type { NoteColor } from "./chambers";
-import { lastSubject, rememberSubject, type ColorsData } from "./colorData";
-import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
+import {
+  lastSubject,
+  rememberSubject,
+  resolveColors,
+  unknownColor,
+  type ColorsData,
+  type ResolvedColors,
+} from "./colorData";
+import { colorNameInFile, noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 import { titleOf } from "./noteText";
 import type { Settings } from "./settings";
 
@@ -32,6 +39,11 @@ export function leftoversMessage(count: number): string | null {
 export const COLORS_BLOCKED_MESSAGE =
   "Não consegui ler o arquivo cores.json. O app abriu com as cores padrão e não vai alterar o arquivo: corrija-o, ou apague-o, e reabra o app.";
 
+/** The notice shown for a note whose color is not in `cores.json`. */
+export function unknownColorMessage(colorId: string): string {
+  return `Há uma nota da cor "${colorId}", que não está no cores.json. Ela abre com uma cor neutra, e nada foi alterado.`;
+}
+
 /** Where the colors data (`cores.json`) is read and saved. */
 export interface ColorsDataStore {
   load: () => Promise<LoadedColorsData>;
@@ -42,6 +54,7 @@ export interface NotebookOptions {
   store: NotesStore;
   /** Without it, the last subject of each color is remembered only while the app is open. */
   colorsStore?: ColorsDataStore;
+  /** The initial colors; `cores.json` adds to them and changes them. */
   colors: readonly NoteColor[];
   settings: Pick<Settings, "autosaveDelayMs" | "maxActiveNotesPerColor">;
   events?: NotebookEvents;
@@ -123,6 +136,23 @@ export class Notebook {
       }
       events?.onChange?.(colorId);
     }
+
+    const known = resolveColors(this.colorsData, this.options.colors).colors;
+    for (const { id } of this.resolvedColors().colors) {
+      if (!known.some((color) => color.id === id)) events?.onNotice?.(unknownColorMessage(id));
+    }
+  }
+
+  /**
+   * The colors and who is in each chamber, from `cores.json`. An active note of a color that
+   * is not there still counts: its color appears, off the drum, in a neutral tone.
+   */
+  resolvedColors(): ResolvedColors {
+    const { colors, chambers } = resolveColors(this.colorsData, this.options.colors);
+    const unknown = [...this.entries]
+      .filter(([id, notes]) => notes.length > 0 && !colors.some((color) => color.id === id))
+      .map(([id]) => unknownColor(id));
+    return { colors: [...colors, ...unknown], chambers };
   }
 
   /** The text of the color's current note, or "" when there is none. */
@@ -292,10 +322,14 @@ export class Notebook {
     });
   }
 
-  /** `AAAA-MM cor - título`, from the note's creation date, color and (by default) current title. */
+  /**
+   * `AAAA-MM cor - título`, from the note's creation date, color and (by default) current title.
+   * A note already on disk keeps the color name of its file, even if the color was renamed.
+   */
   private fileBase(entry: Entry, title = titleOf(entry.note.text)): string {
     const { colorId, createdAt } = entry.note;
-    const colorName = this.options.colors.find((c) => c.id === colorId)?.name ?? colorId;
+    const current = this.resolvedColors().colors.find((c) => c.id === colorId)?.name ?? colorId;
+    const colorName = entry.fileName ? colorNameInFile(entry.fileName, current) : current;
     return noteFileBase(new Date(createdAt), colorName, title);
   }
 

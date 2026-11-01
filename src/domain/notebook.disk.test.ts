@@ -6,10 +6,10 @@ import { createAppDataStore } from "../storage/appDataStore";
 import { nodeFileSystem } from "../storage/nodeFileSystem";
 import { createNotesStore } from "../storage/notesStore";
 import { COLORS_FILE, loadColorsData, saveColorsData } from "./appData";
-import { INITIAL_COLORS } from "./chambers";
+import { INITIAL_COLORS, NEUTRAL_TONE } from "./chambers";
 import { resolveColors } from "./colorData";
 import { availableTones, createColor } from "./colorRules";
-import { COLORS_BLOCKED_MESSAGE, Notebook } from "./notebook";
+import { COLORS_BLOCKED_MESSAGE, Notebook, unknownColorMessage } from "./notebook";
 import { parseNote } from "./noteFile";
 import { DEFAULT_SETTINGS } from "./settings";
 
@@ -29,6 +29,22 @@ describe("Notebook on the real disk", () => {
       colors: INITIAL_COLORS,
       settings: DEFAULT_SETTINGS,
     });
+  /** The same, also reading `cores.json` from the folder. */
+  const openAppWithColors = async (onNotice?: (notice: string) => void) => {
+    const appStore = createAppDataStore(nodeFileSystem(root));
+    const notebook = new Notebook({
+      store: createNotesStore(nodeFileSystem(root)),
+      colorsStore: {
+        load: () => loadColorsData(appStore),
+        save: (data) => saveColorsData(data, appStore),
+      },
+      colors: INITIAL_COLORS,
+      settings: DEFAULT_SETTINGS,
+      events: { onNotice },
+    });
+    await notebook.load();
+    return notebook;
+  };
   const filesIn = async (folder: string) => (await readdir(join(root, folder))).sort();
   const fileText = (...path: string[]) => readFile(join(root, ...path), "utf8");
 
@@ -149,6 +165,57 @@ describe("Notebook on the real disk", () => {
     expect(chambers).not.toContain(leaving);
     expect(colors.find((c) => c.id === result.colorId)).toMatchObject(color);
     expect(colors.find((c) => c.id === leaving)).toBeDefined();
+  });
+
+  it("uses the colors and chambers of cores.json", async () => {
+    const result = createColor(
+      {},
+      { name: "Dúvida", role: "Perguntas", hex: availableTones({})[0]! },
+      0,
+    );
+    if (!result.ok) throw new Error(result.error);
+    await writeFile(join(root, COLORS_FILE), JSON.stringify(result.data));
+
+    const notebook = await openAppWithColors();
+    expect(notebook.resolvedColors().chambers[0]).toBe(result.colorId);
+
+    notebook.edit(result.colorId, "# Aula\ntexto");
+    await notebook.flush();
+    expect(await filesIn("ativas")).toEqual(["2026-10 dúvida - sem título.md"]);
+  });
+
+  it("keeps the file name of an old note when its color is renamed; new notes use the new name", async () => {
+    const before = await openAppWithColors();
+    before.edit(RED, "# Aula de Python\ntexto");
+    await before.confirmTitle(RED);
+    await writeFile(join(root, COLORS_FILE), JSON.stringify({ red: { name: "Núcleo" } }));
+
+    const after = await openAppWithColors();
+    after.edit(RED, "# Outro título\ntexto");
+    await after.close(RED);
+    expect(await filesIn("arquivadas")).toEqual(["2026-10 vermelho - Outro título.md"]);
+
+    after.edit(RED, "# Nova\ntexto");
+    await after.confirmTitle(RED);
+    expect(await filesIn("ativas")).toEqual(["2026-10 núcleo - Nova.md"]);
+  });
+
+  it("keeps a note of an unknown color, with a neutral tone and a notice, without changing it", async () => {
+    const content = `---\nid: "1"\ntitle: "Antiga"\ncolor: "sumiu"\nsubject: ""\ncreatedAt: "2026-10-01T10:00:00.000Z"\nupdatedAt: "2026-10-01T10:00:00.000Z"\n---\n# Antiga\ntexto`;
+    const fileName = "2026-10 sumiu - Antiga.md";
+    await mkdir(join(root, "ativas"));
+    await writeFile(join(root, "ativas", fileName), content);
+
+    const onNotice = vi.fn();
+    const notebook = await openAppWithColors(onNotice);
+    await notebook.flush();
+
+    expect(onNotice).toHaveBeenCalledWith(unknownColorMessage("sumiu"));
+    const { colors, chambers } = notebook.resolvedColors();
+    expect(colors.find((color) => color.id === "sumiu")?.hex).toBe(NEUTRAL_TONE);
+    expect(chambers).not.toContain("sumiu");
+    expect(notebook.text("sumiu")).toBe("# Antiga\ntexto");
+    expect(await fileText("ativas", fileName)).toBe(content);
   });
 
   it("leaves no .tmp file behind after saving", async () => {

@@ -28,13 +28,19 @@ export function useNotebook(
   );
 
   useEffect(() => {
-    notebook.load().catch((error: unknown) => onNotice(notesErrorMessage(error)));
+    notebook
+      .load()
+      .catch((error: unknown) => onNotice(notesErrorMessage(error)))
+      // The colors come from the file: the drum is drawn again once they are read.
+      .finally(() => setVersion((v) => v + 1));
     if (!isTauri()) return;
     const closing = getCurrentWindow().onCloseRequested(() => notebook.flush());
     return () => void closing.then((stop) => stop());
   }, [notebook, onNotice]);
 
   return {
+    /** The colors and who is in each chamber, from `cores.json`. */
+    colors: () => notebook.resolvedColors(),
     text: (colorId: string) => notebook.text(colorId),
     /** The note subject, or the color's last subject when there is no note yet. */
     subject: (colorId: string) => notebook.subject(colorId),

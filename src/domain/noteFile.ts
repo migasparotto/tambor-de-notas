@@ -65,6 +65,17 @@ export function parseNote(content: string): Note {
 }
 
 /**
+ * The color name inside a note's file name (`AAAA-MM cor - título.md`). An existing note keeps
+ * it even if the color was renamed; a file that does not follow the format gets `currentName`.
+ */
+export function colorNameInFile(fileName: string, currentName: string): string {
+  const rest = fileName.replace(/^\d{4}-\d{2} /, "");
+  if (rest === fileName) return currentName;
+  if (rest.startsWith(`${currentName.toLowerCase()} - `)) return currentName;
+  return /^(.+?) - /.exec(rest)?.[1] ?? currentName;
+}
+
+/**
  * The file name (without extension) for a note: `AAAA-MM cor - título`,
  * using the month the note was created, in local time. Empty title → "sem título".
  */

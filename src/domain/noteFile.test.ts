@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
+import { colorNameInFile, noteFileBase, parseNote, serializeNote, type Note } from "./noteFile";
 
 const note: Note = {
   id: "8f1c",
@@ -85,6 +85,24 @@ describe("parseNote", () => {
 
   it("refuses a frontmatter without a required field", () => {
     expect(() => parseNote('---\nid: "x"\n---\ntexto')).toThrow('"color"');
+  });
+});
+
+describe("colorNameInFile", () => {
+  it("keeps the name in the file when the color was renamed", () => {
+    expect(colorNameInFile("2026-10 vermelho - Aula.md", "Núcleo")).toBe("vermelho");
+  });
+
+  it("uses the current name when the file already has it, even with a dash inside", () => {
+    expect(colorNameInFile("2026-10 prova - final - Aula.md", "Prova - Final")).toBe(
+      "Prova - Final",
+    );
+  });
+
+  it("uses the current name for a file out of the format", () => {
+    expect(colorNameInFile("Aula.md", "Núcleo")).toBe("Núcleo");
+    expect(colorNameInFile("Aula - parte 1.md", "Núcleo")).toBe("Núcleo");
+    expect(colorNameInFile("2026-10 semtraco.md", "Núcleo")).toBe("Núcleo");
   });
 });
 

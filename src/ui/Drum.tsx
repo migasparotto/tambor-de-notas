@@ -11,7 +11,8 @@ export interface ChamberState {
 
 interface DrumProps {
   geometry: DrumGeometry;
-  colors: readonly NoteColor[];
+  /** The color in each chamber, from the top; null = an empty chamber. */
+  colors: readonly (NoteColor | null)[];
   chambers: Record<string, ChamberState>;
   /** Color whose panel is open, highlighted on the drum. */
   openColorId: string | null;
@@ -143,6 +144,20 @@ export function Drum({
         style={{ transformOrigin: `${g.center.x}px ${g.center.y}px` }}
       >
         {colors.map((color, i) => {
+          if (!color) {
+            return (
+              <span
+                key={`empty-${i}`}
+                aria-hidden="true"
+                className="rounded-full"
+                style={{
+                  ...around(g.chambers[i]!, g.chamberSize),
+                  boxSizing: "border-box",
+                  border: "1.5px dashed #5A606B",
+                }}
+              />
+            );
+          }
           const chamber = chambers[color.id] ?? { active: false, fill: 0 };
           const label = `${color.name} · ${color.role}${chamber.active ? " · nota ativa" : ""}`;
           return (
