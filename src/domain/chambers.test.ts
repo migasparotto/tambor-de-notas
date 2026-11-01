@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { COLOR_PALETTE, INITIAL_COLORS, PANEL_BASE, PANEL_TINT_PERCENT } from "./chambers";
+import {
+  COLOR_PALETTE,
+  INITIAL_COLORS,
+  NEUTRAL_TONE,
+  PANEL_BASE,
+  PANEL_TINT_PERCENT,
+} from "./chambers";
 
 type Rgb = [number, number, number];
 
@@ -9,8 +15,9 @@ const RING: Rgb = rgb("#23262C");
 const READABLE_TEXT = 4.5;
 /** The faintest text of the panel, the subject line (`text-white/55`). */
 const FAINTEST_TEXT = 0.55;
-/** A chamber must stand out on the ring. The WCAG target for shapes is 3; the initial purple is 2.97. */
-const VISIBLE_ON_RING = 2.9;
+/** WCAG target for shapes: a chamber must stand out on the ring. */
+const VISIBLE_ON_RING = 3;
+const ALL_TONES = [...COLOR_PALETTE, NEUTRAL_TONE];
 
 function rgb(hex: string): Rgb {
   return [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16)) as Rgb;
@@ -39,17 +46,21 @@ describe("COLOR_PALETTE", () => {
     expect(COLOR_PALETTE.length).toBeGreaterThan(initial.length);
   });
 
+  it("leaves the neutral tone out", () => {
+    expect(COLOR_PALETTE).not.toContain(NEUTRAL_TONE);
+  });
+
   it("has no repeated tone", () => {
     expect(new Set(COLOR_PALETTE).size).toBe(COLOR_PALETTE.length);
   });
 
-  it.each(COLOR_PALETTE)("keeps the panel text readable on %s", (tone) => {
+  it.each(ALL_TONES)("keeps the panel text readable on %s", (tone) => {
     const panel = mix(rgb(tone), rgb(PANEL_BASE), PANEL_TINT_PERCENT / 100);
     expect(contrast(WHITE, panel)).toBeGreaterThanOrEqual(READABLE_TEXT);
     expect(contrast(mix(WHITE, panel, FAINTEST_TEXT), panel)).toBeGreaterThanOrEqual(READABLE_TEXT);
   });
 
-  it.each(COLOR_PALETTE)("makes %s stand out on the drum ring", (tone) => {
+  it.each(ALL_TONES)("makes %s stand out on the drum ring", (tone) => {
     expect(contrast(rgb(tone), RING)).toBeGreaterThanOrEqual(VISIBLE_ON_RING);
   });
 });

@@ -19,7 +19,7 @@ export const INITIAL_COLORS: readonly NoteColor[] = [
   { id: "blue", name: "Azul", role: "Glossário pessoal", hex: "#2F6FD6" },
   { id: "red", name: "Vermelho", role: "Núcleo de estudo ativo", hex: "#D64545" },
   { id: "green", name: "Verde", role: "Exemplo de uso", hex: "#2E9E5B" },
-  { id: "purple", name: "Roxo", role: "Tarefa", hex: "#8A4FD1" },
+  { id: "purple", name: "Roxo", role: "Tarefa", hex: "#8B50D1" },
 ];
 
 /**
@@ -30,12 +30,15 @@ export const COLOR_PALETTE: readonly string[] = [
   "#2F6FD6",
   "#D64545",
   "#2E9E5B",
-  "#8A4FD1",
+  "#8B50D1",
   "#C9832B",
   "#1E9AA8",
   "#D0529B",
   "#8C9A2F",
 ];
+
+/** The tone of a note whose color is not in `cores.json`. Out of the palette, so never in use. */
+export const NEUTRAL_TONE = "#7C8794";
 
 /** The note panel is this dark base, tinted with this percentage of the note color. */
 export const PANEL_BASE = "#15171B";
