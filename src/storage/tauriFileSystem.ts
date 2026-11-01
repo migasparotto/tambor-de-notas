@@ -12,14 +12,16 @@ import type { FileSystem } from "./fileSystem";
  * The notes folder, inside the user's Documents: the real notes for the installed app,
  * test notes for the one opened with `npm run app:dev`. Tauri asks Windows where Documents
  * is, so it also works when Documents lives in OneDrive. Must match the scope in
- * `src-tauri/capabilities/default.json`.
+ * `src-tauri/capabilities/default.json`. The app of the e2e tests uses a subfolder of the
+ * test notes, so it needs no permission of its own.
  */
-export function notesRootFor(dev: boolean): string {
+export function notesRootFor(dev: boolean, e2e = false): string {
+  if (e2e) return "Tambor de Notas (Dev)/notas/e2e";
   return dev ? "Tambor de Notas (Dev)/notas" : "Tambor de Notas/notas";
 }
 
 /** The notes folder of the app that is running. */
-export const NOTES_ROOT = notesRootFor(import.meta.env.DEV);
+export const NOTES_ROOT = notesRootFor(import.meta.env.DEV, import.meta.env.VITE_E2E === "1");
 
 /** The real disk, through the Tauri fs plugin, limited to `root` inside `baseDir`. */
 function tauriFileSystemIn(baseDir: BaseDirectory, root: string): FileSystem {

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Tambor de Notas (E2E)",
+  "identifier": "com.tambordenotas.app.e2e"
+}
