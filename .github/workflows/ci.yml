@@ -40,24 +40,7 @@ jobs:
       - name: Diagnose the app start
         if: failure()
         shell: pwsh
-        run: |
-          $exe = "src-tauri\target\e2e\debug\tambor-de-notas.exe"
-          "user=$env:USERNAME session=$((Get-Process -Id $PID).SessionId) interactive=$([Environment]::UserInteractive)"
-          Get-ChildItem "C:\Program Files (x86)\Microsoft\EdgeWebView\Application" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
-          $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9333"
-          $p = Start-Process $exe -PassThru -RedirectStandardOutput out.txt -RedirectStandardError err.txt
-          $waited = [Diagnostics.Stopwatch]::StartNew()
-          $port = $false
-          while ($waited.Elapsed.TotalSeconds -lt 90 -and -not $port -and -not $p.HasExited) {
-            Start-Sleep 3
-            try { Invoke-WebRequest http://127.0.0.1:9333/json/version -UseBasicParsing -TimeoutSec 2 | Out-Null; $port = $true } catch {}
-          }
-          "port open=$port after $([int]$waited.Elapsed.TotalSeconds)s exited=$($p.HasExited) code=$(if ($p.HasExited) { $p.ExitCode })"
-          Get-Process msedgewebview2 -ErrorAction SilentlyContinue | Measure-Object | ForEach-Object { "webview2 processes=$($_.Count)" }
-          "--- stdout"; Get-Content out.txt -ErrorAction SilentlyContinue | Select-Object -Last 20
-          "--- stderr"; Get-Content err.txt -ErrorAction SilentlyContinue | Select-Object -Last 20
-          "--- events"; Get-WinEvent -FilterHashtable @{LogName='Application'; Id=1000,1001; StartTime=(Get-Date).AddMinutes(-10)} -ErrorAction SilentlyContinue | Select-Object -First 4 | ForEach-Object { ($_.Message -replace '\s+',' ').Substring(0,300) }
-          if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
+        run: ./e2e/diagnose.ps1
 
   rust:
     runs-on: windows-latest
