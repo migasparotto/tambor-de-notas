@@ -4,9 +4,29 @@
 //! the last one that is not this app. Windows lets the front app hand the keyboard to another
 //! window, so `return_focus`, called on Esc while the drum has the keyboard, works reliably.
 //! On other systems these functions do nothing.
+//!
+//! The decision is a pure rule (`can_return_to`), tested below. `windows_impl` is the thin
+//! shell: it translates what Windows answers into a `WindowState` and does what the rule says.
+
+/// The window saved to give the keyboard back to.
+#[cfg(any(windows, test))]
+enum WindowState {
+    NotSaved,
+    Closed,
+    Hidden,
+    Minimized,
+    Normal,
+}
+
+/// Only a normal window gets the keyboard back: otherwise the user clicks the video instead.
+#[cfg(any(windows, test))]
+fn can_return_to(state: WindowState) -> bool {
+    matches!(state, WindowState::Normal)
+}
 
 #[cfg(windows)]
 mod windows_impl {
+    use super::{WindowState, can_return_to};
     use std::sync::atomic::{AtomicIsize, Ordering};
     use windows_sys::Win32::Foundation::HWND;
     use windows_sys::Win32::System::Threading::GetCurrentProcessId;
@@ -56,19 +76,25 @@ mod windows_impl {
         }
     }
 
+    fn state_of(window: HWND) -> WindowState {
+        unsafe {
+            if window.is_null() {
+                WindowState::NotSaved
+            } else if IsWindow(window) == 0 {
+                WindowState::Closed
+            } else if IsWindowVisible(window) == 0 {
+                WindowState::Hidden
+            } else if IsIconic(window) != 0 {
+                WindowState::Minimized
+            } else {
+                WindowState::Normal
+            }
+        }
+    }
+
     pub fn return_focus() -> bool {
         let previous = PREVIOUS.load(Ordering::Relaxed) as HWND;
-        unsafe {
-            // A closed or minimized window is left alone: the user clicks the video instead.
-            if previous.is_null()
-                || IsWindow(previous) == 0
-                || IsWindowVisible(previous) == 0
-                || IsIconic(previous) != 0
-            {
-                return false;
-            }
-            SetForegroundWindow(previous) != 0
-        }
+        can_return_to(state_of(previous)) && unsafe { SetForegroundWindow(previous) != 0 }
     }
 }
 
@@ -86,4 +112,34 @@ pub fn return_focus() -> bool {
     return windows_impl::return_focus();
     #[cfg(not(windows))]
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{WindowState, can_return_to};
+
+    #[test]
+    fn does_not_return_when_no_window_was_saved() {
+        assert!(!can_return_to(WindowState::NotSaved));
+    }
+
+    #[test]
+    fn does_not_return_to_a_closed_window() {
+        assert!(!can_return_to(WindowState::Closed));
+    }
+
+    #[test]
+    fn does_not_return_to_a_hidden_window() {
+        assert!(!can_return_to(WindowState::Hidden));
+    }
+
+    #[test]
+    fn does_not_return_to_a_minimized_window() {
+        assert!(!can_return_to(WindowState::Minimized));
+    }
+
+    #[test]
+    fn returns_to_a_normal_window() {
+        assert!(can_return_to(WindowState::Normal));
+    }
 }
