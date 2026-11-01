@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { NoteColor } from "../domain/chambers";
+import { PANEL_BASE, PANEL_TINT_PERCENT, type NoteColor } from "../domain/chambers";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
@@ -73,7 +73,7 @@ export function NotePanel(props: NotePanelProps) {
       className="absolute flex flex-col overflow-hidden"
       style={{
         ...shape,
-        background: `color-mix(in srgb, ${color.hex} 30%, #15171B)`,
+        background: `color-mix(in srgb, ${color.hex} ${PANEL_TINT_PERCENT}%, ${PANEL_BASE})`,
         border: `2px solid ${color.hex}`,
         boxShadow: "0 6px 18px rgba(0,0,0,.45)",
         transition: `left ${GROW_MS}ms ease, top ${GROW_MS}ms ease, width ${GROW_MS}ms ease, height ${GROW_MS}ms ease, border-radius ${GROW_MS}ms ease`,

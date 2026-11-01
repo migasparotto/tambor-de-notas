@@ -25,7 +25,7 @@ describe("parseColorsData", () => {
   });
 
   it("reads the name, role, tone and chamber of a color", () => {
-    const color = { name: "Dúvida", role: "Perguntas", hex: "#112233", chamber: 2 };
+    const color = { name: "Dúvida", role: "Perguntas", hex: "#C9832B", chamber: 2 };
     expect(parseColorsData(JSON.stringify({ doubt: color }))).toEqual({ doubt: color });
     expect(parseColorsData(JSON.stringify({ red: { chamber: null } }))).toEqual({
       red: { chamber: null },
@@ -37,7 +37,7 @@ describe("parseColorsData", () => {
     const text = JSON.stringify({
       a: { name: "  ", hex: "vermelho", chamber: lastChamber + 1 },
       b: { name: 1, role: 2, hex: "#12345", chamber: -1 },
-      c: { hex: "#1234567", chamber: 0.5 },
+      c: { hex: "#112233", chamber: 0.5 },
       d: { chamber: lastChamber },
     });
     expect(parseColorsData(text)).toEqual({ a: {}, b: {}, c: {}, d: { chamber: lastChamber } });
@@ -57,7 +57,7 @@ describe("parseColorsData", () => {
 describe("resolveColors", () => {
   const initialIds = INITIAL_COLORS.map((color) => color.id);
   const [first, second] = INITIAL_COLORS as [NoteColor, NoteColor];
-  const newColor = { name: "Dúvida", role: "Perguntas", hex: "#112233" };
+  const newColor = { name: "Dúvida", role: "Perguntas", hex: "#C9832B" };
 
   it("gives the initial colors, in their places, to whoever has only subjects saved", () => {
     const { colors, chambers } = resolveColors({ [first.id]: { lastSubject: "Física" } });
@@ -66,14 +66,14 @@ describe("resolveColors", () => {
   });
 
   it("applies the name, role and tone edited in the file, keeping the rest", () => {
-    const { colors } = resolveColors({ [first.id]: { name: "Termos", hex: "#010203" } });
-    expect(colors[0]).toEqual({ ...first, name: "Termos", hex: "#010203" });
+    const { colors } = resolveColors({ [first.id]: { name: "Termos", hex: "#1E9AA8" } });
+    expect(colors[0]).toEqual({ ...first, name: "Termos", hex: "#1E9AA8" });
     expect(colors[1]).toEqual(second);
   });
 
-  it("adds a created color, off the drum and with the default destination", () => {
+  it("adds a created color, off the drum", () => {
     const { colors, chambers } = resolveColors({ doubt: newColor });
-    expect(colors.at(-1)).toEqual({ id: "doubt", ...newColor, destination: "notion" });
+    expect(colors.at(-1)).toEqual({ id: "doubt", ...newColor });
     expect(chambers).toEqual(initialIds);
   });
 

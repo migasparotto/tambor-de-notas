@@ -23,6 +23,7 @@ import { useAppWindow } from "./useAppWindow";
 import { useClickThrough } from "./useClickThrough";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
 import { useNotebook } from "./useNotebook";
+import { useNotices } from "./useNotices";
 import { usePomodoro } from "./usePomodoro";
 
 /** The open panel: which color, how big, and whether it is open or shrinking back. */
@@ -47,8 +48,6 @@ interface DrumDrag {
   grabOffsetY: number;
 }
 
-const STARTUP_MESSAGE_MS = 10000;
-
 /** Makes the window activatable and gives it the keyboard (does nothing outside Tauri). */
 function takeKeyboard(): void {
   if (!isTauri()) return;
@@ -60,13 +59,10 @@ function takeKeyboard(): void {
 function App({ settings, startupProblems, initialPlacement }: AppProps) {
   const [panel, setPanel] = useState<PanelState | null>(null);
   const [placement, setPlacement] = useState(initialPlacement);
-  const [startupMessage, setStartupMessage] = useState(
-    startupProblems.length > 0 ? startupProblems.join(" ") : null,
-  );
+  const { notice, addNotice } = useNotices();
   useEffect(() => {
-    const timer = setTimeout(() => setStartupMessage(null), STARTUP_MESSAGE_MS);
-    return () => clearTimeout(timer);
-  }, []);
+    if (startupProblems.length > 0) addNotice(startupProblems.join(" "));
+  }, [startupProblems, addNotice]);
   const { geometry, layout, focused, workArea } = useAppWindow(
     settings.drumHeightFraction,
     panel?.size ?? null,
@@ -131,7 +127,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     if (animation) setSpin((previous) => ({ id: (previous?.id ?? 0) + 1, ...animation }));
   };
   const pomodoro = usePomodoro(settings, onPhaseEnd);
-  const notes = useNotebook(INITIAL_COLORS, settings);
+  const notes = useNotebook(INITIAL_COLORS, settings, addNotice);
 
   // Without an open panel the window cannot be activated, so clicks on the drum leave the
   // keyboard with the video; opening a note makes it activatable again and takes the keyboard.
@@ -147,8 +143,10 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     alerting: pomodoro.alert !== null,
   });
 
+  const { colors, chambers: chamberColors } = notes.colors();
+  const colorIn = (colorId: string | null) => colors.find((c) => c.id === colorId) ?? null;
   const chambers: Record<string, ChamberState> = {};
-  for (const color of INITIAL_COLORS) {
+  for (const color of colors) {
     chambers[color.id] = {
       active: notes.hasNote(color.id),
       fill: fillLevel(notes.text(color.id), settings.charLimit),
@@ -167,18 +165,19 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       pomodoro.toggle();
       return;
     }
-    const color = INITIAL_COLORS[colorIndexOf(action) ?? -1];
-    if (!color) return;
+    // The shortcut opens the chamber (the place), whichever color is in it now.
+    const colorId = chamberColors[colorIndexOf(action) ?? -1];
+    if (!colorId) return;
     const openColorId = panel?.open ? panel.colorId : null;
-    if (panel && colorShortcutEffect(color.id, { openColorId, focused }) === "collapse") {
+    if (panel && colorShortcutEffect(colorId, { openColorId, focused }) === "collapse") {
       setPanel({ ...panel, open: false });
       return;
     }
-    setPanel({ colorId: color.id, size: panel?.size ?? "normal", open: true });
+    setPanel({ colorId, size: panel?.size ?? "normal", open: true });
     // The keyboard comes to the app, so typing goes straight into the note.
     takeKeyboard();
   };
-  const shortcutMessage = useGlobalShortcuts(settings.shortcuts, onShortcut);
+  useGlobalShortcuts(settings.shortcuts, onShortcut, addNotice);
 
   /** Closes the open note (archives it) and shrinks the panel back into its chamber. */
   const closeNote = (colorId: string) => {
@@ -213,9 +212,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     return () => window.removeEventListener("keydown", listener, true);
   }, []);
 
-  const panelColor = INITIAL_COLORS.find((c) => c.id === panel?.colorId);
-  const chamberIndex = INITIAL_COLORS.findIndex((c) => c.id === panel?.colorId);
-  const chamberCenter = geometry.chambers[chamberIndex];
+  const panelColor = colorIn(panel?.colorId ?? null);
+  const chamberCenter = geometry.chambers[panel ? chamberColors.indexOf(panel.colorId) : -1];
 
   return (
     <main
@@ -244,7 +242,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       >
         <Drum
           geometry={geometry}
-          colors={INITIAL_COLORS}
+          colors={chamberColors.map(colorIn)}
           chambers={chambers}
           openColorId={panel?.open ? panel.colorId : null}
           onOpenColor={openColor}
@@ -279,7 +277,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           }}
           open={panel.open}
           size={panel.size}
-          message={notes.message}
+          message={notice}
           onChange={(text) => notes.edit(panel.colorId, text)}
           onSubjectChange={(subject) => notes.editSubject(panel.colorId, subject)}
           onConfirmTitle={() => void notes.confirmTitle(panel.colorId)}
@@ -292,12 +290,12 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         />
       )}
 
-      {(startupMessage ?? shortcutMessage ?? (panel ? null : notes.message)) && (
+      {!panel && notice && (
         <p
           role="status"
           className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
         >
-          {startupMessage ?? shortcutMessage ?? notes.message}
+          {notice}
         </p>
       )}
     </main>
