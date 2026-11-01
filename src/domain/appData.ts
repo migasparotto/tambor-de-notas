@@ -22,6 +22,12 @@ export const CYCLES_FILE = "pomodoro.json";
 export const PLACEMENT_FILE = "janela.json";
 export const COLORS_FILE = "cores.json";
 
+/** The colors data read from the file, and whether the file must be left as it is. */
+export interface LoadedColorsData {
+  data: ColorsData;
+  blocked: boolean;
+}
+
 /**
  * Loads the settings from the app folder. The first time, writes a file with the
  * defaults, so the user can find it and edit it. Later, adds to the file the settings
@@ -94,15 +100,20 @@ export function savePlacement(
   return store.write(PLACEMENT_FILE, serializePlacement(placement));
 }
 
-/** What the app remembers about each color (no data the first time, or if the file cannot be read). */
+/**
+ * What the app remembers about each color (no data the first time). If the file is broken or
+ * cannot be read, `blocked` says it must not be overwritten: it may hold the user's colors.
+ */
 export async function loadColorsData(
   store: AppDataStore = defaultAppDataStore(),
-): Promise<ColorsData> {
+): Promise<LoadedColorsData> {
   try {
     const saved = await store.read(COLORS_FILE);
-    return saved === null ? {} : parseColorsData(saved);
+    if (saved === null) return { data: {}, blocked: false };
+    const data = parseColorsData(saved);
+    return data === null ? { data: {}, blocked: true } : { data, blocked: false };
   } catch {
-    return {};
+    return { data: {}, blocked: true };
   }
 }
 

@@ -424,7 +424,7 @@ describe("Notebook", () => {
     let appStore: AppDataStore;
     let colorsStore: ColorsDataStore;
 
-    const remembered = async () => loadColorsData(appStore);
+    const remembered = async () => (await loadColorsData(appStore)).data;
     const makeWithColors = () =>
       new Notebook({
         store,
