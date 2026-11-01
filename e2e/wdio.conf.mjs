@@ -18,6 +18,7 @@ export const config = {
   framework: "mocha",
   // No retries: a test that passes and fails without a change must show up, not be hidden.
   specFileRetries: 0,
+  connectionRetryCount: 0,
   reporters: ["spec"],
   mochaOpts: { ui: "bdd", timeout: 120000 },
 
