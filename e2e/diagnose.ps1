@@ -1,41 +1,46 @@
 # TEMPORARY: why the app does not start under the Edge driver on the CI runner.
 $exe = (Resolve-Path "src-tauri\target\e2e\debug\tambor-de-notas.exe").Path
-$driver = (Resolve-Path "node_modules\.cache\edge\msedgedriver.exe").Path
 function Stop-All {
   Get-Process tambor-de-notas, msedgedriver, tauri-driver, msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
   Start-Sleep 3
 }
 Stop-All
-"--- policies"
-foreach ($k in "HKLM:\SOFTWARE\Policies\Microsoft\Edge", "HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2", "HKLM:\SOFTWARE\WOW6432Node\Policies\Microsoft\Edge", "HKCU:\SOFTWARE\Policies\Microsoft\Edge") {
-  if (Test-Path $k) { $k; Get-ItemProperty $k | Format-List | Out-String } else { "$k (absent)" }
-}
-"--- driver version"; & $driver --version
-"--- user data"; $udf = Join-Path $env:LOCALAPPDATA "com.tambordenotas.app.e2e"; "exists=$(Test-Path $udf)"
-
+$udf = Join-Path $env:LOCALAPPDATA "com.tambordenotas.app.e2e"
+Remove-Item $udf -Recurse -Force -ErrorAction SilentlyContinue
+"--- WEBVIEW2 env"; Get-ChildItem Env: | Where-Object Name -match "WEBVIEW2|EDGE" | ForEach-Object { "$($_.Name)=$($_.Value)" }
 "--- A: app alone with a debugging port"
 $env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9333"
 $p = Start-Process $exe -PassThru
+Start-Sleep 30
+"exited=$($p.HasExited) mainWindow=$($p.MainWindowHandle) title=$($p.MainWindowTitle)"
+$browsers = Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'"
+"webview2 processes=$(@($browsers).Count)"
+$main = $browsers | Where-Object { $_.CommandLine -notmatch '--type=' } | Select-Object -First 1
+"browser cmd: $($main.CommandLine)"
+$browsers | ForEach-Object { [regex]::Match($_.CommandLine, '--type=[a-z-]+').Value } | Group-Object | ForEach-Object { "$($_.Name) x$($_.Count)" }
+"--- listening"
+if ($main) { Get-NetTCPConnection -State Listen -OwningProcess $main.ProcessId -ErrorAction SilentlyContinue | ForEach-Object { "$($_.LocalAddress):$($_.LocalPort)" } }
+try { "curl: " + (Invoke-WebRequest http://127.0.0.1:9333/json/version -UseBasicParsing -TimeoutSec 3).Content } catch { "curl failed: $($_.Exception.Message)" }
+"--- user data"
+Get-ChildItem (Join-Path $udf "EBWebView") -Force -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
+Get-ChildItem (Join-Path $udf "EBWebView") -Recurse -Filter "DevToolsActivePort" -ErrorAction SilentlyContinue | ForEach-Object { "port file: $($_.FullName): " + (Get-Content $_.FullName -Raw) }
+Get-ChildItem (Join-Path $udf "EBWebView\Crashpad\reports") -ErrorAction SilentlyContinue | ForEach-Object { "crash report: $($_.Name) $($_.Length)" }
+"--- debug log tail"
+Get-ChildItem $udf -Recurse -Filter "*debug.log" -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName -Tail 20 }
+"--- desktop"
+Add-Type -AssemblyName System.Windows.Forms
+"screen=$([Windows.Forms.Screen]::PrimaryScreen.Bounds)"
+Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue | ForEach-Object { "video: $($_.Name) $($_.Status)" }
+Stop-All
+"--- B: the same with logging and no sandbox of the GPU"
+$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9334 --disable-gpu --enable-logging --v=0"
+$p = Start-Process $exe -PassThru
 $open = $false
-foreach ($i in 1..15) {
+foreach ($i in 1..10) {
   Start-Sleep 3
-  try { Invoke-WebRequest http://127.0.0.1:9333/json/version -UseBasicParsing -TimeoutSec 2 | Out-Null; $open = $true; break } catch {}
+  try { Invoke-WebRequest http://127.0.0.1:9334/json/version -UseBasicParsing -TimeoutSec 2 | Out-Null; $open = $true; break } catch {}
 }
-"port open=$open after $($i * 3)s exited=$($p.HasExited)"
-Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object { $_.CommandLine -notmatch '--type=' } | Select-Object -First 1 | ForEach-Object { "browser cmd: " + $_.CommandLine.Substring(0, [Math]::Min(500, $_.CommandLine.Length)) }
-Get-ChildItem $udf -Recurse -Filter DevToolsActivePort -ErrorAction SilentlyContinue | ForEach-Object { "port file: " + $_.FullName }
-Remove-Item Env:\WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS
+"port open with --disable-gpu=$open after $($i * 3)s exited=$($p.HasExited)"
+Get-ChildItem $udf -Recurse -Filter "*debug.log" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName; Get-Content $_.FullName -Tail 25 | ForEach-Object { $_.Substring(0, [Math]::Min(220, $_.Length)) } }
 Stop-All
-
-"--- B: session through the Edge driver, verbose"
-$log = Join-Path $env:RUNNER_TEMP "msedgedriver.log"
-$d = Start-Process $driver -ArgumentList "--port=9515", "--verbose", "--log-path=$log" -PassThru
-Start-Sleep 2
-$body = @{ capabilities = @{ alwaysMatch = @{ browserName = "webview2"; "ms:edgeOptions" = @{ binary = $exe; args = @(); webviewOptions = @{} } } } } | ConvertTo-Json -Depth 6
-try { (Invoke-WebRequest http://127.0.0.1:9515/session -Method Post -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 90).Content.Substring(0, 300) } catch { "session error: $($_.Exception.Message)"; $_.ErrorDetails.Message }
-Stop-All
-"--- driver log (filtered)"
-Get-Content $log -ErrorAction SilentlyContinue | Select-String -Pattern "Launching|command line|DevToolsActivePort|ERROR|error|exited|crash|WEBVIEW2|Starting|port" | Select-Object -First 25 | ForEach-Object { $_.Line.Substring(0, [Math]::Min(420, $_.Line.Length)) }
-"--- events"
-Get-WinEvent -FilterHashtable @{ LogName = 'Application'; Id = 1000, 1001; StartTime = (Get-Date).AddMinutes(-20) } -ErrorAction SilentlyContinue | Select-Object -First 4 | ForEach-Object { $m = $_.Message -replace '\s+', ' '; $m.Substring(0, [Math]::Min(300, $m.Length)) }
 exit 0
