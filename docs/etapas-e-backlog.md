@@ -320,7 +320,13 @@ Decidido pelo Marcos em 25/10/2026 (sem programar ainda): **sem menu de botão d
 - [ ] Clicar no "+" gira o tambor para o outro lado, onde há uma câmara vazia. **Giro:** igual à animação do fim do ciclo, mas de 180° em vez de 360°.
 - [ ] Clicar na câmara vazia mostra **só as notas ativas das cores que estão fora do tambor** (guardadas porque a câmara trocou de cor), para continuar. Notas fechadas ou arquivadas não aparecem.
 - [ ] Na mesma câmara, a opção de **adicionar uma cor nova** (nome, função e tom). A cor nova **toma o lugar de uma câmara da frente, e o Marcos escolhe qual**. Ao criar, a nota nova já abre nessa cor, com o cursor no assunto: um passo só, sem formulário com assunto e título (decidido em 01/11/2026).
-- [ ] **Sem campo "destino" na S3:** ele entra na Etapa 3, junto com o envio ao Notion e ao Todoist (decidido em 01/11/2026).
+- [ ] **Sem destino na S3, nem como padrão interno:** o roxo é "tarefa para o Todoist", então um padrão "Notion" estaria errado. O destino entra na Etapa 3, junto com o envio ao Notion e ao Todoist (decidido em 01/11/2026).
+- [ ] **Paleta fixa de tons,** em vez de qualquer hex, escolhida para ter contraste legível com o texto do painel. "Tom repetido" passa a ser "tom da paleta já em uso" (decidido em 01/11/2026).
+- [ ] **Nome de cor único,** sem diferenciar maiúsculas e minúsculas, porque o nome vai para o nome do arquivo (decidido em 01/11/2026).
+- [ ] **Nenhuma cor é apagada na S3:** ela só sai do tambor, e as notas continuam dela (decidido em 01/11/2026).
+- [ ] **Trocar a cor de uma câmara com a nota dela aberta:** salvar, recolher o painel, e a nota continua ativa, aparecendo no verso (decidido em 01/11/2026).
+- [ ] **Nota de cor que não existe no `cores.json`:** abre mesmo assim, com uma cor neutra e um aviso. Nunca some nem é alterada (decidido em 01/11/2026, passo 3).
+- [ ] **Avisos em fila:** dois avisos na mesma abertura aparecem os dois, um depois do outro (decidido em 01/11/2026).
 - [ ] Os atalhos Ctrl+Shift+Alt+1 a 4 abrem a câmara (o lugar), não uma cor fixa (decidido em 01/11/2026).
 - [ ] O giro fica sem animação quando o Windows pede para reduzir movimentos. O clique no "+" não tira o teclado do vídeo nem do editor.
 - [ ] `cores.json` guarda nome, função, tom e câmara; ao abrir, quem já usa o app continua com as quatro cores atuais, nos mesmos lugares e com os assuntos de antes.

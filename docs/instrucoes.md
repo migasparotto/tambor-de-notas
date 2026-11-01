@@ -100,7 +100,14 @@ A **nota inteira** tem uma cor. A cor indica a **função** da nota, não a mat�
 
 - Essas são as **cores iniciais**. Cada cor tem nome e função editáveis.
 - **Trocar a cor de uma câmara:** pelo "+" e o outro lado do tambor (ver "O tambor"). Uma cor nova toma o lugar de uma câmara da frente, e eu escolho qual. Sem menu de botão direito (decidido em 25/10/2026).
-- **Editar uma cor:** no cabeçalho da nota aberta, o rótulo aparece como "● NÚCLEO DE ESTUDO ATIVO". Clicar no texto edita o nome e a função; clicar no círculo (preenchido com a cor) deixa trocar o tom da cor, sem permitir tons já em uso. **Decidido em 01/11/2026:** a nota guarda o id da cor, e o tom é só a aparência dela, então trocá-lo vale para todas as notas da cor sem quebrar a regra de a cor nunca mudar. Mudando o nome da cor, as notas antigas mantêm o nome do arquivo, e só as novas usam o nome novo. O destino de uma cor nova só passa a ser escolhido na Etapa 3, junto com o envio ao Notion e ao Todoist.
+- **Editar uma cor:** no cabeçalho da nota aberta, o rótulo aparece como "● NÚCLEO DE ESTUDO ATIVO". Clicar no texto edita o nome e a função; clicar no círculo (preenchido com a cor) deixa trocar o tom da cor, sem permitir tons já em uso. **Decidido em 01/11/2026:** a nota guarda o id da cor, e o tom é só a aparência dela, então trocá-lo vale para todas as notas da cor sem quebrar a regra de a cor nunca mudar. Mudando o nome da cor, as notas antigas mantêm o nome do arquivo, e só as novas usam o nome novo. O destino não é guardado antes da Etapa 3, nem como padrão interno: ele entra junto com o envio ao Notion e ao Todoist.
+- **Regras das cores (decidido em 01/11/2026):**
+  - O tom vem de uma **paleta fixa**, escolhida para ter contraste legível com o texto do painel, e não pode estar em uso por outra cor.
+  - O **nome é único**, sem diferenciar maiúsculas e minúsculas, porque vai para o nome do arquivo.
+  - **Nenhuma cor é apagada** nesta etapa: ela só sai do tambor, e as notas continuam dela.
+  - Ao trocar a cor de uma câmara com a nota dela aberta, o app salva, recolhe o painel e a nota continua ativa, aparecendo no outro lado do tambor.
+  - Uma nota de cor que não existe no `cores.json` abre mesmo assim, com uma cor neutra e um aviso. Ela nunca some nem é alterada.
+- **Avisos em fila (decidido em 01/11/2026):** dois avisos na mesma abertura aparecem os dois, um depois do outro.
 - **A cor de uma nota existente nunca muda.** Trocar a cor de uma câmara afeta só notas novas; notas antigas mantêm a cor e a função que tinham.
 - Notas de cores diferentes podem se ligar por backlinks quando tratam do mesmo assunto.
 
