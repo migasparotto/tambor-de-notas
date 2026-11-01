@@ -11,5 +11,6 @@ Ler e escrever os arquivos `.md` das notas e as configurações no disco.
 - `fileSystem.ts`: as poucas operações de disco que a porta precisa. Não existe "apagar": arquivar é renomear.
 - `tauriFileSystem.ts`: o disco de verdade, pelo plugin `fs`, dentro de `Documentos\Tambor de Notas\notas\` (no app de desenvolvimento, `Documentos\Tambor de Notas (Dev)\notas\`, pela regra `notesRootFor`).
 - `memoryFileSystem.ts`: um disco em memória, para os testes.
+- `nodeFileSystem.ts`: o disco de verdade pelo Node.js, só para os testes, preso a uma pasta temporária.
 - `fileName.ts`: nome de arquivo aceito pelo Windows, sem repetir nomes.
 - `retry.ts`: tenta de novo quando o OneDrive segura o arquivo, e dá uma mensagem clara se não der.
