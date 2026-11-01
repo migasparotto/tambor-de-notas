@@ -255,6 +255,7 @@ Pedido do Marcos em 28/10/2026: manter as dependências atualizadas e receber av
 
 - [x] Testes de notas em disco real, em pasta temporária, e regras do `focus.rs` separadas e testadas em Rust (PR #14, 01/11/2026). O `npm test` também roda no Windows no CI. Esc testado e aprovado pelo Marcos nos 4 casos.
 - [ ] **Agora, antes da S3:** falha de memória (`0xc0000005`, em `ntdll.dll`) que derrubou o app parado em 01/11/2026: o instalado v0.3.0 às 14:52 e o DEV por volta de 15:35. Investigar antes de mudar código e mostrar a causa provável e a proposta ao Marcos; se a causa estiver na v0.3.0, a correção vira uma v0.3.1.
+  - Em 01/11/2026, causa ainda desconhecida. Pela pilha, parece memória corrompida antes da queda, que aconteceu num pedido de memória do `wry`; o vigia do `focus.rs` não aparece na pilha. Sem queda em: 1.749 trocas de foco em 90 s; instalado aberto por cerca de 2h25; cópia com a consulta do cursor a 1 ms e page heap por 20 min. `wry` e `tao` são iguais na v0.2.0 e na v0.3.0. Quando a causa for descoberta, antes da correção, criar a skill de usuário `investigar-falha`.
 - [ ] **Testes de ponta a ponta (e2e)** com o app real (WebdriverIO ou o que for o padrão do Tauri no Windows). **Decidido em 01/11/2026:** entram depois do passo 3 da S3.
 
 ## Etapa 2 — Organização
