@@ -100,14 +100,15 @@ O instalador não tem assinatura digital, então o Windows mostra "O Windows pro
 
 ### Comandos úteis
 
-| Comando              | O que faz                                         |
-| -------------------- | ------------------------------------------------- |
-| `npm run app:dev`    | Abre o app de desenvolvimento ("DEV")             |
-| `npm test`           | Roda os testes automatizados (Vitest)             |
-| `npm run test:watch` | Roda os testes de novo a cada arquivo salvo       |
-| `npm run lint`       | Procura erros e quebras de camada (ESLint)        |
-| `npm run format`     | Formata o código (Prettier)                       |
-| `npm run build`      | Verifica os tipos (TypeScript) e gera a interface |
+| Comando                      | O que faz                                         |
+| ---------------------------- | ------------------------------------------------- |
+| `npm run app:dev`            | Abre o app de desenvolvimento ("DEV")             |
+| `npm test`                   | Roda os testes automatizados (Vitest)             |
+| `npm run test:watch`         | Roda os testes de novo a cada arquivo salvo       |
+| `npm run lint`               | Procura erros e quebras de camada (ESLint)        |
+| `npm run format`             | Formata o código (Prettier)                       |
+| `npm run build`              | Verifica os tipos (TypeScript) e gera a interface |
+| `cd src-tauri && cargo test` | Roda os testes em Rust                            |
 
 ## Estrutura do código
 

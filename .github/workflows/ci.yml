@@ -34,8 +34,11 @@ jobs:
         with:
           workspaces: src-tauri
 
-      # The Tauri compile needs the built interface (../dist).
+      # The disk tests must also run on Windows: it refuses file names that Linux accepts.
       - run: npm ci
+      - run: npm test
+
+      # The Tauri compile needs the built interface (../dist).
       - run: npm run build
 
       - run: cargo fmt --check
