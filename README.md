@@ -39,13 +39,13 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - O tambor fica **translúcido** quando não está em uso e **nítido** com uma nota aberta (e no aviso de fim de ciclo). Sem nota aberta, clicar no relógio, no stop ou no "+" não tira o teclado do vídeo.
 - **Atalhos globais**, que funcionam mesmo com o app em segundo plano (por exemplo, com o vídeo da aula em foco):
 
-  | Atalho           | O que faz                                      |
-  | ---------------- | ---------------------------------------------- |
-  | Ctrl+Shift+Alt+1 | Abre a nota azul (a 1ª câmara de cor, de cima) |
-  | Ctrl+Shift+Alt+2 | Abre a nota vermelha                           |
-  | Ctrl+Shift+Alt+3 | Abre a nota verde                              |
-  | Ctrl+Shift+Alt+4 | Abre a nota roxa                               |
-  | Ctrl+Shift+Alt+P | Play ou pausa no pomodoro                      |
+  | Atalho           | O que faz                                       |
+  | ---------------- | ----------------------------------------------- |
+  | Ctrl+Shift+Alt+1 | Abre a 1ª câmara de cor, de cima (hoje, a azul) |
+  | Ctrl+Shift+Alt+2 | Abre a 2ª câmara de cor (hoje, a vermelha)      |
+  | Ctrl+Shift+Alt+3 | Abre a 3ª câmara de cor (hoje, a verde)         |
+  | Ctrl+Shift+Alt+4 | Abre a 4ª câmara de cor (hoje, a roxa)          |
+  | Ctrl+Shift+Alt+P | Play ou pausa no pomodoro                       |
 
   O atalho de cor traz o teclado para a nota, e você já pode digitar. Apertado de novo com a nota aberta, recolhe o painel. Se outro programa já usar uma combinação, o app avisa ao abrir. Os atalhos podem ser trocados nas configurações.
 
