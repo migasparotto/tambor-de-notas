@@ -1,45 +1,20 @@
-# TEMPORARY: is the WebView2 variable ignored because the runner's user is elevated?
+# TEMPORARY: does the debugging port asked by the app's own config open on the runner?
 $exe = (Resolve-Path "src-tauri\target\e2e\debug\tambor-de-notas.exe").Path
-function Stop-All {
-  Get-Process tambor-de-notas, msedgedriver, tauri-driver, msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Get-Process tambor-de-notas, msedgedriver, tauri-driver, msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+Start-Sleep 3
+Start-Process $exe | Out-Null
+$open = "closed after 36s"
+foreach ($i in 1..12) {
   Start-Sleep 3
+  try { $open = "open after $($i * 3)s: " + (Invoke-WebRequest "http://127.0.0.1:9222/json/version" -UseBasicParsing -TimeoutSec 2).Content.Substring(0, 120); break } catch {}
 }
-function Test-Port($port) {
-  foreach ($i in 1..12) {
-    Start-Sleep 3
-    try { Invoke-WebRequest "http://127.0.0.1:$port/json/version" -UseBasicParsing -TimeoutSec 2 | Out-Null; return "open after $($i * 3)s" } catch {}
-  }
-  return "closed after 36s"
-}
-function Show-Browser {
-  $main = Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object { $_.CommandLine -notmatch '--type=' } | Select-Object -First 1
-  "has port arg: $($main.CommandLine -match 'remote-debugging-port')"
-}
-$id = [Security.Principal.WindowsIdentity]::GetCurrent()
-"elevated=$((New-Object Security.Principal.WindowsPrincipal $id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))"
-"uac=$((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System').EnableLUA)"
-"os=$((Get-CimInstance Win32_OperatingSystem).Caption)"
-Stop-All
-
-"--- A: elevated, as before"
-$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9333"
-Start-Process $exe | Out-Null
-"port: $(Test-Port 9333)"; Show-Browser
-Stop-All
-
-"--- B: not elevated (runas /trustlevel)"
-$cmd = Join-Path $env:RUNNER_TEMP "start-limited.cmd"
-Set-Content $cmd "@echo off`r`nset WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9335`r`n`"$exe`"`r`n"
-Start-Process runas -ArgumentList "/trustlevel:0x20000", "`"$cmd`"" -NoNewWindow
-"port: $(Test-Port 9335)"; Show-Browser
-Get-Process tambor-de-notas -ErrorAction SilentlyContinue | ForEach-Object { "app running pid=$($_.Id)" }
-Stop-All
-
-"--- C: the variable set at the machine level"
-Remove-Item Env:\WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS
-[Environment]::SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--remote-debugging-port=9336", "User")
-$env:WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS = "--remote-debugging-port=9336"
-Start-Process $exe | Out-Null
-"port: $(Test-Port 9336)"; Show-Browser
-Stop-All
+"port: $open"
+$main = Get-CimInstance Win32_Process -Filter "Name='msedgewebview2.exe'" | Where-Object { $_.CommandLine -notmatch '--type=' } | Select-Object -First 1
+"has port arg: $($main.CommandLine -match 'remote-debugging-port')"
+$driver = (Resolve-Path "node_modules\.cache\edge\msedgedriver.exe").Path
+$d = Start-Process $driver -ArgumentList "--port=9515" -PassThru
+Start-Sleep 2
+$body = @{ capabilities = @{ alwaysMatch = @{ browserName = "webview2"; "ms:edgeOptions" = @{ debuggerAddress = "127.0.0.1:9222" } } } } | ConvertTo-Json -Depth 6
+try { "session: " + (Invoke-WebRequest http://127.0.0.1:9515/session -Method Post -Body $body -ContentType "application/json" -UseBasicParsing -TimeoutSec 60).Content.Substring(0, 200) } catch { "session error: $($_.Exception.Message) $($_.ErrorDetails.Message)" }
+Get-Process tambor-de-notas, msedgedriver, msedgewebview2 -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 exit 0
