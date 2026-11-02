@@ -123,6 +123,7 @@ npm run e2e
 - Janelas do app abrem e fecham na tela por cerca de um minuto, e um dos testes aperta um atalho global de verdade. Evite usar o teclado nesse tempo.
 - O `npm run e2e` compila um app só para os testes, com o identificador `com.tambordenotas.app.e2e`. Ele usa só `Documentos\Tambor de Notas (Dev)\notas\e2e\` e `%APPDATA%\com.tambordenotas.app.e2e`, apagadas a cada teste. Suas notas nunca são tocadas.
 - O driver do Edge é baixado na hora, na versão exata do WebView2 que o app abriu, então não quebra quando o WebView2 se atualiza sozinho.
+- **Quando falha,** guarda sozinho em `e2e/failures/` (fora do Git, e apagada na rodada seguinte) a saída completa em `execucao.txt` e, por teste que falhou, a mensagem, um print da janela, o console da página e o log do app. No CI, a pasta fica anexada à execução como o artifact `e2e-failures`, por 14 dias. Ela só tem notas de teste.
 - Nada disso entra no instalador. O CI roda o e2e no Windows, no job `e2e`.
 
 ## Estrutura do código

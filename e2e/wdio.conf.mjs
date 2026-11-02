@@ -3,11 +3,14 @@
 // driver connects to it. tauri-driver is not used: it relies on a WebView2 environment variable
 // that Windows Server, on the CI runner, ignores.
 import { spawn } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { browser } from "@wdio/globals";
 import { download } from "edgedriver";
 import {
+  APP_LOG,
   DEBUG_ADDRESS,
+  FAILURES_DIR,
   assertNoOtherAppRunning,
   openE2eApp,
   closeE2eApp,
@@ -16,6 +19,16 @@ import {
 
 const DRIVER_PORT = 4444;
 let edgeDriver;
+let failures = 0;
+
+/** Tries to keep one piece of evidence; if it cannot, says why in its place. */
+async function keep(folder, name, save) {
+  try {
+    await save(join(folder, name));
+  } catch (error) {
+    writeFileSync(join(folder, `${name}.erro.txt`), String(error));
+  }
+}
 
 export const config = {
   runner: "local",
@@ -25,7 +38,11 @@ export const config = {
   maxInstances: 1,
   // Without browserName and BiDi: with them, connecting sends the page to about:blank.
   capabilities: [
-    { "ms:edgeOptions": { debuggerAddress: DEBUG_ADDRESS }, "wdio:enforceWebDriverClassic": true },
+    {
+      "ms:edgeOptions": { debuggerAddress: DEBUG_ADDRESS },
+      "ms:loggingPrefs": { browser: "ALL" },
+      "wdio:enforceWebDriverClassic": true,
+    },
   ],
   logLevel: "warn",
   waitforTimeout: 15000,
@@ -48,6 +65,21 @@ export const config = {
     const driver = await download(version, cache);
     console.log(`WebView2 ${version}, driver ${driver}`);
     edgeDriver = spawn(driver, [`--port=${DRIVER_PORT}`], { stdio: "ignore" });
+  },
+
+  /** A failed test keeps its full message, a picture of the window and the logs. */
+  async afterTest(test, _context, { error, passed }) {
+    if (passed) return;
+    failures += 1;
+    const slug = test.title.replace(/[^a-z0-9]+/gi, "-").slice(0, 60);
+    const folder = join(FAILURES_DIR, `${String(failures).padStart(2, "0")}-${slug}`);
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(join(folder, "erro.txt"), `${test.title}\n\n${error?.stack ?? error}\n`);
+    await keep(folder, "tela.png", (path) => browser.saveScreenshot(path));
+    await keep(folder, "console.json", async (path) =>
+      writeFileSync(path, JSON.stringify(await browser.getLogs("browser"), null, 2)),
+    );
+    await keep(folder, "app.log", (path) => copyFileSync(APP_LOG, path));
   },
 
   onComplete() {

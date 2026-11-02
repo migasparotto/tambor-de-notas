@@ -22,6 +22,9 @@ dist-ssr
 # Local notes created while testing the app
 notas/
 
+# What the e2e tests keep when they fail
+e2e/failures/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

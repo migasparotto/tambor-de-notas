@@ -1,6 +1,6 @@
 // What the e2e tests need from Windows and the disk. They only touch their own two folders.
 import { execFileSync, spawn } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, closeSync, mkdirSync, openSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +23,10 @@ export const APP_DATA_DIR = join(process.env.APPDATA, "com.tambordenotas.app.e2e
  * other programs use it (on this notebook, Lenovo Vantage).
  */
 export const DEBUG_ADDRESS = "127.0.0.1:19222";
+/** What a failed run keeps (ignored by Git; `e2e/run.mjs` cleans it). */
+export const FAILURES_DIR = join(ROOT, "e2e", "failures");
+/** What the app writes while it runs, for every time it opens in this run. */
+export const APP_LOG = join(FAILURES_DIR, "app.log");
 const APP_READY_ATTEMPTS = 60;
 const APP_READY_WAIT_MS = 500;
 /** The address of the app's page, in the WebView2. */
@@ -45,7 +49,11 @@ export async function openE2eApp() {
   if ((await debugInfo("/json/version")) !== null) {
     throw new Error(`Outro programa já usa a porta de depuração ${DEBUG_ADDRESS}.`);
   }
-  spawn(E2E_APP, { detached: true, stdio: "ignore" }).unref();
+  mkdirSync(FAILURES_DIR, { recursive: true });
+  appendFileSync(APP_LOG, `--- O app abriu às ${new Date().toISOString()}\n`);
+  const log = openSync(APP_LOG, "a");
+  spawn(E2E_APP, { detached: true, stdio: ["ignore", log, log] }).unref();
+  closeSync(log);
   for (let attempt = 0; attempt < APP_READY_ATTEMPTS; attempt++) {
     const targets = (await debugInfo("/json/list")) ?? [];
     if (targets.some(({ type, url }) => type === "page" && url.includes(APP_PAGE))) {
