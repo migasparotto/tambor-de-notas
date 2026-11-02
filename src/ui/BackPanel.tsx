@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { PANEL_BASE, type NoteColor } from "../domain/chambers";
+import { NEUTRAL_TONE, PANEL_BASE, type NoteColor } from "../domain/chambers";
 import type { ColorFields } from "../domain/colorRules";
 import type { Rect } from "../domain/drum";
 
@@ -15,6 +15,8 @@ interface BackPanelProps {
   onOpenColor: (colorId: string) => void;
   /** Creates the color; returns why it was refused, or null. */
   onCreateColor: (fields: ColorFields, chamber: number) => string | null;
+  /** Puts a color off the drum back in a chamber. */
+  onPutInChamber: (colorId: string, chamber: number) => void;
   onClose: () => void;
 }
 
@@ -23,10 +25,42 @@ const field =
 const button =
   "cursor-pointer rounded-md border-0 bg-white/15 px-3 py-1 text-[13px] font-semibold text-white hover:bg-white/25 disabled:cursor-default disabled:opacity-40";
 
+/** The chambers of the front, to choose one; the color in it leaves the drum. */
+function ChamberChoice(props: {
+  chambers: (NoteColor | null)[];
+  chosen: number | null;
+  onChoose: (place: number) => void;
+}) {
+  const { chambers, chosen, onChoose } = props;
+  return (
+    <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
+      <legend className="mb-1 p-0 text-[12px] text-white/60">Toma o lugar de</legend>
+      {chambers.map((color, place) => (
+        <button
+          key={color?.id ?? `empty-${place}`}
+          type="button"
+          aria-pressed={chosen === place}
+          onClick={() => onChoose(place)}
+          className={`${button} flex items-center gap-2 text-left font-normal ${chosen === place ? "bg-white/35" : ""}`}
+        >
+          <span
+            aria-hidden="true"
+            className="size-3 shrink-0 rounded-full"
+            style={{ background: color?.hex ?? "transparent" }}
+          />
+          <span className="truncate">{color?.name ?? "Câmara vazia"}</span>
+        </button>
+      ))}
+    </fieldset>
+  );
+}
+
 /** What the empty chamber opens: the notes of the colors off the drum, and adding a new color. */
 export function BackPanel(props: BackPanelProps) {
   const { rect, offDrumColors, tones, chambers } = props;
   const [creating, setCreating] = useState(false);
+  /** The color off the drum being put back in a chamber. */
+  const [placing, setPlacing] = useState<NoteColor | null>(null);
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [hex, setHex] = useState(tones[0] ?? null);
@@ -56,7 +90,11 @@ export function BackPanel(props: BackPanelProps) {
     >
       <header className="flex items-center justify-between gap-1.5">
         <span className="text-[11px] tracking-wide text-white/60 uppercase">
-          {creating ? "Cor nova" : "Outro lado do tambor"}
+          {creating
+            ? "Cor nova"
+            : placing
+              ? `Pôr ${placing.name} numa câmara`
+              : "Outro lado do tambor"}
         </span>
         <button
           type="button"
@@ -69,18 +107,26 @@ export function BackPanel(props: BackPanelProps) {
         </button>
       </header>
 
-      {!creating && (
+      {placing && (
+        <ChamberChoice
+          chambers={chambers}
+          chosen={null}
+          onChoose={(place) => props.onPutInChamber(placing.id, place)}
+        />
+      )}
+
+      {!creating && !placing && (
         <>
           {offDrumColors.length === 0 ? (
             <p className="m-0 text-[13px] text-white/60">Nenhuma nota ativa fora do tambor.</p>
           ) : (
             <ul aria-label="Notas fora do tambor" className="m-0 flex list-none flex-col gap-1 p-0">
               {offDrumColors.map((color) => (
-                <li key={color.id}>
+                <li key={color.id} className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => props.onOpenColor(color.id)}
-                    className={`${button} flex w-full items-center gap-2 text-left font-normal`}
+                    className={`${button} flex min-w-0 flex-1 items-center gap-2 text-left font-normal`}
                   >
                     <span
                       aria-hidden="true"
@@ -91,6 +137,18 @@ export function BackPanel(props: BackPanelProps) {
                       {color.name} · {color.role}
                     </span>
                   </button>
+                  {/* A note's unknown color has no tone to go on the drum. */}
+                  {color.hex !== NEUTRAL_TONE && (
+                    <button
+                      type="button"
+                      title={`Pôr ${color.name} numa câmara`}
+                      aria-label={`Pôr ${color.name} numa câmara`}
+                      onClick={() => setPlacing(color)}
+                      className={`${button} shrink-0 px-2 font-normal`}
+                    >
+                      ↩
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -146,25 +204,7 @@ export function BackPanel(props: BackPanelProps) {
               />
             ))}
           </fieldset>
-          <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
-            <legend className="mb-1 p-0 text-[12px] text-white/60">Toma o lugar de</legend>
-            {chambers.map((color, place) => (
-              <button
-                key={color?.id ?? `empty-${place}`}
-                type="button"
-                aria-pressed={chamber === place}
-                onClick={() => setChamber(place)}
-                className={`${button} flex items-center gap-2 text-left font-normal ${chamber === place ? "bg-white/35" : ""}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className="size-3 shrink-0 rounded-full"
-                  style={{ background: color?.hex ?? "transparent" }}
-                />
-                <span className="truncate">{color?.name ?? "Câmara vazia"}</span>
-              </button>
-            ))}
-          </fieldset>
+          <ChamberChoice chambers={chambers} chosen={chamber} onChoose={setChamber} />
           {error && (
             <p
               role="alert"

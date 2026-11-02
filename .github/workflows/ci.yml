@@ -34,6 +34,14 @@ jobs:
 
       - run: npm ci
       - run: npm run e2e
+      - name: Keep the evidence of a failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-failures
+          path: e2e/failures/
+          if-no-files-found: ignore
+          retention-days: 14
 
   rust:
     runs-on: windows-latest

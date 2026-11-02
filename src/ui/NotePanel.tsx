@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PANEL_BASE, PANEL_TINT_PERCENT, type NoteColor } from "../domain/chambers";
+import type { ColorFields } from "../domain/colorRules";
 import type { Point, Rect } from "../domain/drum";
 import { charCount } from "../domain/noteText";
 import type { PanelSize } from "../domain/panel";
 import type { SymbolsMode } from "../domain/settings";
+import { ColorHeader } from "./ColorHeader";
 import { NoteEditor, type NoteEditorHandle } from "./NoteEditor";
 
 interface NotePanelProps {
   color: NoteColor;
+  /** The palette tones this color can use, its own included. */
+  tones: string[];
+  /** Changes the color; returns why it was refused, or null. */
+  onEditColor: (changes: Partial<ColorFields>) => string | null;
   /** The note subject (the class matter); for a new note, the color's last subject. */
   subject: string;
   text: string;
@@ -89,10 +95,13 @@ export function NotePanel(props: NotePanelProps) {
     >
       {grown && (
         <div className="flex min-h-0 flex-1 flex-col gap-2 p-3">
-          <header className="flex items-center gap-1.5">
-            <span className="flex-1 truncate text-[11px] tracking-wide text-white/60 uppercase">
-              {color.name} · {color.role}
-            </span>
+          <header className="flex items-start gap-1.5">
+            <ColorHeader
+              color={color}
+              tones={props.tones}
+              onEdit={props.onEditColor}
+              onDone={() => editor.current?.focusTitle()}
+            />
             <button
               type="button"
               title={showMarkdown ? "Voltar ao editor" : "Ver Markdown (como fica no arquivo .md)"}

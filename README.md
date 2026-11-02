@@ -15,7 +15,8 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - Os **cantos vazios** da janela, fora do círculo do tambor, deixam o clique passar para o que está atrás (o vídeo).
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
 - Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo gira o tambor meia volta, com a catraca, para o outro lado, onde há uma câmara vazia, e de volta. Um atalho de cor volta para a frente.
-- **Câmara vazia:** mostra as notas ativas das cores que estão fora do tambor, para continuar, e deixa criar uma **cor nova** (nome, função e tom da paleta). A cor nova toma o lugar da câmara da frente que você escolher, e a nota dela já abre, com o cursor no assunto. A cor que saiu não é apagada: a nota ativa dela continua na câmara vazia.
+- **Editar uma cor:** no cabeçalho da nota aberta, o círculo troca o tom (só os tons livres da paleta), e o texto edita o nome e a função. Enter salva e Esc cancela. O tom vale para todas as notas da cor, e as notas já salvas mantêm o nome do arquivo.
+- **Câmara vazia:** mostra as notas ativas das cores que estão fora do tambor, para continuar, e deixa criar uma **cor nova** (nome, função e tom da paleta). A cor nova toma o lugar da câmara da frente que você escolher, e a nota dela já abre, com o cursor no assunto. A cor que saiu não é apagada: a nota ativa dela continua na câmara vazia, e o botão ↩ da lista põe a cor de volta numa câmara que você escolher (a cor que estava lá vai para o outro lado, sem perder nada).
 - **Notas** (uma nota ativa por cor):
   - clique numa câmara de cor: o painel da nota nasce na câmara e cresce ao lado do tambor, na cor da nota;
   - o editor mostra o texto **formatado enquanto você digita** (títulos, negrito, itálico, código, links, listas, linha `---`), mas o que fica salvo é o Markdown puro; os símbolos (`#`, `**`...) só aparecem quando o cursor está dentro daquele trecho;
@@ -123,6 +124,7 @@ npm run e2e
 - Janelas do app abrem e fecham na tela por cerca de um minuto, e um dos testes aperta um atalho global de verdade. Evite usar o teclado nesse tempo.
 - O `npm run e2e` compila um app só para os testes, com o identificador `com.tambordenotas.app.e2e`. Ele usa só `Documentos\Tambor de Notas (Dev)\notas\e2e\` e `%APPDATA%\com.tambordenotas.app.e2e`, apagadas a cada teste. Suas notas nunca são tocadas.
 - O driver do Edge é baixado na hora, na versão exata do WebView2 que o app abriu, então não quebra quando o WebView2 se atualiza sozinho.
+- **Quando falha,** guarda sozinho em `e2e/failures/` (fora do Git, e apagada na rodada seguinte) a saída completa em `execucao.txt` e, por teste que falhou, a mensagem, um print da janela, o console da página e o log do app. No CI, a pasta fica anexada à execução como o artifact `e2e-failures`, por 14 dias. Ela só tem notas de teste.
 - Nada disso entra no instalador. O CI roda o e2e no Windows, no job `e2e`.
 
 ## Estrutura do código

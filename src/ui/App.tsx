@@ -191,6 +191,11 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     setPanel({ colorId, size: "normal", open: true });
   };
 
+  /** A color off the drum goes back to a chamber; the front shows it there, with its note. */
+  const putInChamber = (colorId: string, chamber: number) => {
+    if (notes.putInChamber(colorId, chamber)) flipTo("front");
+  };
+
   /** Creates a color, and its note opens in one step. Returns why it was refused, or null. */
   const createColor = (fields: ColorFields, chamber: number): string | null => {
     const result = notes.createColor(fields, chamber);
@@ -236,6 +241,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   /** Esc and Ctrl+Enter, wherever the keyboard is in the drum window (not only in the panel). */
   const onKey = (e: KeyboardEvent) => {
     if (e.isComposing) return;
+    // An edit in the note's header cancels with its own Esc.
+    if (e.key === "Escape" && (e.target as Element).closest?.("[data-own-escape]")) return;
     const action = drumKeyAction(e, panelOpen);
     if (action === null) return;
     e.preventDefault();
@@ -319,6 +326,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         <NotePanel
           key={panel.colorId}
           color={panelColor}
+          tones={notes.availableTones(panel.colorId)}
+          onEditColor={(changes) => notes.editColor(panel.colorId, changes)}
           subject={notes.subject(panel.colorId)}
           text={notes.text(panel.colorId)}
           markdown={notes.markdown(panel.colorId)}
@@ -356,6 +365,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           chambers={chamberColors.map(colorIn)}
           onOpenColor={openOffDrumColor}
           onCreateColor={createColor}
+          onPutInChamber={putInChamber}
           onClose={() => setBackOpen(false)}
         />
       )}
