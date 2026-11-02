@@ -1,6 +1,6 @@
 # Tambor de Notas — guia para o Claude
 
-As regras gerais de trabalho (comandos rápidos, como trabalhar com o Marcos, commits, princípios de código, definição de pronto) ficam no `CLAUDE.md` de usuário. Aqui fica só o que é específico deste projeto.
+As regras gerais de trabalho (comandos rápidos, como trabalhar com o usuário, commits, princípios de código, definição de pronto) ficam no `CLAUDE.md` de usuário. Aqui fica só o que é específico deste projeto.
 
 **Leia sempre, no início de toda sessão, os dois documentos-base do projeto:**
 
@@ -11,7 +11,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Passos extras dos comandos rápidos
 
-- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o Marcos ver como está. Se o app instalado estiver aberto, avisar que os atalhos ficam com ele.
+- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o usuário ver como está. Se o app instalado estiver aberto, avisar que os atalhos ficam com ele.
 
 ## Regras do projeto
 
@@ -22,8 +22,8 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - Notas são arquivos `.md` locais com frontmatter; sem banco de dados.
 - **IA:** nada é implementado antes da conversa de escopo no início da etapa 4.
 - **PRs do Dependabot:**
-  - Patch (qualquer biblioteca) ou minor só de desenvolvimento, com CI verde, e com CD verde quando a atualização mexer no build: pode fazer o merge sem perguntar ao Marcos e avisar no resumo.
-  - Major, minor que entra no app final, ou qualquer coisa que exija mudar código: parar e perguntar ao Marcos.
+  - Patch (qualquer biblioteca) ou minor só de desenvolvimento, com CI verde, e com CD verde quando a atualização mexer no build: pode fazer o merge sem perguntar ao usuário e avisar no resumo.
+  - Major, minor que entra no app final, ou qualquer coisa que exija mudar código: parar e perguntar ao usuário.
   - Atualização que entrou a mais no grupo: segue a mesma regra acima, sem precisar parar só por isso.
 
 ## Release
