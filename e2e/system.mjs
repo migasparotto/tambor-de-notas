@@ -55,6 +55,12 @@ export const APP_LOG = join(FAILURES_DIR, "app.log");
  */
 const APP_READY_TIMEOUT_MS = 120_000;
 const APP_READY_WAIT_MS = 500;
+/**
+ * How long the debugging port may stay busy after the previous test closed the app: the port
+ * belongs to the WebView2 process, which may take a few seconds to leave (seen in the CI on
+ * 02/11/2026, when the next test found it still open).
+ */
+const PORT_FREE_TIMEOUT_MS = 15_000;
 /** The address of the app's page, in the WebView2. */
 const APP_PAGE = "tauri.localhost";
 
@@ -72,8 +78,12 @@ const debugInfo = async (path) => {
  * port already in use, so the tests never connect to another program.
  */
 export async function openE2eApp() {
-  if ((await debugInfo("/json/version")) !== null) {
-    throw new Error(`Outro programa já usa a porta de depuração ${DEBUG_ADDRESS}.`);
+  const waitingSince = Date.now();
+  while ((await debugInfo("/json/version")) !== null) {
+    if (Date.now() - waitingSince > PORT_FREE_TIMEOUT_MS) {
+      throw new Error(`Outro programa já usa a porta de depuração ${DEBUG_ADDRESS}.`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, APP_READY_WAIT_MS));
   }
   mkdirSync(FAILURES_DIR, { recursive: true });
   appendFileSync(APP_LOG, `--- O app abriu às ${new Date().toISOString()}\n`);
@@ -136,7 +146,7 @@ function dumpHungApp() {
 /** Closes the e2e app, if open. Only runs after checking no other copy of the app is open. */
 export function closeE2eApp() {
   powershell(
-    `Get-Process tambor-de-notas -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '${E2E_APP}' } | ForEach-Object { Stop-Process -Id $_.Id -Force; $_.WaitForExit(5000) | Out-Null }`,
+    `Get-Process tambor-de-notas -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '${E2E_APP}' } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue; $_.WaitForExit(5000) | Out-Null }`,
   );
 }
 
