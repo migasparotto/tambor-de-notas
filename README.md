@@ -117,6 +117,8 @@ O `npm test` e o `npm run build` guardam sempre a saída completa em `test-outpu
 
 ### Quando o app cair
 
+O app grava um log próprio em `%LOCALAPPDATA%\com.tambordenotas.app\logs\tambor.log` (o DEV em `com.tambordenotas.app.dev`): a abertura, com as versões do app, do WebView2 e do Windows; se a sessão anterior terminou sem a marca "Encerrado normalmente"; um batimento a cada 5 minutos, com a memória usada e as suspensões percebidas; erros de JavaScript não tratados e pânicos do Rust. Antes de gravar, cada linha passa por uma limpeza (`sanitize`, em `src-tauri/src/applog.rs`, com testes) que troca texto entre aspas, caminhos e nomes de arquivos `.md` por `<texto>`, `<caminho>` e `<arquivo>`. São no máximo 5 arquivos de 1 MB. Uma queda de memória (`0xc0000005`) não chega a escrever no log: o momento dela fica no dump da captura abaixo.
+
 Uma vez, no Windows PowerShell **como administrador**, na pasta do repositório:
 
 ```powershell

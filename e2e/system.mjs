@@ -17,6 +17,8 @@ const documents = powershell("[Environment]::GetFolderPath('MyDocuments')");
 export const NOTES_DIR = join(documents, "Tambor de Notas (Dev)", "notas", "e2e");
 /** Must match the identifier in `src-tauri/tauri.e2e.conf.json`. */
 export const APP_DATA_DIR = join(process.env.APPDATA, "com.tambordenotas.app.e2e");
+/** The app's own log files (`src-tauri/src/applog.rs`), kept when a run fails. */
+export const APP_LOG_DIR = join(process.env.LOCALAPPDATA, "com.tambordenotas.app.e2e", "logs");
 
 /**
  * Must match `--remote-debugging-port` in `src-tauri/tauri.e2e.conf.json`. Not the usual 9222:
