@@ -17,8 +17,28 @@ const documents = powershell("[Environment]::GetFolderPath('MyDocuments')");
 export const NOTES_DIR = join(documents, "Tambor de Notas (Dev)", "notas", "e2e");
 /** Must match the identifier in `src-tauri/tauri.e2e.conf.json`. */
 export const APP_DATA_DIR = join(process.env.APPDATA, "com.tambordenotas.app.e2e");
-/** The app's own log files (`src-tauri/src/applog.rs`), kept when a run fails. */
-export const APP_LOG_DIR = join(process.env.LOCALAPPDATA, "com.tambordenotas.app.e2e", "logs");
+/** Where Windows may write a dump of the app: the CI's folder, the crash capture's and the default. */
+const DUMP_FOLDERS = [
+  process.env.TAMBOR_DUMPS,
+  join(process.env.LOCALAPPDATA, "Tambor de Notas (quedas)", "dumps"),
+  join(process.env.LOCALAPPDATA, "CrashDumps"),
+].filter(Boolean);
+
+const quoted = (text) => `'${text.replaceAll("'", "''")}'`;
+
+/**
+ * Keeps the system's evidence of a failed run in `folder`, with the same script as the crash
+ * capture (`scripts/windows/collect-evidence.ps1`): Windows logs and crash events since `since`,
+ * the app's logs, its dumps, and the e2e .exe with the .pdb that reads them.
+ */
+export function collectEvidence(folder, since) {
+  const script = join(ROOT, "scripts", "windows", "collect-evidence.ps1");
+  const binaries = [E2E_APP, join(dirname(E2E_APP), "tambor_de_notas.pdb")];
+  powershell(
+    `& ${quoted(script)} -Folder ${quoted(folder)} -Since ${quoted(since.toISOString())}` +
+      ` -DumpFolders @(${DUMP_FOLDERS.map(quoted).join(",")}) -Binaries @(${binaries.map(quoted).join(",")})`,
+  );
+}
 
 /**
  * Must match `--remote-debugging-port` in `src-tauri/tauri.e2e.conf.json`. Not the usual 9222:
