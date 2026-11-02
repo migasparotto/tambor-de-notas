@@ -19,7 +19,6 @@ O que mudou em cada versão, para quem usa o app. O texto de cada versão vira a
 ### Correções
 
 - Se o arquivo das cores estiver quebrado, o app abre com as cores padrão, avisa e não o sobrescreve.
-- Uma cor que saía do tambor sem nota ativa sumia, sem caminho de volta. Agora ela fica na lista, com "sem notas ativas".
 - O roxo ficou um pouco mais claro, para o texto do painel continuar legível.
 
 ### Instalação
