@@ -18,6 +18,14 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - name: Keep the output of the tests
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-output-ubuntu
+          path: test-output/
+          if-no-files-found: ignore
+          retention-days: 14
 
   e2e:
     runs-on: windows-latest
@@ -71,3 +79,11 @@ jobs:
         working-directory: src-tauri
       - run: cargo test --locked
         working-directory: src-tauri
+      - name: Keep the output of the tests
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-output-windows
+          path: test-output/
+          if-no-files-found: ignore
+          retention-days: 14
