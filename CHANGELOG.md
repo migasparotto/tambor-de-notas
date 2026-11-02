@@ -4,6 +4,8 @@ O que mudou em cada versão, para quem usa o app. O texto de cada versão vira a
 
 ## Não lançado
 
+## [0.4.0] - 2026-11-02
+
 ### Novidades
 
 - **Outro lado do tambor:** o botão "+" gira o tambor meia volta, com o som da catraca, até uma câmara vazia, e de volta. Um atalho de cor volta para a frente. O clique não tira o teclado do vídeo nem da nota.
@@ -19,6 +21,10 @@ O que mudou em cada versão, para quem usa o app. O texto de cada versão vira a
 - Se o arquivo das cores estiver quebrado, o app abre com as cores padrão, avisa e não o sobrescreve.
 - Uma cor que saía do tambor sem nota ativa sumia, sem caminho de volta. Agora ela fica na lista, com "sem notas ativas".
 - O roxo ficou um pouco mais claro, para o texto do painel continuar legível.
+
+### Instalação
+
+Baixe o `Tambor.de.Notas_0.4.0_x64-setup.exe` abaixo e instale por cima da v0.3.0. As notas e as configurações continuam onde estão, e as quatro cores ficam nos mesmos lugares.
 
 ## [0.3.0] - 2026-11-01
 
