@@ -41,6 +41,8 @@ describe("Notebook colors on the real disk", () => {
     await notebook.load();
     return notebook;
   };
+  const offDrumSummary = (notebook: Notebook) =>
+    notebook.offDrumColors().map(({ color, noteTitle }) => ({ id: color.id, noteTitle }));
   const colorIdOf = (result: ReturnType<Notebook["createColor"]>) => {
     if (!result.ok) throw new Error(result.error);
     return result.colorId;
@@ -68,29 +70,56 @@ describe("Notebook colors on the real disk", () => {
     const notebook = await openApp();
     notebook.edit(RED, "# Aula\ntexto");
     await notebook.flush();
+    // The edge: with every color on the drum, nothing is listed.
     expect(notebook.offDrumColors()).toEqual([]);
 
     notebook.createColor(DOUBT, RED_CHAMBER);
     await notebook.flush();
 
     const reopened = await openApp();
-    expect(reopened.offDrumColors().map((color) => color.id)).toEqual([RED]);
+    expect(offDrumSummary(reopened)).toEqual([{ id: RED, noteTitle: "Aula" }]);
     expect(reopened.text(RED)).toBe("# Aula\ntexto");
   });
 
-  it("does not list a color that left the drum without an active note", async () => {
+  it("lists a color that left the drum without an active note, also after reopening", async () => {
     const notebook = await openApp();
     notebook.createColor(DOUBT, RED_CHAMBER);
     await notebook.flush();
-    expect(notebook.offDrumColors()).toEqual([]);
+    expect(offDrumSummary(notebook)).toEqual([{ id: RED, noteTitle: null }]);
+    expect(offDrumSummary(await openApp())).toEqual([{ id: RED, noteTitle: null }]);
   });
 
-  it("stops listing a color off the drum once its note is closed", async () => {
+  it("keeps the tone of a color off the drum reserved, even without a note", async () => {
+    const notebook = await openApp();
+    notebook.createColor(DOUBT, RED_CHAMBER);
+    await notebook.flush();
+    const { hex } = INITIAL_COLORS.find(({ id }) => id === RED)!;
+    expect(notebook.availableTones()).not.toContain(hex);
+  });
+
+  it("puts back a color without a note, and the one there goes to the list", async () => {
+    const notebook = await openApp();
+    const colorId = colorIdOf(notebook.createColor(DOUBT, RED_CHAMBER));
+    await notebook.flush();
+    expect(notebook.putInChamber(RED, RED_CHAMBER)).toBe(true);
+    await notebook.flush();
+    expect(offDrumSummary(notebook)).toEqual([{ id: colorId, noteTitle: null }]);
+  });
+
+  it("lists a note without a title as an empty title, not as no note", async () => {
+    const notebook = await openApp();
+    notebook.edit(RED, "\ntexto com a primeira linha vazia");
+    notebook.createColor(DOUBT, RED_CHAMBER);
+    await notebook.flush();
+    expect(offDrumSummary(notebook)).toEqual([{ id: RED, noteTitle: "" }]);
+  });
+
+  it("keeps listing a color off the drum once its note is closed, now without a note", async () => {
     const notebook = await openApp();
     notebook.edit(RED, "# Aula");
     notebook.createColor(DOUBT, RED_CHAMBER);
     await notebook.close(RED);
-    expect(notebook.offDrumColors()).toEqual([]);
+    expect(offDrumSummary(notebook)).toEqual([{ id: RED, noteTitle: null }]);
   });
 
   it("puts a color back in a chamber after reopening, and its note returns with it", async () => {
@@ -107,7 +136,7 @@ describe("Notebook colors on the real disk", () => {
     expect(reopened.resolvedColors().chambers[RED_CHAMBER]).toBe(RED);
     expect(reopened.text(RED)).toBe("# Aula\ntexto");
     // The color that was there goes to the other side, and loses nothing.
-    expect(reopened.offDrumColors().map((color) => color.id)).toEqual([colorId]);
+    expect(offDrumSummary(reopened)).toEqual([{ id: colorId, noteTitle: "Dúvida" }]);
     expect(reopened.text(colorId)).toBe("# Dúvida\ntexto");
   });
 

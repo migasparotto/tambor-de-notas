@@ -113,10 +113,7 @@ export function editColor(
   };
 }
 
-/** The colors off the drum that have an active note: the ones listed on the drum's other side. */
-export function offDrumColorsWithNote(
-  { colors, chambers }: ResolvedColors,
-  hasNote: (colorId: string) => boolean,
-): NoteColor[] {
-  return colors.filter((color) => !chambers.includes(color.id) && hasNote(color.id));
+/** The colors off the drum, with or without notes: the ones listed on the drum's other side. */
+export function offDrumColors({ colors, chambers }: ResolvedColors): NoteColor[] {
+  return colors.filter((color) => !chambers.includes(color.id));
 }

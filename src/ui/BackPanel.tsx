@@ -2,12 +2,13 @@ import { useState, type FormEvent } from "react";
 import { NEUTRAL_TONE, PANEL_BASE, type NoteColor } from "../domain/chambers";
 import type { ColorFields } from "../domain/colorRules";
 import type { Rect } from "../domain/drum";
+import type { OffDrumColor } from "../domain/notebook";
 
 interface BackPanelProps {
   /** Where the panel appears, inside the window. */
   rect: Rect;
-  /** The colors off the drum that have an active note. */
-  offDrumColors: NoteColor[];
+  /** The colors off the drum, with or without notes. */
+  offDrumColors: OffDrumColor[];
   /** The palette tones a new color can use. */
   tones: string[];
   /** The color in each chamber of the front (null = empty). */
@@ -55,7 +56,7 @@ function ChamberChoice(props: {
   );
 }
 
-/** What the empty chamber opens: the notes of the colors off the drum, and adding a new color. */
+/** What the empty chamber opens: the colors off the drum with their notes, and a new color. */
 export function BackPanel(props: BackPanelProps) {
   const { rect, offDrumColors, tones, chambers } = props;
   const [creating, setCreating] = useState(false);
@@ -118,35 +119,43 @@ export function BackPanel(props: BackPanelProps) {
       {!creating && !placing && (
         <>
           {offDrumColors.length === 0 ? (
-            <p className="m-0 text-[13px] text-white/60">Nenhuma nota ativa fora do tambor.</p>
+            <p className="m-0 text-[13px] text-white/60">Nenhuma cor fora do tambor.</p>
           ) : (
-            <ul aria-label="Notas fora do tambor" className="m-0 flex list-none flex-col gap-1 p-0">
-              {offDrumColors.map((color) => (
-                <li key={color.id} className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => props.onOpenColor(color.id)}
-                    className={`${button} flex min-w-0 flex-1 items-center gap-2 text-left font-normal`}
-                  >
+            <ul aria-label="Cores fora do tambor" className="m-0 flex list-none flex-col gap-2 p-0">
+              {offDrumColors.map(({ color, noteTitle }) => (
+                <li key={color.id} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
                     <span
                       aria-hidden="true"
                       className="size-3 shrink-0 rounded-full"
                       style={{ background: color.hex }}
                     />
-                    <span className="truncate">
+                    <span className="min-w-0 flex-1 truncate text-[13px] text-white">
                       {color.name} · {color.role}
                     </span>
-                  </button>
-                  {/* A note's unknown color has no tone to go on the drum. */}
-                  {color.hex !== NEUTRAL_TONE && (
+                    {/* A note's unknown color has no tone to go on the drum. */}
+                    {color.hex !== NEUTRAL_TONE && (
+                      <button
+                        type="button"
+                        title={`Pôr ${color.name} numa câmara`}
+                        aria-label={`Pôr ${color.name} numa câmara`}
+                        onClick={() => setPlacing(color)}
+                        className={`${button} shrink-0 px-2 font-normal`}
+                      >
+                        ↩
+                      </button>
+                    )}
+                  </div>
+                  {noteTitle === null ? (
+                    <p className="m-0 pl-5 text-[12px] text-white/60">sem notas ativas</p>
+                  ) : (
                     <button
                       type="button"
-                      title={`Pôr ${color.name} numa câmara`}
-                      aria-label={`Pôr ${color.name} numa câmara`}
-                      onClick={() => setPlacing(color)}
-                      className={`${button} shrink-0 px-2 font-normal`}
+                      aria-label={`Abrir a nota de ${color.name}`}
+                      onClick={() => props.onOpenColor(color.id)}
+                      className={`${button} ml-5 truncate text-left font-normal`}
                     >
-                      ↩
+                      {noteTitle || "Sem título"}
                     </button>
                   )}
                 </li>

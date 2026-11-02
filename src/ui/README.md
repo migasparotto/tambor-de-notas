@@ -10,7 +10,7 @@ O que aparece na tela: tambor, editor, botões, lista de notas, configurações.
 - `App.tsx`: junta tambor, painel e caderno.
 - `Drum.tsx`: o tambor (câmaras tingidas e enchendo, relógio, stop, "+").
 - `NotePanel.tsx`: o painel bolha (nasce na câmara, cresce ao lado do tambor, expande, recolhe, fecha a nota).
-- `BackPanel.tsx`: o que a câmara vazia abre, no outro lado do tambor: as notas das cores fora do tambor e a cor nova.
+- `BackPanel.tsx`: o que a câmara vazia abre, no outro lado do tambor: as cores fora do tambor, com as notas delas, e a cor nova.
 - `ColorHeader.tsx`: o rótulo da nota aberta: o círculo troca o tom da cor, e o texto edita o nome e a função.
 - `NoteEditor.tsx`: o editor das notas (CodeMirror 6). Recebe `text` (o Markdown) e avisa `onChange`.
 - `editor/`: regras de edição (`# ` no título, `+texto+` → `## texto`, Ctrl+B/Ctrl+I) e o live preview (esconder símbolos e formatar), com testes que rodam sem abrir janela.
