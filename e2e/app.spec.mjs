@@ -20,6 +20,8 @@ const EDITOR = ".cm-content";
 const PLUS = 'button[aria-label="Girar para o outro lado"]';
 const CHAMBERS = "[data-drum-side]";
 const BACK_CHAMBER = "[data-back-chamber]";
+const EDIT_TEXT = 'button[aria-label="Editar o nome e a função da cor"]';
+const COLOR_NAME = 'input[aria-label="Nome da cor"]';
 const BACK_PANEL = 'section[aria-label="Outro lado do tambor"]';
 const OFF_DRUM_LIST = 'ul[aria-label="Notas fora do tambor"]';
 /** How long until the shortcuts are registered, after the drum appears. */
@@ -76,6 +78,13 @@ const DOUBT_IN_RED_CHAMBER = { name: "Dúvida", role: "Perguntas", hex: "#C9832B
 /** An active note's file, of a color. */
 const noteOfColor = (color) =>
   `---\nid: "e2e-${color}"\ntitle: "Antiga"\ncolor: "${color}"\nsubject: ""\ncreatedAt: "2026-10-01T10:00:00.000Z"\nupdatedAt: "2026-10-01T10:00:00.000Z"\n---\n# Antiga\ntexto`;
+
+/** Replaces a field's text by typing. `setValue` would make it lose focus, which saves the edit. */
+async function typeInto(selector, text) {
+  await $(selector).click();
+  await browser.keys(["Control", "a"]);
+  await browser.keys([...text]);
+}
 
 /** The button of a color in the list of notes off the drum. */
 const offDrumButton = (name) =>
@@ -298,6 +307,44 @@ describe("Tambor de Notas, o app de verdade", () => {
     await $(BACK_CHAMBER).click();
     await $(BACK_PANEL).waitForExist();
     expect(await $(OFF_DRUM_LIST).isExisting()).toBe(false);
+  });
+
+  it("edits the name, role and tone in the header of the open note", async () => {
+    await startApp();
+    await $(RED).click();
+    await $(RED_PANEL).waitForExist();
+    await writeNote("Física", "Nota da cor");
+    const file = `${month()} vermelho - Nota da cor.md`;
+    await waitForNoteFile("ativas", file);
+
+    // A name in use is refused, and Esc cancels without collapsing the note.
+    await $(EDIT_TEXT).click();
+    await typeInto(COLOR_NAME, "Azul");
+    await browser.keys("Enter");
+    await $('[role="alert"]').waitForExist();
+    await browser.keys("Escape");
+    await $(COLOR_NAME).waitForExist({ reverse: true });
+    expect(await $(RED_PANEL).isExisting()).toBe(true);
+
+    await $(EDIT_TEXT).click();
+    await typeInto(COLOR_NAME, "Núcleo");
+    await typeInto('input[aria-label="Função da cor"]', "Estudo de hoje");
+    await browser.keys("Enter");
+    await $('[aria-label="Nota Núcleo"]').waitForExist();
+    await expect($(EDIT_TEXT)).toHaveText("ESTUDO DE HOJE");
+    expect(notesIn("ativas")).toEqual([file]);
+
+    // Only the free tones and its own: the blue is in use.
+    await $('button[aria-label="Trocar o tom da cor"]').click();
+    expect(await $('button[aria-label="Tom #2F6FD6"]').isExisting()).toBe(false);
+    expect(await $('button[aria-label="Tom #D64545"]').isExisting()).toBe(true);
+    await $('button[aria-label="Tom #C9832B"]').click();
+    await browser.waitUntil(() => {
+      const saved = JSON.parse(readFileSync(join(APP_DATA_DIR, "cores.json"), "utf8"));
+      return saved.red.name === "Núcleo" && saved.red.hex === "#C9832B";
+    });
+    const border = await $('button[aria-label^="Núcleo"]').getCSSProperty("border-top-color");
+    expect(border.parsed.hex).toBe("#c9832b");
   });
 
   it("draws a chamber with no color as a dashed circle", async () => {

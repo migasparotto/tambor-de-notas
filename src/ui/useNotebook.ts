@@ -44,8 +44,14 @@ export function useNotebook(
     colors: () => notebook.resolvedColors(),
     /** The colors off the drum that have an active note. */
     offDrumColors: () => notebook.offDrumColors(),
-    /** The palette tones a new color can use. */
-    availableTones: () => notebook.availableTones(),
+    /** The palette tones a new color, or this color, can use. */
+    availableTones: (colorId?: string) => notebook.availableTones(colorId),
+    /** Changes a color; returns why it was refused, or null. */
+    editColor: (colorId: string, changes: Partial<ColorFields>) => {
+      const problem = notebook.editColor(colorId, changes);
+      redraw();
+      return problem;
+    },
     createColor: (fields: ColorFields, chamber: number) => {
       const result = notebook.createColor(fields, chamber);
       redraw();

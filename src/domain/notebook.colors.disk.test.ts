@@ -120,6 +120,41 @@ describe("Notebook colors on the real disk", () => {
     expect(notebook.resolvedColors()).toEqual(before);
   });
 
+  it("keeps the edited name, role and tone after reopening, for the notes of the color", async () => {
+    const notebook = await openApp();
+    notebook.edit(RED, "# Aula\ntexto");
+    await notebook.flush();
+    const changes = { name: "Núcleo", role: "Estudo", hex: AMBER };
+    expect(notebook.editColor(RED, changes)).toBeNull();
+    await notebook.flush();
+
+    const reopened = await openApp();
+    const color = reopened.resolvedColors().colors.find(({ id }) => id === RED);
+    expect(color).toMatchObject(changes);
+    expect(reopened.text(RED)).toBe("# Aula\ntexto");
+  });
+
+  it("frees the old tone of an edited color, and offers a color its own tone", async () => {
+    const notebook = await openApp();
+    const { hex } = INITIAL_COLORS.find(({ id }) => id === RED)!;
+    expect(notebook.availableTones()).not.toContain(hex);
+    expect(notebook.availableTones(RED)).toContain(hex);
+    notebook.editColor(RED, { hex: AMBER });
+    await notebook.flush();
+    expect(notebook.availableTones()).toContain(hex);
+    expect(notebook.availableTones()).not.toContain(AMBER);
+  });
+
+  it("refuses to edit with a repeated name, a tone in use or an unknown color", async () => {
+    const notebook = await openApp();
+    const before = notebook.resolvedColors();
+    const other = INITIAL_COLORS.find(({ id }) => id !== RED)!;
+    expect(notebook.editColor(RED, { name: other.name })).not.toBeNull();
+    expect(notebook.editColor(RED, { hex: other.hex })).not.toBeNull();
+    expect(notebook.editColor("sumiu", { name: "Nova" })).not.toBeNull();
+    expect(notebook.resolvedColors()).toEqual(before);
+  });
+
   it("refuses a repeated name or a tone in use, and changes nothing", async () => {
     const notebook = await openApp();
     const before = notebook.resolvedColors();

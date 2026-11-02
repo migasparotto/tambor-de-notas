@@ -6,6 +6,7 @@ import type { NoteColor } from "./chambers";
 import {
   availableTones,
   createColor,
+  editColor,
   occupyChamber,
   offDrumColorsWithNote,
   type ColorFields,
@@ -167,9 +168,22 @@ export class Notebook {
     return offDrumColorsWithNote(this.resolvedColors(), (colorId) => this.hasNote(colorId));
   }
 
-  /** The palette tones a new color can use. */
-  availableTones(): string[] {
-    return availableTones(this.colorsData);
+  /** The palette tones a new color, or this color, can use. */
+  availableTones(colorId?: string): string[] {
+    return availableTones(this.colorsData, colorId);
+  }
+
+  /**
+   * Changes the name, role or tone of a color and saves `cores.json`. Its notes follow, since
+   * they keep only its id; a note already on disk keeps its file name. Returns why it was
+   * refused, or null.
+   */
+  editColor(colorId: string, changes: Partial<ColorFields>): string | null {
+    const edited = editColor(this.colorsData, colorId, changes);
+    if (!edited.ok) return edited.error;
+    this.colorsData = edited.data;
+    void this.run(() => this.saveColors());
+    return null;
   }
 
   /**
