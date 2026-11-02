@@ -3,6 +3,16 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      page_heap:
+        description: "Run the e2e with full page heap on tambor-de-notas.exe (stops at a bad memory write)"
+        type: boolean
+        default: false
+      e2e_args:
+        description: "Extra arguments for WebdriverIO (e.g. a spec that does not exist, to check that a failure keeps its evidence)"
+        type: string
+        default: ""
 
 jobs:
   check:
@@ -43,7 +53,37 @@ jobs:
           workspaces: src-tauri
 
       - run: npm ci
-      - run: npm run e2e
+      - run: npm run e2e:build
+
+      # If the app crashes, Windows writes a full dump here; a failed run keeps it (e2e/run.mjs,
+      # with scripts/windows/collect-evidence.ps1) together with the .pdb of this same build.
+      - name: Turn on crash dumps of the app
+        shell: pwsh
+        run: |
+          $dumps = Join-Path $env:RUNNER_TEMP "dumps"
+          New-Item -ItemType Directory -Path $dumps -Force | Out-Null
+          $key = "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\tambor-de-notas.exe"
+          New-Item -Path $key -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpFolder -PropertyType ExpandString -Value $dumps -Force | Out-Null
+          New-ItemProperty -Path $key -Name DumpType -PropertyType DWord -Value 2 -Force | Out-Null
+          "TAMBOR_DUMPS=$dumps" >> $env:GITHUB_ENV
+
+      # Full page heap: every allocation gets a guard page, so a bad memory write crashes the app
+      # at the very spot, and the dump shows who did it. Only when asked, until its cost is measured.
+      - name: Turn on page heap for the app
+        if: inputs.page_heap
+        shell: pwsh
+        run: |
+          $key = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\tambor-de-notas.exe"
+          New-Item -Path $key -Force | Out-Null
+          New-ItemProperty -Path $key -Name GlobalFlag -PropertyType DWord -Value 0x02000000 -Force | Out-Null
+          New-ItemProperty -Path $key -Name PageHeapFlags -PropertyType DWord -Value 3 -Force | Out-Null
+
+      - name: Run the e2e tests
+        shell: pwsh
+        env:
+          E2E_ARGS: ${{ inputs.e2e_args }}
+        run: node e2e/run.mjs $env:E2E_ARGS
       - name: Keep the evidence of a failure
         if: failure()
         uses: actions/upload-artifact@v7

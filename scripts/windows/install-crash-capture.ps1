@@ -27,10 +27,12 @@ $dumps = Join-Path $destination "dumps"
 $scriptFolder = Join-Path $env:ProgramFiles "Tambor de Notas (quedas)"
 $script = Join-Path $scriptFolder "capture-crash.ps1"
 
-# 1. The folder, and a copy of the capture script, so the task does not depend on where the repository is.
+# 1. The folder, and a copy of the capture scripts, so the task does not depend on where the repository is.
 New-Item -ItemType Directory -Path $dumps -Force | Out-Null
 New-Item -ItemType Directory -Path $scriptFolder -Force | Out-Null
-Copy-Item -Path (Join-Path $PSScriptRoot "capture-crash.ps1") -Destination $script -Force
+foreach ($name in @("capture-crash.ps1", "collect-evidence.ps1")) {
+  Copy-Item -Path (Join-Path $PSScriptRoot $name) -Destination (Join-Path $scriptFolder $name) -Force
+}
 Write-Host "Pasta das capturas: $destination"
 
 # 2. Full dumps of the app, straight into the folder.
