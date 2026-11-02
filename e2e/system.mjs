@@ -49,7 +49,11 @@ export const DEBUG_ADDRESS = "127.0.0.1:19222";
 export const FAILURES_DIR = join(ROOT, "e2e", "failures");
 /** What the app writes while it runs, for every time it opens in this run. */
 export const APP_LOG = join(FAILURES_DIR, "app.log");
-const APP_READY_ATTEMPTS = 60;
+/**
+ * How long to wait for the app's page. In the CI the WebView2 once took 48 s to start (02/11/2026),
+ * so 30 s was not enough; each opening time is written down to follow the trend.
+ */
+const APP_READY_TIMEOUT_MS = 120_000;
 const APP_READY_WAIT_MS = 500;
 /** The address of the app's page, in the WebView2. */
 const APP_PAGE = "tauri.localhost";
@@ -76,15 +80,18 @@ export async function openE2eApp() {
   const log = openSync(APP_LOG, "a");
   spawn(E2E_APP, { detached: true, stdio: ["ignore", log, log] }).unref();
   closeSync(log);
+  const started = Date.now();
   let targets = null;
-  for (let attempt = 0; attempt < APP_READY_ATTEMPTS; attempt++) {
+  while (Date.now() - started < APP_READY_TIMEOUT_MS) {
     targets = await debugInfo("/json/list");
     if ((targets ?? []).some(({ type, url }) => type === "page" && url.includes(APP_PAGE))) {
+      recordOpeningTime(Date.now() - started);
       const { Browser: browser } = await debugInfo("/json/version");
       return browser.split("/")[1];
     }
     await new Promise((resolve) => setTimeout(resolve, APP_READY_WAIT_MS));
   }
+  recordOpeningTime(null);
   // A hang leaves no crash event: keep the state and a dump of the stuck process.
   dumpHungApp();
   const port =
@@ -94,6 +101,21 @@ export async function openE2eApp() {
   throw new Error(
     `O app de teste abriu, mas a página dele não respondeu (${port}). Estado e dump em e2e/failures/travado.`,
   );
+}
+
+/**
+ * Writes how long the app took to open (null = it never answered) in every run, passing or not:
+ * in the output, in the app log and, in the CI, in the run's summary page.
+ */
+function recordOpeningTime(ms) {
+  const line =
+    ms === null
+      ? `Abertura do app: sem resposta em ${APP_READY_TIMEOUT_MS / 1000} s`
+      : `Abertura do app: ${(ms / 1000).toFixed(1)} s`;
+  console.log(line);
+  appendFileSync(APP_LOG, `${line}\n`);
+  if (process.env.GITHUB_STEP_SUMMARY)
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, `- ${line}\n`);
 }
 
 /** Keeps the state and a full dump of the e2e app when it opens but never answers. */
