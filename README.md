@@ -184,3 +184,7 @@ Copie `.env.example` para `.env` se precisar de configuração local. O arquivo 
 
 - [docs/instrucoes.md](docs/instrucoes.md): visão, decisões técnicas e regras do app
 - [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md): etapas e tarefas
+
+## Licença
+
+[MIT](LICENSE): pode usar, copiar, modificar e distribuir o código, desde que mantenha o aviso de copyright e a licença.
