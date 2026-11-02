@@ -36,7 +36,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 Detalhes deste projeto para a skill `release`:
 
 - **Arquivos de versão:** `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, além dos lockfiles (`package-lock.json` e `src-tauri/Cargo.lock`).
-- **O que o CD gera:** o instalador `.exe` (NSIS), pelo `tauri-action`, anexado a um release em rascunho.
+- **O que o CD gera:** o instalador `.exe` (NSIS), pelo `tauri-action`, anexado a um release em rascunho, e o `tambor_de_notas.pdb` conferido contra o `.exe` e anexado ao mesmo release (e como artifact `simbolos-pdb`). Conferir no rascunho que os dois estão lá.
 - **Teste rápido depois de publicar:** instalar a versão publicada e conferir que o app abre, que o ícone está certo e que uma nota salva.
 
 ## Armadilhas
