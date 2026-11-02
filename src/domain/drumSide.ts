@@ -1,4 +1,9 @@
-import type { CycleEndAnimation } from "./cycleEnd";
+import {
+  ratchetEvents,
+  type CycleEndAnimation,
+  type CycleEndSound,
+  type SoundEvent,
+} from "./cycleEnd";
 
 /** Which side of the drum is showing: the chambers, or the side with the empty chamber. */
 export type DrumSide = "front" | "back";
@@ -11,15 +16,34 @@ export function otherSide(side: DrumSide): DrumSide {
   return side === "front" ? "back" : "front";
 }
 
+/** What the half turn does: the animation time (null = none), the sound and its volume. */
+export interface FlipEffects {
+  durationMs: number | null;
+  sound: SoundEvent[];
+  volume: number;
+}
+
 /**
- * How long the half turn between the sides takes: half of the full turn at the end of a cycle.
- * Null means no animation (the side still changes): with "reduce motion" on in Windows, or
- * with the drum animation turned off in the settings.
+ * The half turn between the sides takes half of the full turn at the end of a cycle, with the
+ * ratchet at the same pace. With "reduce motion" on in Windows, or with the drum animation off
+ * in the settings, the side changes without moving, and the sound still plays. The ratchet is
+ * silent with `cycleEndSound` off or a volume of 0.
  */
-export function flipDurationMs(
-  settings: { cycleEndAnimation: CycleEndAnimation; cycleEndDurationMs: number },
+export function flipEffects(
+  settings: {
+    cycleEndSound: CycleEndSound;
+    cycleEndAnimation: CycleEndAnimation;
+    cycleEndDurationMs: number;
+    soundVolume: number;
+  },
   reduceMotion: boolean,
-): number | null {
-  if (reduceMotion || settings.cycleEndAnimation === "off") return null;
-  return settings.cycleEndDurationMs / 2;
+): FlipEffects {
+  const { cycleEndSound, cycleEndAnimation, cycleEndDurationMs, soundVolume } = settings;
+  const halfTurnMs = cycleEndDurationMs / 2;
+  const silent = cycleEndSound === "off" || soundVolume <= 0;
+  return {
+    durationMs: reduceMotion || cycleEndAnimation === "off" ? null : halfTurnMs,
+    sound: silent ? [] : ratchetEvents(halfTurnMs),
+    volume: soundVolume,
+  };
 }

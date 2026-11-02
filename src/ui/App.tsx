@@ -4,7 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { savePlacement } from "../domain/appData";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
-import { flipDurationMs, otherSide, type DrumSide } from "../domain/drumSide";
+import { flipEffects, otherSide, type DrumSide } from "../domain/drumSide";
 import { fillLevel } from "../domain/noteText";
 import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
 import {
@@ -48,6 +48,9 @@ interface DrumDrag {
   /** How far below the drum center the drum was grabbed. */
   grabOffsetY: number;
 }
+
+/** Whether Windows asks to reduce motion. */
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Makes the window activatable and gives it the keyboard (does nothing outside Tauri). */
 function takeKeyboard(): void {
@@ -122,8 +125,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   }, []);
   /** End of a pomodoro phase: the ratchet sound and the drum spin, as set in the settings. */
   const onPhaseEnd = () => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const effects = cycleEndEffects(settings, reduceMotion);
+    const effects = cycleEndEffects(settings, prefersReducedMotion());
     playSound(effects.sound, effects.volume);
     const animation = effects.animation;
     if (animation) setSpin((previous) => ({ id: (previous?.id ?? 0) + 1, ...animation }));
@@ -161,6 +163,14 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     else setPanel({ colorId, size: panel?.size ?? "normal", open: true });
   };
 
+  /** Shows a side of the drum, with the ratchet of the half turn. */
+  const flipTo = (next: DrumSide) => {
+    if (next === side) return;
+    const { sound, volume } = flipEffects(settings, prefersReducedMotion());
+    playSound(sound, volume);
+    setSide(next);
+  };
+
   /** A global shortcut: play or pause the pomodoro, or open (or put away) a color's note. */
   const onShortcut = (action: ShortcutAction) => {
     if (action === "togglePomodoro") {
@@ -177,7 +187,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     }
     setPanel({ colorId, size: panel?.size ?? "normal", open: true });
     // The chamber it opens is on the front.
-    setSide("front");
+    flipTo("front");
     // The keyboard comes to the app, so typing goes straight into the note.
     takeKeyboard();
   };
@@ -257,11 +267,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           onStopPomodoro={pomodoro.stop}
           spin={spin}
           side={side}
-          flipMs={flipDurationMs(
-            settings,
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-          )}
-          onFlip={() => setSide(otherSide)}
+          flipMs={flipEffects(settings, prefersReducedMotion()).durationMs}
+          onFlip={() => flipTo(otherSide(side))}
           // So it is clear which app is open: this one, or the installed one.
           badge={import.meta.env.DEV ? "DEV" : null}
           grabbed={grabbed}
