@@ -113,6 +113,8 @@ O instalador não tem assinatura digital, então o Windows mostra "O Windows pro
 | `npm run e2e`                | Testa o app de verdade (feche o app antes)        |
 | `cd src-tauri && cargo test` | Roda os testes em Rust                            |
 
+O `npm test` guarda sempre a saída completa em `test-output/saida.txt` (fora do Git), e cada falha também em `test-output/falha-<data>.txt`, para uma rodada seguinte não apagar. No CI, a pasta fica anexada à execução quando algo falha, como os artifacts `test-output-ubuntu` e `test-output-windows`, por 14 dias.
+
 ### Testes de ponta a ponta (e2e)
 
 Os testes em `e2e/` abrem o app de verdade e o controlam com o [WebdriverIO](https://webdriver.io/) e o driver do Edge. **Feche o Tambor de Notas** (instalado e de desenvolvimento) e rode:

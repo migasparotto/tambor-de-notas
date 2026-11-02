@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "app:dev": "tauri dev --config src-tauri/tauri.dev.conf.json",
     "lint": "eslint .",
-    "test": "vitest run",
+    "test": "node scripts/test.mjs",
     "test:watch": "vitest",
     "e2e:build": "node e2e/build.mjs",
     "e2e": "npm run e2e:build && node e2e/run.mjs",
