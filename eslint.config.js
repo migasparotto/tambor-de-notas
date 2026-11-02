@@ -46,5 +46,9 @@ export default tseslint.config(
     extends: [reactHooks.configs.flat.recommended],
   },
   ...layerConfigs,
+  {
+    files: ["e2e/**/*.mjs"],
+    languageOptions: { globals: { ...globals.node, ...globals.mocha } },
+  },
   prettier,
 );

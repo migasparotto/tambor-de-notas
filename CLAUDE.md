@@ -34,7 +34,8 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 - Se o app passar a ter versão para Linux, reabrir o alerta do glib. (Tambor, 01/11/2026)
 - O `overrides` do `minimatch` no `package.json` força a 11.x, fora da faixa que o ESLint pede (`^10`), por causa de um alerta só corrigido na 11. Tirar quando o ESLint aceitar a 11. (Tambor, 01/11/2026)
+- O `overrides` do `glob` no `package.json` força a 14.x, fora da faixa que o WebdriverIO e o Mocha pedem, por causa de um alerta só corrigido na 14.0.2. Tirar quando eles aceitarem. (Tambor, 01/11/2026)
 
 ## Comandos
 
-`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run lint` · `npm run format` · `npm run build`
+`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run e2e` (o app de verdade; fechar o app antes) · `npm run lint` · `npm run format` · `npm run build`

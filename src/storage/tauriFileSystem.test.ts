@@ -105,6 +105,10 @@ describe("notesRootFor", () => {
     expect(notesRootFor(true)).not.toBe(notesRootFor(false));
   });
 
+  it("puts the e2e app's notes in a subfolder of the test notes, never the real ones", () => {
+    expect(notesRootFor(false, true)).toBe(`${notesRootFor(true)}/e2e`);
+  });
+
   it("uses the test folder while developing (and in the tests)", () => {
     expect(NOTES_ROOT).toBe(notesRootFor(true));
   });

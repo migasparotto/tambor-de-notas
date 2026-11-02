@@ -148,6 +148,7 @@ export function Drum({
             return (
               <span
                 key={`empty-${i}`}
+                data-empty-chamber
                 aria-hidden="true"
                 className="rounded-full"
                 style={{
