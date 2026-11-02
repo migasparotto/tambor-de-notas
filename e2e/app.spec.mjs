@@ -23,7 +23,7 @@ const BACK_CHAMBER = "[data-back-chamber]";
 const EDIT_TEXT = 'button[aria-label="Editar o nome e a função da cor"]';
 const COLOR_NAME = 'input[aria-label="Nome da cor"]';
 const BACK_PANEL = 'section[aria-label="Outro lado do tambor"]';
-const OFF_DRUM_LIST = 'ul[aria-label="Notas fora do tambor"]';
+const OFF_DRUM_LIST = 'ul[aria-label="Cores fora do tambor"]';
 /** How long until the shortcuts are registered, after the drum appears. */
 const SHORTCUTS_READY_MS = 1500;
 /** Longer than a notice stays on the screen. */
@@ -87,8 +87,7 @@ async function typeInto(selector, text) {
 }
 
 /** The button of a color in the list of notes off the drum. */
-const offDrumButton = (name) =>
-  $(`//ul[@aria-label="Notas fora do tambor"]//button[contains(., "${name}")]`);
+const offDrumButton = (name) => $(`button[aria-label="Abrir a nota de ${name}"]`);
 
 describe("Tambor de Notas, o app de verdade", () => {
   it("shows the drum with the colors of cores.json", async () => {
@@ -285,8 +284,22 @@ describe("Tambor de Notas, o app de verdade", () => {
 
     await openBackPanel();
     await offDrumButton("Dúvida").waitForExist();
-    expect(await offDrumButton("Vermelho").isExisting()).toBe(false);
+    expect(await $('button[aria-label="Pôr Vermelho numa câmara"]').isExisting()).toBe(false);
     expect(notesIn("ativas")).toHaveLength(2);
+  });
+
+  it("lists a color off the drum without a note, and it can go back to a chamber", async () => {
+    await startApp(() =>
+      writeColorsFile(JSON.stringify({ red: { chamber: null }, duvida: DOUBT_IN_RED_CHAMBER })),
+    );
+    await openBackPanel();
+    await expect($(OFF_DRUM_LIST)).toHaveText(expect.stringContaining("sem notas ativas"));
+    expect(await offDrumButton("Vermelho").isExisting()).toBe(false);
+
+    await $('button[aria-label="Pôr Vermelho numa câmara"]').click();
+    await $(`//section[@aria-label="Outro lado do tambor"]//button[contains(., "Dúvida")]`).click();
+    await $(RED).waitForExist();
+    expect(await $('button[aria-label^="Dúvida"]').isExisting()).toBe(false);
   });
 
   it("closes the note of an unknown color from the other side, and it leaves the list", async () => {

@@ -6,7 +6,7 @@ import {
   createColor,
   editColor,
   occupyChamber,
-  offDrumColorsWithNote,
+  offDrumColors,
   type ColorFields,
 } from "./colorRules";
 
@@ -153,17 +153,14 @@ describe("editColor", () => {
   });
 });
 
-describe("offDrumColorsWithNote", () => {
-  it("lists only colors off the drum that have an active note", () => {
-    const { data, colorId } = created({}, fields, 0);
-    const third = INITIAL_COLORS[2]!;
-    const withNote = new Set([first.id, third.id, colorId]);
-    const offDrum = offDrumColorsWithNote(resolveColors(data), (id) => withNote.has(id));
+describe("offDrumColors", () => {
+  it("lists only the colors off the drum", () => {
+    const { data } = created({}, fields, 0);
+    const offDrum = offDrumColors(resolveColors(data));
     expect(offDrum.map((color) => color.id)).toEqual([first.id]);
   });
 
-  it("leaves out a color off the drum without an active note", () => {
-    const { data } = created({}, fields, 0);
-    expect(offDrumColorsWithNote(resolveColors(data), () => false)).toEqual([]);
+  it("is empty when every color is on the drum", () => {
+    expect(offDrumColors(resolveColors({}))).toEqual([]);
   });
 });

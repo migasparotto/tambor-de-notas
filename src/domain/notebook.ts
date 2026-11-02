@@ -8,7 +8,7 @@ import {
   createColor,
   editColor,
   occupyChamber,
-  offDrumColorsWithNote,
+  offDrumColors,
   type ColorFields,
 } from "./colorRules";
 import {
@@ -50,6 +50,12 @@ export const COLORS_BLOCKED_MESSAGE =
 /** The notice shown for a note whose color is not in `cores.json`. */
 export function unknownColorMessage(colorId: string): string {
   return `Há uma nota da cor "${colorId}", que não está no cores.json. Ela abre com uma cor neutra, e nada foi alterado.`;
+}
+
+/** A color off the drum, and the title of its active note (null = no active note). */
+export interface OffDrumColor {
+  color: NoteColor;
+  noteTitle: string | null;
 }
 
 /** Where the colors data (`cores.json`) is read and saved. */
@@ -163,9 +169,12 @@ export class Notebook {
     return { colors: [...colors, ...unknown], chambers };
   }
 
-  /** The colors off the drum that have an active note, listed on the drum's other side. */
-  offDrumColors(): NoteColor[] {
-    return offDrumColorsWithNote(this.resolvedColors(), (colorId) => this.hasNote(colorId));
+  /** The colors off the drum, with or without notes, listed on the drum's other side. */
+  offDrumColors(): OffDrumColor[] {
+    return offDrumColors(this.resolvedColors()).map((color) => ({
+      color,
+      noteTitle: this.hasNote(color.id) ? titleOf(this.text(color.id)) : null,
+    }));
   }
 
   /** The palette tones a new color, or this color, can use. */
