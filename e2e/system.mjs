@@ -76,15 +76,39 @@ export async function openE2eApp() {
   const log = openSync(APP_LOG, "a");
   spawn(E2E_APP, { detached: true, stdio: ["ignore", log, log] }).unref();
   closeSync(log);
+  let targets = null;
   for (let attempt = 0; attempt < APP_READY_ATTEMPTS; attempt++) {
-    const targets = (await debugInfo("/json/list")) ?? [];
-    if (targets.some(({ type, url }) => type === "page" && url.includes(APP_PAGE))) {
+    targets = await debugInfo("/json/list");
+    if ((targets ?? []).some(({ type, url }) => type === "page" && url.includes(APP_PAGE))) {
       const { Browser: browser } = await debugInfo("/json/version");
       return browser.split("/")[1];
     }
     await new Promise((resolve) => setTimeout(resolve, APP_READY_WAIT_MS));
   }
-  throw new Error("O app de teste abriu, mas a página dele não respondeu na porta de depuração.");
+  // A hang leaves no crash event: keep the state and a dump of the stuck process.
+  dumpHungApp();
+  const port =
+    targets === null
+      ? "a porta de depuração nem respondeu"
+      : `a porta respondeu com ${targets.length} alvo(s), sem a página do app`;
+  throw new Error(
+    `O app de teste abriu, mas a página dele não respondeu (${port}). Estado e dump em e2e/failures/travado.`,
+  );
+}
+
+/** Keeps the state and a full dump of the e2e app when it opens but never answers. */
+function dumpHungApp() {
+  const script = join(ROOT, "scripts", "windows", "dump-hung-app.ps1");
+  try {
+    powershell(
+      `& ${quoted(script)} -ExePath ${quoted(E2E_APP)} -Folder ${quoted(join(FAILURES_DIR, "travado"))}`,
+    );
+  } catch (error) {
+    writeFileSync(
+      join(FAILURES_DIR, "travado.txt"),
+      `Não consegui guardar o estado do app travado: ${error}\n`,
+    );
+  }
 }
 
 /** Closes the e2e app, if open. Only runs after checking no other copy of the app is open. */
