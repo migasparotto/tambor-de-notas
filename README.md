@@ -6,7 +6,7 @@ App desktop de anotações rápidas para usar durante aulas e estudos. Ele captu
 
 A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmaras ao redor são as cores de nota (cada cor indica uma função: glossário, núcleo de estudo, exemplo, tarefa) e as integrações (Notion, Todoist e IA).
 
-> Projeto em desenvolvimento — a **Etapa 1 (MVP utilizável)** está concluída e o instalador do Windows está em [Releases](https://github.com/migasparotto/tambor-de-notas/releases). Atualmente na **Etapa 2 (Organização)**, com as sprints S1 (janela) e S2 (assunto) concluídas. O que mudou em cada versão está no [CHANGELOG.md](CHANGELOG.md). Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
+> Projeto em desenvolvimento — a **Etapa 1 (MVP utilizável)** está concluída e o instalador do Windows está em [Releases](https://github.com/migasparotto/tambor-de-notas/releases). Atualmente na **Etapa 2 (Organização)**, com as sprints S1 (janela), S2 (assunto) e S3 (outro lado do tambor) concluídas. O que mudou em cada versão está no [CHANGELOG.md](CHANGELOG.md). Veja [docs/etapas-e-backlog.md](docs/etapas-e-backlog.md).
 
 ## O que já funciona
 
@@ -14,7 +14,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - **Arraste o tambor** pelo anel ou pelo centro (fora dos botões): segure o botão parado por um instante (0,3 s) até o anel ganhar um contorno claro e o cursor virar a mão fechada, e então mova para cima, para baixo ou para a borda esquerda. Um clique, mesmo tremido, nunca arrasta. Ele fica na borda do lado da tela onde você soltar e, na esquerda, aparece espelhado, com o painel abrindo para a direita. O app lembra onde ele ficou.
 - Os **cantos vazios** da janela, fora do círculo do tambor, deixam o clique passar para o que está atrás (o vídeo).
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
-- Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo gira o tambor meia volta, com a catraca, para o outro lado, onde há uma câmara vazia, e de volta. Um atalho de cor volta para a frente.
+- Tem 7 câmaras: quatro de cores de nota (de início, azul, vermelho, verde e roxo) e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo gira o tambor meia volta, com a catraca, para o outro lado, onde há uma câmara vazia, e de volta. Um atalho de cor volta para a frente.
 - **Editar uma cor:** no cabeçalho da nota aberta, o círculo troca o tom (só os tons livres da paleta), e o texto edita o nome e a função. Enter salva e Esc cancela. O tom vale para todas as notas da cor, e as notas já salvas mantêm o nome do arquivo.
 - **Câmara vazia:** lista as cores que estão fora do tambor, com ou sem notas, com a nota ativa embaixo de cada uma, para continuar, e deixa criar uma **cor nova** (nome, função e tom da paleta). A cor nova toma o lugar da câmara da frente que você escolher, e a nota dela já abre, com o cursor no assunto. A cor que saiu não é apagada: a nota ativa dela continua na câmara vazia, e o botão ↩ da lista põe a cor de volta numa câmara que você escolher (a cor que estava lá vai para o outro lado, sem perder nada).
 - **Notas** (uma nota ativa por cor):
