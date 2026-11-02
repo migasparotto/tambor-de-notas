@@ -50,7 +50,11 @@ Get-WinEvent -FilterHashtable @{ LogName = "Microsoft-Windows-CodeIntegrity/Oper
 
 # 3. The Windows Error Reporting reports of the app (they hold the module and the exception code).
 $werDestination = Join-Path $folder "wer"
-foreach ($root in @("$env:ProgramData\Microsoft\Windows\WER\ReportArchive", "$env:ProgramData\Microsoft\Windows\WER\ReportQueue")) {
+$werRoots = foreach ($base in @("$env:ProgramData\Microsoft\Windows\WER", "$UserLocalAppData\Microsoft\Windows\WER")) {
+  "$base\ReportArchive"
+  "$base\ReportQueue"
+}
+foreach ($root in $werRoots) {
   Get-ChildItem -Path $root -Directory -ErrorAction SilentlyContinue |
     Where-Object { $_.Name -like "*tambor-de-notas*" -and $_.LastWriteTime -gt (Get-Date).AddHours(-2) } |
     ForEach-Object {

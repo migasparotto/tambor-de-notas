@@ -5,7 +5,8 @@
 #   powershell -ExecutionPolicy Bypass -File scripts\windows\install-crash-capture.ps1 -Test
 #
 # What it changes on the computer (undo with uninstall-crash-capture.ps1):
-#   1. A folder outside the repository: %LOCALAPPDATA%\Tambor de Notas (quedas).
+#   1. A folder outside the repository: %LOCALAPPDATA%\Tambor de Notas (quedas), and the
+#      capture script in %ProgramFiles%\Tambor de Notas (quedas).
 #   2. Windows writes a full dump of tambor-de-notas.exe there when it crashes
 #      (Windows Error Reporting "LocalDumps", keeping the last 3).
 #   3. The CodeIntegrity/Operational log grows from 1 MB to 20 MB, so it stops erasing
@@ -21,10 +22,14 @@ $app = "tambor-de-notas.exe"
 $taskName = "Tambor de Notas - capturar queda"
 $destination = Join-Path $env:LOCALAPPDATA "Tambor de Notas (quedas)"
 $dumps = Join-Path $destination "dumps"
-$script = Join-Path $destination "capture-crash.ps1"
+# The task runs this script as SYSTEM, so it lives where only administrators can change it:
+# a copy in the user's folder could be edited by any program of the user to run as SYSTEM.
+$scriptFolder = Join-Path $env:ProgramFiles "Tambor de Notas (quedas)"
+$script = Join-Path $scriptFolder "capture-crash.ps1"
 
 # 1. The folder, and a copy of the capture script, so the task does not depend on where the repository is.
 New-Item -ItemType Directory -Path $dumps -Force | Out-Null
+New-Item -ItemType Directory -Path $scriptFolder -Force | Out-Null
 Copy-Item -Path (Join-Path $PSScriptRoot "capture-crash.ps1") -Destination $script -Force
 Write-Host "Pasta das capturas: $destination"
 
@@ -93,8 +98,16 @@ if ($Test) {
     Start-Sleep -Seconds 5
     $after = @(Get-ChildItem -Path $destination -Directory -Filter "queda-*" -ErrorAction SilentlyContinue).Count
   } while ($after -le $before -and (Get-Date) -lt $deadline)
-  if ($after -gt $before) {
-    Write-Host "OK: a captura apareceu em $destination." -ForegroundColor Green
+  # The task may have started without managing to export anything, so check the files too.
+  $newest = Get-ChildItem -Path $destination -Directory -Filter "queda-*" -ErrorAction SilentlyContinue |
+    Sort-Object Name -Descending | Select-Object -First 1
+  $expected = @("Aplicativo.evtx", "Sistema.evtx", "CodeIntegrity.evtx", "resumo.txt")
+  $missing = @($expected | Where-Object { $newest -and -not (Test-Path (Join-Path $newest.FullName $_)) })
+  if ($after -gt $before -and $missing.Count -eq 0) {
+    Write-Host "OK: a captura apareceu em $($newest.FullName), com $($expected -join ', ')." -ForegroundColor Green
+  } elseif ($after -gt $before) {
+    Write-Host "A captura apareceu em $($newest.FullName), mas sem: $($missing -join ', '). Veja $destination\capturas.log." -ForegroundColor Red
+    exit 1
   } else {
     Write-Host "A captura não apareceu. Veja o histórico da tarefa no Agendador e $destination\capturas.log." -ForegroundColor Red
     exit 1
