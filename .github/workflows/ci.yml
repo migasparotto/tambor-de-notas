@@ -10,9 +10,9 @@ on:
         type: boolean
         default: false
       defender_exclusion:
-        description: "Exclude the build folder from Microsoft Defender on the runner (off: to compare the app's opening time)"
+        description: "Exclude the build folder from Microsoft Defender on the runner (to compare the app's opening time)"
         type: boolean
-        default: true
+        default: false
       e2e_args:
         description: "Extra arguments for WebdriverIO (e.g. a spec that does not exist, to check that a failure keeps its evidence)"
         type: string
@@ -56,10 +56,10 @@ jobs:
         with:
           workspaces: src-tauri
 
-      # Only on the CI runner, never on a person's computer: the freshly built .exe is unknown to
-      # Defender, which may hold it while it asks the cloud (suspected cause of the slow opening).
+      # Only on the CI runner, never on a person's computer, and only when asked: on 02/11/2026 it did
+      # not make the app open faster (57.9 s with it), so Defender is not the cause of the slow opening.
       - name: Exclude the build folder from Defender (CI runner only)
-        if: github.event_name != 'workflow_dispatch' || inputs.defender_exclusion
+        if: inputs.defender_exclusion
         shell: pwsh
         run: |
           Add-MpPreference -ExclusionPath (Join-Path $env:GITHUB_WORKSPACE "src-tauri\target")
