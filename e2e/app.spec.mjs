@@ -16,6 +16,8 @@ const RED_PANEL = '[aria-label="Nota Vermelho"]';
 const SUBJECT = 'input[aria-label="Assunto da nota"]';
 const NOTICE = 'p[role="status"]';
 const EDITOR = ".cm-content";
+const PLUS = 'button[aria-label="Girar para o outro lado"]';
+const CHAMBERS = "[data-drum-side]";
 /** How long until the shortcuts are registered, after the drum appears. */
 const SHORTCUTS_READY_MS = 1500;
 /** Longer than a notice stays on the screen. */
@@ -129,6 +131,57 @@ describe("Tambor de Notas, o app de verdade", () => {
     await browser.keys(["Control", "Enter"]);
     await waitForNoteFile("arquivadas", name);
     expect(notesIn("ativas")).toEqual([]);
+  });
+
+  it("flips the drum with the + and back, without taking the keyboard from the note", async () => {
+    await startApp();
+    await $(RED).click();
+    await $(RED_PANEL).waitForExist();
+    await writeNote("Física", "Nota do giro");
+
+    await $(PLUS).click();
+    await browser.waitUntil(
+      async () => (await $(CHAMBERS).getAttribute("data-drum-side")) === "back",
+    );
+    await browser.waitUntil(
+      async () => {
+        const [back, front] = await browser.execute(() => {
+          const inWindow = (selector) => {
+            const { left, top, width, height } = document
+              .querySelector(selector)
+              .getBoundingClientRect();
+            const [x, y] = [left + width / 2, top + height / 2];
+            return x >= 0 && y >= 0 && x <= window.innerWidth && y <= window.innerHeight;
+          };
+          const moving = document.querySelector("[data-drum-side]").getAnimations().length > 0;
+          return [
+            !moving && inWindow("[data-back-chamber]"),
+            inWindow('button[aria-label^="Vermelho"]'),
+          ];
+        });
+        return back && !front;
+      },
+      { timeoutMsg: "a câmara vazia não ficou à vista, ou as câmaras da frente não saíram" },
+    );
+    await browser.keys([..." segue"]);
+    await browser.waitUntil(async () => (await $(EDITOR).getText()).includes("texto segue"));
+
+    await $('button[aria-label="Voltar para as câmaras"]').click();
+    await browser.waitUntil(
+      async () => (await $(CHAMBERS).getAttribute("data-drum-side")) === "front",
+    );
+  });
+
+  it("returns to the front when a global shortcut opens a chamber", async () => {
+    await startApp();
+    await $(PLUS).click();
+    await browser.waitUntil(
+      async () => (await $(CHAMBERS).getAttribute("data-drum-side")) === "back",
+    );
+    await browser.pause(SHORTCUTS_READY_MS);
+    pressGlobalShortcut(2);
+    await $(RED_PANEL).waitForExist();
+    expect(await $(CHAMBERS).getAttribute("data-drum-side")).toBe("front");
   });
 
   it("draws a chamber with no color as a dashed circle", async () => {

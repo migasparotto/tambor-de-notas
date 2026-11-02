@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import type { DrumGeometry, Point } from "../domain/drum";
 import type { IntegrationChamber, NoteColor } from "../domain/chambers";
+import { SIDE_ANGLE, type DrumSide } from "../domain/drumSide";
 import { formatClock, type PomodoroPhase, type PomodoroState } from "../domain/pomodoro";
 
 /** How a color chamber looks: with an active note it is tinted and fills up to `fill` (0 to 1). */
@@ -25,6 +26,11 @@ interface DrumProps {
   onStopPomodoro: () => void;
   /** Turn the chambers once; a new `id` starts a new turn. Null: stay still. */
   spin: DrumSpin | null;
+  /** The side showing, and how long the half turn to it takes (null: no animation). */
+  side: DrumSide;
+  flipMs: number | null;
+  /** The "+" button: shows the other side. */
+  onFlip: () => void;
   /** A small mark above the clock, like "DEV" for the development app. Null: none. */
   badge: string | null;
   /** The drum is held, ready to be dragged: its ring gets a light outline. */
@@ -38,16 +44,19 @@ export interface DrumSpin {
   durationMs: number;
 }
 
-const SPIN_FRAMES: Record<DrumSpin["kind"], Keyframe[]> = {
-  // A full turn: the chambers go behind the screen edge and come back to their places.
-  spin: [{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }],
-  // One chamber forward and back.
-  jolt: [
-    { transform: "rotate(0deg)" },
-    { transform: "rotate(-22deg)", offset: 0.45 },
-    { transform: "rotate(4deg)", offset: 0.75 },
-    { transform: "rotate(0deg)" },
-  ],
+/** The movements, from the angle of the side showing. */
+const spinFrames = (kind: DrumSpin["kind"], base: number): Keyframe[] => {
+  const at = (degrees: number) => `rotate(${base + degrees}deg)`;
+  return kind === "spin"
+    ? // A full turn: the chambers go behind the screen edge and come back to their places.
+      [{ transform: at(0) }, { transform: at(360) }]
+    : // One chamber forward and back.
+      [
+        { transform: at(0) },
+        { transform: at(-22), offset: 0.45 },
+        { transform: at(4), offset: 0.75 },
+        { transform: at(0) },
+      ];
 };
 // Fast at first, slowing down to a stop, like a drum spun by hand.
 const SPIN_EASING: Record<DrumSpin["kind"], string> = {
@@ -55,6 +64,8 @@ const SPIN_EASING: Record<DrumSpin["kind"], string> = {
   jolt: "ease-out",
 };
 
+/** The empty chamber on the other side stays in the middle of the arc. */
+const BACK_CHAMBER = 3;
 const RING = "#23262C";
 const EDGE = "#3A3E46";
 const CLOCK_IDLE = "#8A919C";
@@ -99,20 +110,43 @@ export function Drum({
   onTogglePomodoro,
   onStopPomodoro,
   spin,
+  side,
+  flipMs,
+  onFlip,
   badge,
   grabbed,
 }: DrumProps) {
   const chambersRef = useRef<HTMLDivElement>(null);
+  // Read by the spin, so the end of a cycle does not restart when the side changes.
+  const latestAngle = useRef(SIDE_ANGLE[side]);
+  useEffect(() => {
+    latestAngle.current = SIDE_ANGLE[side];
+  }, [side]);
   useEffect(() => {
     const el = chambersRef.current;
     if (!spin || !el) return;
-    const turn = el.animate(SPIN_FRAMES[spin.kind], {
+    const turn = el.animate(spinFrames(spin.kind, latestAngle.current), {
       duration: spin.durationMs,
       easing: SPIN_EASING[spin.kind],
     });
     return () => turn.cancel();
   }, [spin]);
+  // The half turn between the sides, always in the same direction. Not on the first drawing.
+  const shownSide = useRef(side);
+  useEffect(() => {
+    const el = chambersRef.current;
+    if (shownSide.current === side) return;
+    shownSide.current = side;
+    if (flipMs === null || !el) return;
+    const end = SIDE_ANGLE[side];
+    const turn = el.animate(
+      [{ transform: `rotate(${end - 180}deg)` }, { transform: `rotate(${end}deg)` }],
+      { duration: flipMs, easing: SPIN_EASING.spin },
+    );
+    return () => turn.cancel();
+  }, [side, flipMs]);
   const integrationStart = colors.length;
+  const origin = `${g.center.x}px ${g.center.y}px`;
   const clockText = formatClock(pomodoro.remainingMs);
   const running = pomodoro.status === "running";
   const clockTitle = pomodoroAlert
@@ -140,76 +174,104 @@ export function Drum({
       {/* The chambers turn together around the drum center at the end of a cycle. */}
       <div
         ref={chambersRef}
+        data-drum-side={side}
         className="absolute inset-0"
-        style={{ transformOrigin: `${g.center.x}px ${g.center.y}px` }}
+        style={{
+          transformOrigin: origin,
+          transform: `rotate(${SIDE_ANGLE[side]}deg)`,
+        }}
       >
-        {colors.map((color, i) => {
-          if (!color) {
+        <div className="absolute inset-0" inert={side === "back"}>
+          {colors.map((color, i) => {
+            if (!color) {
+              return (
+                <span
+                  key={`empty-${i}`}
+                  data-empty-chamber
+                  aria-hidden="true"
+                  className="rounded-full"
+                  style={{
+                    ...around(g.chambers[i]!, g.chamberSize),
+                    boxSizing: "border-box",
+                    border: "1.5px dashed #5A606B",
+                  }}
+                />
+              );
+            }
+            const chamber = chambers[color.id] ?? { active: false, fill: 0 };
+            const label = `${color.name} · ${color.role}${chamber.active ? " · nota ativa" : ""}`;
             return (
-              <span
-                key={`empty-${i}`}
-                data-empty-chamber
-                aria-hidden="true"
-                className="rounded-full"
+              <button
+                key={color.id}
+                type="button"
+                title={label}
+                aria-label={label}
+                aria-pressed={openColorId === color.id}
+                onClick={() => onOpenColor(color.id)}
+                className="cursor-pointer overflow-hidden rounded-full p-0"
                 style={{
                   ...around(g.chambers[i]!, g.chamberSize),
                   boxSizing: "border-box",
-                  border: "1.5px dashed #5A606B",
+                  border: `2px solid ${color.hex}`,
+                  // With an active note the chamber is tinted, and fills from the bottom up.
+                  background: chamber.active ? `${color.hex}40` : "transparent",
+                  boxShadow:
+                    openColorId === color.id ? "0 0 0 2px rgba(255,255,255,.55)" : undefined,
                 }}
-              />
+              >
+                {chamber.active && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 bottom-0 block transition-[height] duration-300"
+                    style={{ height: `${chamber.fill * 100}%`, background: color.hex }}
+                  />
+                )}
+              </button>
             );
-          }
-          const chamber = chambers[color.id] ?? { active: false, fill: 0 };
-          const label = `${color.name} · ${color.role}${chamber.active ? " · nota ativa" : ""}`;
-          return (
+          })}
+
+          {integrations.map((chamber, i) => (
             <button
-              key={color.id}
+              key={chamber.id}
               type="button"
-              title={label}
-              aria-label={label}
-              aria-pressed={openColorId === color.id}
-              onClick={() => onOpenColor(color.id)}
-              className="cursor-pointer overflow-hidden rounded-full p-0"
+              // aria-disabled, not disabled: a disabled button swallows the click before the drum
+              // can keep the keyboard in the editor (see the onMouseDown in App).
+              aria-disabled="true"
+              title={`${chamber.name} — chega na Etapa ${chamber.stage}`}
+              aria-label={`${chamber.name} — chega na Etapa ${chamber.stage}`}
+              className="flex cursor-not-allowed items-center justify-center rounded-full bg-transparent p-0 font-bold text-[#8D94A0]"
               style={{
-                ...around(g.chambers[i]!, g.chamberSize),
+                ...around(g.chambers[integrationStart + i]!, g.chamberSize),
                 boxSizing: "border-box",
-                border: `2px solid ${color.hex}`,
-                // With an active note the chamber is tinted, and fills from the bottom up.
-                background: chamber.active ? `${color.hex}40` : "transparent",
-                boxShadow: openColorId === color.id ? "0 0 0 2px rgba(255,255,255,.55)" : undefined,
+                border: "1.5px dashed #5A606B",
+                fontSize: Math.max(9, g.chamberSize * 0.36),
               }}
             >
-              {chamber.active && (
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-0 bottom-0 block transition-[height] duration-300"
-                  style={{ height: `${chamber.fill * 100}%`, background: color.hex }}
-                />
-              )}
+              {chamber.label}
             </button>
-          );
-        })}
+          ))}
+        </div>
 
-        {integrations.map((chamber, i) => (
+        {/* The other side: half a turn away, behind the screen edge, until the "+" brings it. */}
+        <div
+          className="absolute inset-0"
+          inert={side === "front"}
+          style={{ transformOrigin: origin, transform: "rotate(180deg)" }}
+        >
           <button
-            key={chamber.id}
             type="button"
-            // aria-disabled, not disabled: a disabled button swallows the click before the drum
-            // can keep the keyboard in the editor (see the onMouseDown in App).
+            data-back-chamber
             aria-disabled="true"
-            title={`${chamber.name} — chega na Etapa ${chamber.stage}`}
-            aria-label={`${chamber.name} — chega na Etapa ${chamber.stage}`}
-            className="flex cursor-not-allowed items-center justify-center rounded-full bg-transparent p-0 font-bold text-[#8D94A0]"
+            title="Câmara vazia"
+            aria-label="Câmara vazia"
+            className="cursor-default rounded-full bg-transparent p-0"
             style={{
-              ...around(g.chambers[integrationStart + i]!, g.chamberSize),
+              ...around(g.chambers[BACK_CHAMBER]!, g.chamberSize),
               boxSizing: "border-box",
-              border: "1.5px dashed #5A606B",
-              fontSize: Math.max(9, g.chamberSize * 0.36),
+              border: "1.5px dashed #8D94A0",
             }}
-          >
-            {chamber.label}
-          </button>
-        ))}
+          />
+        </div>
       </div>
 
       <div
@@ -282,10 +344,10 @@ export function Drum({
 
       <button
         type="button"
-        aria-disabled="true"
-        title="Girar o tambor — chega numa versão futura"
-        aria-label="Girar o tambor (versão futura)"
-        className="rounded-full bg-transparent p-0 text-[#CFD3DA]"
+        onClick={onFlip}
+        title={side === "front" ? "Girar para o outro lado" : "Voltar para as câmaras"}
+        aria-label={side === "front" ? "Girar para o outro lado" : "Voltar para as câmaras"}
+        className="cursor-pointer rounded-full bg-transparent p-0 text-[#CFD3DA]"
         style={{
           ...around(g.plus.center, g.plus.size),
           fontSize: g.plus.size * 0.8,
