@@ -25,6 +25,9 @@ notas/
 # The full output of the unit tests
 test-output/
 
+# The full output of the build
+build-output/
+
 # What the e2e tests keep when they fail
 e2e/failures/
 

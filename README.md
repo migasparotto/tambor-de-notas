@@ -113,7 +113,17 @@ O instalador não tem assinatura digital, então o Windows mostra "O Windows pro
 | `npm run e2e`                | Testa o app de verdade (feche o app antes)        |
 | `cd src-tauri && cargo test` | Roda os testes em Rust                            |
 
-O `npm test` guarda sempre a saída completa em `test-output/saida.txt` (fora do Git), e cada falha também em `test-output/falha-<data>.txt`, para uma rodada seguinte não apagar. No CI, a pasta fica anexada à execução quando algo falha, como os artifacts `test-output-ubuntu` e `test-output-windows`, por 14 dias.
+O `npm test` e o `npm run build` guardam sempre a saída completa em `test-output/saida.txt` e `build-output/saida.txt` (fora do Git), e cada falha também em `falha-<data>.txt` na mesma pasta, para uma rodada seguinte não apagar. No CI, as duas pastas ficam anexadas à execução quando algo falha, como os artifacts `test-output-ubuntu` e `test-output-windows`, por 14 dias.
+
+### Quando o app cair
+
+Uma vez, no Windows PowerShell **como administrador**, na pasta do repositório:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\windows\install-crash-capture.ps1 -Test
+```
+
+Isso liga a captura automática para o app instalado e o DEV: quando o `tambor-de-notas.exe` cai, o Windows grava um dump completo e uma tarefa agendada copia na hora os logs Aplicativo, Sistema e `CodeIntegrity`, o relatório de erro e os logs do app para `%LOCALAPPDATA%\Tambor de Notas (quedas)\queda-<data>\`, com um `resumo.txt` para a primeira olhada. O log do `CodeIntegrity` passa de 1 MB para 20 MB, para não apagar o horário da queda. O `-Test` grava um evento de queda falso e confere que a captura apareceu. Para desligar: `scripts\windows\uninstall-crash-capture.ps1` (as capturas feitas ficam).
 
 ### Testes de ponta a ponta (e2e)
 
