@@ -14,7 +14,7 @@ A interface imita o tambor de um revólver: o centro é um pomodoro, e as câmar
 - **Arraste o tambor** pelo anel ou pelo centro (fora dos botões): segure o botão parado por um instante (0,3 s) até o anel ganhar um contorno claro e o cursor virar a mão fechada, e então mova para cima, para baixo ou para a borda esquerda. Um clique, mesmo tremido, nunca arrasta. Ele fica na borda do lado da tela onde você soltar e, na esquerda, aparece espelhado, com o painel abrindo para a direita. O app lembra onde ele ficou.
 - Os **cantos vazios** da janela, fora do círculo do tambor, deixam o clique passar para o que está atrás (o vídeo).
 - O tambor ocupa **1/3 da altura da tela** (padrão em `src/domain/settings.ts`).
-- Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo ainda não gira.
+- Tem 7 câmaras: azul, vermelho, verde e roxo (as cores de nota), e Notion, Todoist e IA (desativadas até as suas etapas). O relógio do pomodoro fica no centro, e o botão "+" na ponta de baixo gira o tambor meia volta, para o outro lado, onde há uma câmara vazia (ela ainda não faz nada), e de volta. Um atalho de cor volta para a frente.
 - **Notas** (uma nota ativa por cor):
   - clique numa câmara de cor: o painel da nota nasce na câmara e cresce ao lado do tambor, na cor da nota;
   - o editor mostra o texto **formatado enquanto você digita** (títulos, negrito, itálico, código, links, listas, linha `---`), mas o que fica salvo é o Markdown puro; os símbolos (`#`, `**`...) só aparecem quando o cursor está dentro daquele trecho;

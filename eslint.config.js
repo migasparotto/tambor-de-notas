@@ -48,7 +48,8 @@ export default tseslint.config(
   ...layerConfigs,
   {
     files: ["e2e/**/*.mjs"],
-    languageOptions: { globals: { ...globals.node, ...globals.mocha } },
+    // `browser.execute` runs code in the page, so the browser globals are valid too.
+    languageOptions: { globals: { ...globals.node, ...globals.mocha, ...globals.browser } },
   },
   prettier,
 );

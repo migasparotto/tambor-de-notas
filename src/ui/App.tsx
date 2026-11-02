@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { savePlacement } from "../domain/appData";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
+import { flipDurationMs, otherSide, type DrumSide } from "../domain/drumSide";
 import { fillLevel } from "../domain/noteText";
 import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
 import {
@@ -113,6 +114,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   // With just the drum showing, clicks on the transparent corners reach the video behind.
   useClickThrough(geometry, layout.panel === null, () => drag.current !== null);
   const [spin, setSpin] = useState<DrumSpin | null>(null);
+  const [side, setSide] = useState<DrumSide>("front");
   useEffect(() => wakeAudioOnFirstInput(), []);
   useEffect(() => {
     if (isTauri())
@@ -174,6 +176,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       return;
     }
     setPanel({ colorId, size: panel?.size ?? "normal", open: true });
+    // The chamber it opens is on the front.
+    setSide("front");
     // The keyboard comes to the app, so typing goes straight into the note.
     takeKeyboard();
   };
@@ -252,6 +256,12 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           onTogglePomodoro={pomodoro.toggle}
           onStopPomodoro={pomodoro.stop}
           spin={spin}
+          side={side}
+          flipMs={flipDurationMs(
+            settings,
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+          )}
+          onFlip={() => setSide(otherSide)}
           // So it is clear which app is open: this one, or the installed one.
           badge={import.meta.env.DEV ? "DEV" : null}
           grabbed={grabbed}
