@@ -113,16 +113,15 @@ O instalador não tem assinatura digital, então o Windows mostra "O Windows pro
 
 ### Testes de ponta a ponta (e2e)
 
-Os testes em `e2e/` abrem o app de verdade e o controlam com o [WebdriverIO](https://webdriver.io/) e o [tauri-driver](https://v2.tauri.app/develop/tests/webdriver/). Na primeira vez, instale o `tauri-driver`. Depois, **feche o Tambor de Notas** (instalado e de desenvolvimento) e rode:
+Os testes em `e2e/` abrem o app de verdade e o controlam com o [WebdriverIO](https://webdriver.io/) e o driver do Edge. **Feche o Tambor de Notas** (instalado e de desenvolvimento) e rode:
 
 ```bash
-npm run e2e:setup
 npm run e2e
 ```
 
 - Janelas do app abrem e fecham na tela por cerca de um minuto, e um dos testes aperta um atalho global de verdade. Evite usar o teclado nesse tempo.
 - O `npm run e2e` compila um app só para os testes, com o identificador `com.tambordenotas.app.e2e`. Ele usa só `Documentos\Tambor de Notas (Dev)\notas\e2e\` e `%APPDATA%\com.tambordenotas.app.e2e`, apagadas a cada teste. Suas notas nunca são tocadas.
-- O driver do Edge é baixado na hora, na versão exata do WebView2 instalado, então não quebra quando o WebView2 se atualiza sozinho.
+- O driver do Edge é baixado na hora, na versão exata do WebView2 que o app abriu, então não quebra quando o WebView2 se atualiza sozinho.
 - Nada disso entra no instalador. O CI roda o e2e no Windows, no job `e2e`.
 
 ## Estrutura do código

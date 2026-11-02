@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { $, $$, browser, expect } from "@wdio/globals";
 import {
   NOTES_DIR,
+  closeE2eApp,
+  openE2eApp,
   pressGlobalShortcut,
   resetTestFolders,
   writeActiveFile,
@@ -34,8 +36,12 @@ const waitForNoteFile = (folder, name) =>
 
 /** Opens the app again with test folders holding only what `prepare` writes. */
 async function startApp(prepare = () => {}) {
+  // The session ends before the app it is connected to.
+  await browser.deleteSession({ shutdownDriver: false });
+  closeE2eApp();
   resetTestFolders();
   prepare();
+  await openE2eApp();
   await browser.reloadSession();
   await $('button[aria-label^="Notion"]').waitForExist();
 }

@@ -33,14 +33,7 @@ jobs:
           workspaces: src-tauri
 
       - run: npm ci
-      - run: npm run e2e:setup
       - run: npm run e2e
-
-      # TEMPORARY: why the app does not start on the runner.
-      - name: Diagnose the app start
-        if: failure()
-        shell: pwsh
-        run: ./e2e/diagnose.ps1
 
   rust:
     runs-on: windows-latest

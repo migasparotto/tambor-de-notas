@@ -1,16 +1,10 @@
 // What the e2e tests need from Windows and the disk. They only touch their own two folders.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const WEBVIEW2_KEY = "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
-const WEBVIEW2_HIVES = [
-  `HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\EdgeUpdate\\Clients\\${WEBVIEW2_KEY}`,
-  `HKLM\\SOFTWARE\\Microsoft\\EdgeUpdate\\Clients\\${WEBVIEW2_KEY}`,
-  `HKCU\\Software\\Microsoft\\EdgeUpdate\\Clients\\${WEBVIEW2_KEY}`,
-];
 
 const powershell = (script) =>
   execFileSync("powershell.exe", ["-NoProfile", "-Command", script], { encoding: "utf8" }).trim();
@@ -24,21 +18,50 @@ export const NOTES_DIR = join(documents, "Tambor de Notas (Dev)", "notas", "e2e"
 /** Must match the identifier in `src-tauri/tauri.e2e.conf.json`. */
 export const APP_DATA_DIR = join(process.env.APPDATA, "com.tambordenotas.app.e2e");
 
-/** The version of the WebView2 installed on this machine. */
-export function webView2Version() {
-  for (const key of WEBVIEW2_HIVES) {
-    try {
-      const output = execFileSync("reg", ["query", key, "/v", "pv"], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      const version = /pv\s+REG_SZ\s+([\d.]+)/.exec(output)?.[1];
-      if (version && version !== "0.0.0.0") return version;
-    } catch {
-      // Not in this hive: try the next one.
-    }
+/**
+ * Must match `--remote-debugging-port` in `src-tauri/tauri.e2e.conf.json`. Not the usual 9222:
+ * other programs use it (on this notebook, Lenovo Vantage).
+ */
+export const DEBUG_ADDRESS = "127.0.0.1:19222";
+const APP_READY_ATTEMPTS = 60;
+const APP_READY_WAIT_MS = 500;
+/** The address of the app's page, in the WebView2. */
+const APP_PAGE = "tauri.localhost";
+
+const debugInfo = async (path) => {
+  try {
+    const response = await fetch(`http://${DEBUG_ADDRESS}${path}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
   }
-  throw new Error("Não achei a versão do WebView2 no registro do Windows.");
+};
+
+/**
+ * Opens the e2e app and waits for its page. Returns the WebView2 version it is using. Refuses a
+ * port already in use, so the tests never connect to another program.
+ */
+export async function openE2eApp() {
+  if ((await debugInfo("/json/version")) !== null) {
+    throw new Error(`Outro programa já usa a porta de depuração ${DEBUG_ADDRESS}.`);
+  }
+  spawn(E2E_APP, { detached: true, stdio: "ignore" }).unref();
+  for (let attempt = 0; attempt < APP_READY_ATTEMPTS; attempt++) {
+    const targets = (await debugInfo("/json/list")) ?? [];
+    if (targets.some(({ type, url }) => type === "page" && url.includes(APP_PAGE))) {
+      const { Browser: browser } = await debugInfo("/json/version");
+      return browser.split("/")[1];
+    }
+    await new Promise((resolve) => setTimeout(resolve, APP_READY_WAIT_MS));
+  }
+  throw new Error("O app de teste abriu, mas a página dele não respondeu na porta de depuração.");
+}
+
+/** Closes the e2e app, if open. Only runs after checking no other copy of the app is open. */
+export function closeE2eApp() {
+  powershell(
+    `Get-Process tambor-de-notas -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '${E2E_APP}' } | ForEach-Object { Stop-Process -Id $_.Id -Force; $_.WaitForExit(5000) | Out-Null }`,
+  );
 }
 
 /** Stops the run if another copy of the app is open: it would hold the global shortcuts. */
