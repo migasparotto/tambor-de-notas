@@ -11,6 +11,9 @@ export type DrumSide = "front" | "back";
 /** The turn, in degrees, that shows each side. */
 export const SIDE_ANGLE: Record<DrumSide, number> = { front: 0, back: 180 };
 
+/** The place, in the arc of chambers, of the empty chamber on the other side. */
+export const BACK_CHAMBER = 3;
+
 /** The side the "+" button goes to. */
 export function otherSide(side: DrumSide): DrumSide {
   return side === "front" ? "back" : "front";

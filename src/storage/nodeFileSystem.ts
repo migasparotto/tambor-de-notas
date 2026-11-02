@@ -26,7 +26,10 @@ export function nodeFileSystem(root: string): FileSystem {
       return entries.filter((entry) => entry.isFile()).map((entry) => entry.name);
     },
     async readText(path) {
-      return readFile(inside(path), "utf8");
+      return readFile(inside(path), "utf8").catch((error: NodeJS.ErrnoException) => {
+        // The same error the app gets from Tauri on Windows for a missing file.
+        throw error.code === "ENOENT" ? new Error(`${path}: os error 2`) : error;
+      });
     },
     async writeText(path, content) {
       await writeFile(inside(path), content, "utf8");

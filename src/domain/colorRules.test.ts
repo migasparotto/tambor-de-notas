@@ -3,7 +3,6 @@ import { COLOR_PALETTE, INITIAL_COLORS, type NoteColor } from "./chambers";
 import { resolveColors, type ColorsData } from "./colorData";
 import {
   availableTones,
-  chamberChangeCollapsesPanel,
   createColor,
   editColor,
   occupyChamber,
@@ -166,16 +165,5 @@ describe("offDrumColorsWithNote", () => {
   it("leaves out a color off the drum without an active note", () => {
     const { data } = created({}, fields, 0);
     expect(offDrumColorsWithNote(resolveColors(data), () => false)).toEqual([]);
-  });
-});
-
-describe("chamberChangeCollapsesPanel", () => {
-  it("collapses when the open note's color is the one leaving", () => {
-    expect(chamberChangeCollapsesPanel({}, 0, first.id)).toBe(true);
-  });
-
-  it("does not collapse for another chamber, or with no note open", () => {
-    expect(chamberChangeCollapsesPanel({}, 1, first.id)).toBe(false);
-    expect(chamberChangeCollapsesPanel({}, 0, null)).toBe(false);
   });
 });

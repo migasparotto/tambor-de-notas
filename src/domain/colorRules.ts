@@ -120,15 +120,3 @@ export function offDrumColorsWithNote(
 ): NoteColor[] {
   return colors.filter((color) => !chambers.includes(color.id) && hasNote(color.id));
 }
-
-/**
- * Whether changing this chamber takes away the color of the open note. If so, the note
- * must be saved and the panel collapsed; the note stays active, on the drum's other side.
- */
-export function chamberChangeCollapsesPanel(
-  data: ColorsData,
-  chamber: number,
-  openColorId: string | null,
-): boolean {
-  return openColorId !== null && resolveColors(data).chambers[chamber] === openColorId;
-}
