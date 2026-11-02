@@ -15,6 +15,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Regras do projeto
 
+- **Nome pessoal:** em textos do repositório (docs, README, CHANGELOG, commits, PRs, comentários), nunca usar o nome do usuário; escrever sempre "o usuário". O repositório é público.
 - **Etapas:** 0 Fundação → 1 MVP → 2 Organização → 3 Integrações → 4 IA.
 - **Stack:** Tauri + React + TypeScript + Tailwind CSS, desenvolvido no **Windows nativo** (não no WSL). Rust no mínimo possível.
 - **Arquitetura em 4 camadas** que não se misturam: interface (`src/ui/`), regras (`src/domain/`), armazenamento (`src/storage/`), integrações (`src/integrations/`, como adaptadores — padrão Adapter). A lógica de cada sprint vai em `src/domain/`.

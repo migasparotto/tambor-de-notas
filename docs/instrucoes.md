@@ -1,6 +1,6 @@
 # Tambor de Notas — Instruções do Projeto
 
-Oct 19, 2026 · @usuário
+Oct 19, 2026 · o usuário
 
 ## Como trabalhar comigo
 
