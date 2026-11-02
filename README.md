@@ -97,6 +97,7 @@ O workflow [CD](.github/workflows/cd.yml) gera o instalador do Windows (`.exe`),
 
 - **Com uma tag de versão** (`git tag v0.1.0` e `git push origin v0.1.0`): cria um release em rascunho com o instalador anexado, para conferir e publicar à mão na página de Releases. A tag precisa bater com a versão em `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, senão o CD para com um erro. As notas do release vêm da seção da versão no [CHANGELOG.md](CHANGELOG.md), que precisa existir antes da tag.
 - **À mão** (Actions → CD → Run workflow, ou `gh workflow run cd.yml`): só gera o instalador, que fica nos arquivos da execução por 7 dias.
+- **Sempre:** guarda o `tambor_de_notas.pdb` (os símbolos que leem um dump de queda deste `.exe` exato) como artifact `simbolos-pdb`, por 90 dias, e numa tag também o anexa ao release. Antes, `scripts/pdb-match.mjs` confere que o `.pdb` bate com o `.exe`. O `.pdb` não entra no instalador: o perfil release grava só as tabelas de linhas (`debug = "line-tables-only"`), num arquivo separado.
 
 O instalador não tem assinatura digital, então o Windows mostra "O Windows protegeu o computador": clique em "Mais informações" e "Executar assim mesmo".
 

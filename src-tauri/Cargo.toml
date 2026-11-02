@@ -34,7 +34,10 @@ codegen-units = 1
 lto = true
 opt-level = 3
 panic = "abort"
-strip = true
+# Line tables only: enough for a crash dump to show functions, files and lines. The debug
+# info goes to a separate .pdb (kept by the CD), never into the .exe or the installer.
+debug = "line-tables-only"
+strip = "none"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

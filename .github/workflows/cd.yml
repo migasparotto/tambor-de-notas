@@ -75,6 +75,28 @@ jobs:
           prerelease: false
           args: --bundles nsis
 
+      # The .pdb (debug symbols) is what reads a crash dump of this exact .exe. It never goes into
+      # the installer: it is kept here and, for a tag, attached to the release.
+      - name: Check that the .pdb matches the .exe
+        run: node scripts/pdb-match.mjs src-tauri/target/release/tambor-de-notas.exe src-tauri/target/release/tambor_de_notas.pdb
+
+      - name: Keep the .pdb in the run's artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: simbolos-pdb
+          path: |
+            src-tauri/target/release/tambor-de-notas.exe
+            src-tauri/target/release/tambor_de_notas.pdb
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attach the .pdb to the draft release (tag)
+        if: github.ref_type == 'tag'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" src-tauri/target/release/tambor_de_notas.pdb
+
       - name: Keep the installer in the run's artifacts (run by hand)
         if: github.ref_type != 'tag'
         uses: actions/upload-artifact@v7
