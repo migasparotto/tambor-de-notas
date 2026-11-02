@@ -4,6 +4,10 @@ O que mudou em cada versão, para quem usa o app. O texto de cada versão vira a
 
 ## Não lançado
 
+### Novidades
+
+- **Log do app:** o app guarda um registro do que faz em `%LOCALAPPDATA%\com.tambordenotas.app\logs` (abertura, fechamento, erros e um sinal a cada 5 minutos com a memória usada), para ajudar a descobrir por que ele caiu. O registro nunca contém o texto, o título, o assunto, o caminho nem o nome dos arquivos das notas, e ocupa no máximo 5 arquivos de 1 MB.
+
 ## [0.4.0] - 2026-11-02
 
 ### Novidades
