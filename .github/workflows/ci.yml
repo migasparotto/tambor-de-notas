@@ -9,10 +9,6 @@ on:
         description: "Run the e2e with full page heap on tambor-de-notas.exe (stops at a bad memory write)"
         type: boolean
         default: false
-      defender_exclusion:
-        description: "Exclude the build folder from Microsoft Defender on the runner (to compare the app's opening time)"
-        type: boolean
-        default: false
       e2e_args:
         description: "Extra arguments for WebdriverIO (e.g. a spec that does not exist, to check that a failure keeps its evidence)"
         type: string
@@ -55,15 +51,6 @@ jobs:
       - uses: swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-
-      # Only on the CI runner, never on a person's computer, and only when asked: on 02/11/2026 it did
-      # not make the app open faster (57.9 s with it), so Defender is not the cause of the slow opening.
-      - name: Exclude the build folder from Defender (CI runner only)
-        if: inputs.defender_exclusion
-        shell: pwsh
-        run: |
-          Add-MpPreference -ExclusionPath (Join-Path $env:GITHUB_WORKSPACE "src-tauri\target")
-          "Exclusões do Defender: $((Get-MpPreference).ExclusionPath -join ', ')"
 
       - run: npm ci
       - run: npm run e2e:build
