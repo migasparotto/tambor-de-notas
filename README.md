@@ -198,3 +198,13 @@ Copie `.env.example` para `.env` se precisar de configuração local. O arquivo 
 ## Licença
 
 [MIT](LICENSE): pode usar, copiar, modificar e distribuir o código, desde que mantenha o aviso de copyright e a licença.
+
+## Code signing policy
+
+> **Em cadastro.** O pedido à SignPath Foundation ainda não foi aprovado: até lá, o instalador continua sem assinatura.
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+- **Papéis:** autor e revisor ([committers and reviewers](https://github.com/migasparotto/tambor-de-notas/graphs/contributors)): [migasparotto](https://github.com/migasparotto). Aprovador de cada assinatura (approver): [migasparotto](https://github.com/migasparotto). Mudanças de outras pessoas só entram por pull request revisado; o CI e os scripts de build recebem atenção dobrada na revisão.
+- **Como o instalador é assinado:** o instalador é gerado só pelo CD do GitHub Actions, a partir do código deste repositório, e enviado à SignPath; **cada release precisa de aprovação manual** antes de ser assinado. Todos da equipe usam autenticação em duas etapas (MFA) no GitHub e na SignPath.
+- **Privacidade:** este programa não envia nenhuma informação a outros sistemas na rede, a não ser que o usuário peça. As integrações com o Notion e o Todoist (Etapa 3) só enviam as notas para a conta que o próprio usuário configurar.
