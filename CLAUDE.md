@@ -26,6 +26,14 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
   - Major, minor que entra no app final, ou qualquer coisa que exija mudar código: parar e perguntar ao Marcos.
   - Atualização que entrou a mais no grupo: segue a mesma regra acima, sem precisar parar só por isso.
 
+## Release
+
+Detalhes deste projeto para a skill `release`:
+
+- **Arquivos de versão:** `package.json`, `src-tauri/tauri.conf.json` e `src-tauri/Cargo.toml`, além dos lockfiles (`package-lock.json` e `src-tauri/Cargo.lock`).
+- **O que o CD gera:** o instalador `.exe` (NSIS), pelo `tauri-action`, anexado a um release em rascunho.
+- **Teste rápido depois de publicar:** instalar a versão publicada e conferir que o app abre, que o ícone está certo e que uma nota salva.
+
 ## Armadilhas
 
 - Notas de lançamento: ficam no `CHANGELOG.md`, escritas antes da tag, e o CD as lê (`scripts/release-notes.mjs`). Não rodar o CD de novo numa tag em rascunho, nem editar as notas só no rascunho: o que importa fica no `CHANGELOG.md`. (Tambor, 31/10/2026)

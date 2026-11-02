@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { $, $$, browser, expect } from "@wdio/globals";
 import {
+  APP_DATA_DIR,
   NOTES_DIR,
   closeE2eApp,
   openE2eApp,
@@ -18,6 +19,9 @@ const NOTICE = 'p[role="status"]';
 const EDITOR = ".cm-content";
 const PLUS = 'button[aria-label="Girar para o outro lado"]';
 const CHAMBERS = "[data-drum-side]";
+const BACK_CHAMBER = "[data-back-chamber]";
+const BACK_PANEL = 'section[aria-label="Outro lado do tambor"]';
+const OFF_DRUM_LIST = 'ul[aria-label="Notas fora do tambor"]';
 /** How long until the shortcuts are registered, after the drum appears. */
 const SHORTCUTS_READY_MS = 1500;
 /** Longer than a notice stays on the screen. */
@@ -54,6 +58,23 @@ async function writeNote(subject, title) {
   await $(EDITOR).click();
   await browser.keys([...title, "Enter", ..."texto"]);
 }
+
+/** Turns to the other side and opens what the empty chamber shows. */
+async function openBackPanel() {
+  await $(PLUS).click();
+  await browser.waitUntil(() =>
+    browser.execute(() => {
+      const chambers = document.querySelector("[data-drum-side]");
+      return chambers.dataset.drumSide === "back" && chambers.getAnimations().length === 0;
+    }),
+  );
+  await $(BACK_CHAMBER).click();
+  await $(BACK_PANEL).waitForExist();
+}
+
+/** The button of a color in the list of notes off the drum. */
+const offDrumButton = (name) =>
+  $(`//ul[@aria-label="Notas fora do tambor"]//button[contains(., "${name}")]`);
 
 describe("Tambor de Notas, o app de verdade", () => {
   it("shows the drum with the colors of cores.json", async () => {
@@ -182,6 +203,70 @@ describe("Tambor de Notas, o app de verdade", () => {
     pressGlobalShortcut(2);
     await $(RED_PANEL).waitForExist();
     expect(await $(CHAMBERS).getAttribute("data-drum-side")).toBe("front");
+  });
+
+  it("creates a color in a chamber, and the note that was open stays on the other side", async () => {
+    await startApp();
+    await $(RED).click();
+    await $(RED_PANEL).waitForExist();
+    await writeNote("Física", "Nota antiga");
+
+    await openBackPanel();
+    await $(RED_PANEL).waitForExist({ reverse: true });
+    await waitForNoteFile("ativas", `${month()} vermelho - Nota antiga.md`);
+    expect(await $(OFF_DRUM_LIST).isExisting()).toBe(false);
+
+    await $("button=+ Cor nova").click();
+    await $('input[aria-label="Nome da cor"]').setValue("Dúvida");
+    await $('input[aria-label="Função da cor"]').setValue("Perguntas");
+    await $('button[aria-label="Tom #C9832B"]').click();
+    await $(
+      `//section[@aria-label="Outro lado do tambor"]//button[contains(., "Vermelho")]`,
+    ).click();
+    await $("button=Criar e abrir a nota").click();
+
+    await $('[aria-label="Nota Dúvida"]').waitForExist();
+    await browser.waitUntil(
+      () => browser.execute(() => document.activeElement?.getAttribute("aria-label")),
+      { timeoutMsg: "nada ficou com o teclado" },
+    );
+    expect(await browser.execute(() => document.activeElement?.getAttribute("aria-label"))).toBe(
+      "Assunto da nota",
+    );
+    expect(await $(CHAMBERS).getAttribute("data-drum-side")).toBe("front");
+    expect(await $('button[aria-label^="Dúvida"]').isExisting()).toBe(true);
+    expect(await $(RED).isExisting()).toBe(false);
+    await browser.waitUntil(() => {
+      const path = join(APP_DATA_DIR, "cores.json");
+      return existsSync(path) && JSON.parse(readFileSync(path, "utf8")).duvida?.chamber === 1;
+    });
+
+    await browser.keys("Escape");
+    await $('[aria-label="Nota Dúvida"]').waitForExist({ reverse: true });
+    await openBackPanel();
+    await offDrumButton("Vermelho").click();
+    await $(RED_PANEL).waitForExist();
+    await browser.waitUntil(async () => (await $(EDITOR).getText()).includes("Nota antiga"));
+  });
+
+  it("closes the note of an unknown color from the other side, and it leaves the list", async () => {
+    const content = `---\nid: "e2e-2"\ntitle: "Antiga"\ncolor: "sumiu"\nsubject: ""\ncreatedAt: "2026-10-01T10:00:00.000Z"\nupdatedAt: "2026-10-01T10:00:00.000Z"\n---\n# Antiga\ntexto`;
+    await startApp(() => writeActiveFile("2026-10 sumiu - Antiga.md", content));
+    const windowWidth = () => browser.execute(() => window.innerWidth);
+    const drumOnly = await windowWidth();
+    await openBackPanel();
+    await offDrumButton("sumiu").click();
+    await $('[aria-label="Nota sumiu"]').waitForExist();
+    await $("button*=Fechar nota").click();
+    await $('[aria-label="Nota sumiu"]').waitForExist({ reverse: true });
+    await browser.waitUntil(() => notesIn("ativas").length === 0);
+    await browser.waitUntil(async () => (await windowWidth()) === drumOnly, {
+      timeoutMsg: "a janela continuou larga depois de fechar a nota",
+    });
+
+    await $(BACK_CHAMBER).click();
+    await $(BACK_PANEL).waitForExist();
+    expect(await $(OFF_DRUM_LIST).isExisting()).toBe(false);
   });
 
   it("draws a chamber with no color as a dashed circle", async () => {

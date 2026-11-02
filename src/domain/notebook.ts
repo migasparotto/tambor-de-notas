@@ -3,6 +3,7 @@ import type { NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
 import { loadColorsData, saveColorsData, type LoadedColorsData } from "./appData";
 import type { NoteColor } from "./chambers";
+import { availableTones, createColor, offDrumColorsWithNote, type ColorFields } from "./colorRules";
 import {
   lastSubject,
   rememberSubject,
@@ -153,6 +154,31 @@ export class Notebook {
       .filter(([id, notes]) => notes.length > 0 && !colors.some((color) => color.id === id))
       .map(([id]) => unknownColor(id));
     return { colors: [...colors, ...unknown], chambers };
+  }
+
+  /** The colors off the drum that have an active note, listed on the drum's other side. */
+  offDrumColors(): NoteColor[] {
+    return offDrumColorsWithNote(this.resolvedColors(), (colorId) => this.hasNote(colorId));
+  }
+
+  /** The palette tones a new color can use. */
+  availableTones(): string[] {
+    return availableTones(this.colorsData);
+  }
+
+  /**
+   * Creates a color in the chosen chamber and saves `cores.json`. The color that was there
+   * leaves the drum, and its notes stay active. Returns the new color's id, or why it was refused.
+   */
+  createColor(
+    fields: ColorFields,
+    chamber: number,
+  ): { ok: true; colorId: string } | { ok: false; error: string } {
+    const created = createColor(this.colorsData, fields, chamber);
+    if (!created.ok) return created;
+    this.colorsData = created.data;
+    void this.run(() => this.saveColors());
+    return { ok: true, colorId: created.colorId };
   }
 
   /** The text of the color's current note, or "" when there is none. */
@@ -315,9 +341,16 @@ export class Notebook {
     const next = rememberSubject(this.colorsData, note.colorId, note.subject);
     if (next === this.colorsData) return;
     this.colorsData = next;
+    await this.saveColors();
+  }
+
+  /**
+   * Saves `cores.json`, unless it is broken. A failure is reported and does not stop what
+   * asked for the save: the change stays in memory, and goes with the next save.
+   */
+  private async saveColors(): Promise<void> {
     if (this.colorsBlocked) return;
-    // The note is already saved: a failure here only means the subject is not offered next time.
-    await this.options.colorsStore?.save(next).catch((error: unknown) => {
+    await this.options.colorsStore?.save(this.colorsData).catch((error: unknown) => {
       this.options.events?.onError?.(error);
     });
   }

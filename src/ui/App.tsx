@@ -4,7 +4,8 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { savePlacement } from "../domain/appData";
 import { INITIAL_COLORS, INTEGRATION_CHAMBERS } from "../domain/chambers";
 import { cycleEndEffects } from "../domain/cycleEnd";
-import { flipEffects, otherSide, type DrumSide } from "../domain/drumSide";
+import type { ColorFields } from "../domain/colorRules";
+import { BACK_CHAMBER, flipEffects, otherSide, type DrumSide } from "../domain/drumSide";
 import { fillLevel } from "../domain/noteText";
 import { canTakeKeyboard, drumKeyAction, isDrumSharp, type PanelSize } from "../domain/panel";
 import {
@@ -15,6 +16,7 @@ import {
 } from "../domain/placement";
 import type { Settings } from "../domain/settings";
 import { colorIndexOf, colorShortcutEffect, type ShortcutAction } from "../domain/shortcuts";
+import { BackPanel } from "./BackPanel";
 import { playSound, wakeAudioOnFirstInput } from "./cycleEndSound";
 import { Drum, type ChamberState, type DrumSpin } from "./Drum";
 import { NotePanel } from "./NotePanel";
@@ -32,6 +34,8 @@ interface PanelState {
   colorId: string;
   size: PanelSize;
   open: boolean;
+  /** The keyboard starts in the subject: a color just created. */
+  startInSubject?: boolean;
 }
 
 interface AppProps {
@@ -62,6 +66,8 @@ function takeKeyboard(): void {
 /** Root of the interface: a transparent window with the drum and, when open, the note panel. */
 function App({ settings, startupProblems, initialPlacement }: AppProps) {
   const [panel, setPanel] = useState<PanelState | null>(null);
+  /** What the empty chamber opens. It takes the place of the note panel. */
+  const [backOpen, setBackOpen] = useState(false);
   const [placement, setPlacement] = useState(initialPlacement);
   const { notice, addNotice } = useNotices();
   useEffect(() => {
@@ -69,7 +75,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   }, [startupProblems, addNotice]);
   const { geometry, layout, focused, workArea } = useAppWindow(
     settings.drumHeightFraction,
-    panel?.size ?? null,
+    panel?.size ?? (backOpen ? "normal" : null),
     placement,
   );
 
@@ -135,7 +141,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
 
   // Without an open panel the window cannot be activated, so clicks on the drum leave the
   // keyboard with the video; opening a note makes it activatable again and takes the keyboard.
-  const panelOpen = panel?.open ?? false;
+  const panelOpen = (panel?.open ?? false) || backOpen;
   useEffect(() => {
     if (!isTauri()) return;
     if (canTakeKeyboard(panelOpen)) takeKeyboard();
@@ -169,6 +175,30 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     const { sound, volume } = flipEffects(settings, prefersReducedMotion());
     playSound(sound, volume);
     setSide(next);
+    if (next === "front") setBackOpen(false);
+  };
+
+  /** The empty chamber: an open note is saved and collapsed, and stays active. */
+  const toggleBack = () => {
+    if (!backOpen) notes.flush();
+    setPanel(null);
+    setBackOpen(!backOpen);
+  };
+
+  /** Continues a note of a color off the drum. */
+  const openOffDrumColor = (colorId: string) => {
+    setBackOpen(false);
+    setPanel({ colorId, size: "normal", open: true });
+  };
+
+  /** Creates a color, and its note opens in one step. Returns why it was refused, or null. */
+  const createColor = (fields: ColorFields, chamber: number): string | null => {
+    const result = notes.createColor(fields, chamber);
+    if (!result.ok) return result.error;
+    setBackOpen(false);
+    setPanel({ colorId: result.colorId, size: "normal", open: true, startInSubject: true });
+    flipTo("front");
+    return null;
   };
 
   /** A global shortcut: play or pause the pomodoro, or open (or put away) a color's note. */
@@ -196,14 +226,17 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   /** Closes the open note (archives it) and shrinks the panel back into its chamber. */
   const closeNote = (colorId: string) => {
     void notes.close(colorId).then((closed) => {
-      if (closed) setPanel((p) => (p ? { ...p, open: false } : p));
+      if (!closed) return;
+      // A color that existed only because of this note has no panel left to shrink.
+      const stays = notes.colors().colors.some((color) => color.id === colorId);
+      setPanel((p) => (p && stays ? { ...p, open: false } : null));
     });
   };
 
   /** Esc and Ctrl+Enter, wherever the keyboard is in the drum window (not only in the panel). */
   const onKey = (e: KeyboardEvent) => {
     if (e.isComposing) return;
-    const action = drumKeyAction(e, panel?.open ?? false);
+    const action = drumKeyAction(e, panelOpen);
     if (action === null) return;
     e.preventDefault();
     e.stopPropagation();
@@ -211,7 +244,10 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
       if (panel) closeNote(panel.colorId);
       return;
     }
-    if (action === "collapseAndLeave" && panel) setPanel({ ...panel, open: false });
+    if (action === "collapseAndLeave") {
+      setBackOpen(false);
+      if (panel) setPanel({ ...panel, open: false });
+    }
     returnFocus();
   };
   // Registered once; this ref always points to the latest handler.
@@ -227,7 +263,9 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
   }, []);
 
   const panelColor = colorIn(panel?.colorId ?? null);
-  const chamberCenter = geometry.chambers[panel ? chamberColors.indexOf(panel.colorId) : -1];
+  // A color off the drum grows from the empty chamber.
+  const place = panel ? chamberColors.indexOf(panel.colorId) : -1;
+  const chamberCenter = geometry.chambers[place === -1 ? BACK_CHAMBER : place];
 
   return (
     <main
@@ -269,6 +307,8 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           side={side}
           flipMs={flipEffects(settings, prefersReducedMotion()).durationMs}
           onFlip={() => flipTo(otherSide(side))}
+          onOpenBack={toggleBack}
+          backOpen={backOpen}
           // So it is clear which app is open: this one, or the installed one.
           badge={import.meta.env.DEV ? "DEV" : null}
           grabbed={grabbed}
@@ -292,6 +332,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
             },
             size: geometry.chamberSize,
           }}
+          startInSubject={panel.startInSubject ?? false}
           open={panel.open}
           size={panel.size}
           message={notice}
@@ -307,10 +348,22 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
         />
       )}
 
+      {backOpen && layout.panel && (
+        <BackPanel
+          rect={layout.panel}
+          offDrumColors={notes.offDrumColors()}
+          tones={notes.availableTones()}
+          chambers={chamberColors.map(colorIn)}
+          onOpenColor={openOffDrumColor}
+          onCreateColor={createColor}
+          onClose={() => setBackOpen(false)}
+        />
+      )}
+
       {!panel && notice && (
         <p
           role="status"
-          className="absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
+          className="pointer-events-none absolute inset-x-1 bottom-1 m-0 rounded-md bg-black/80 px-2 py-1 text-[11px] text-amber-200"
         >
           {notice}
         </p>

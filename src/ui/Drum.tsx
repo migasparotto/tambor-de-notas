@@ -1,7 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from "react";
 import type { DrumGeometry, Point } from "../domain/drum";
 import type { IntegrationChamber, NoteColor } from "../domain/chambers";
-import { SIDE_ANGLE, type DrumSide } from "../domain/drumSide";
+import { BACK_CHAMBER, SIDE_ANGLE, type DrumSide } from "../domain/drumSide";
 import { formatClock, type PomodoroPhase, type PomodoroState } from "../domain/pomodoro";
 
 /** How a color chamber looks: with an active note it is tinted and fills up to `fill` (0 to 1). */
@@ -31,6 +31,9 @@ interface DrumProps {
   flipMs: number | null;
   /** The "+" button: shows the other side. */
   onFlip: () => void;
+  /** The empty chamber on the other side, and whether what it opens is showing. */
+  onOpenBack: () => void;
+  backOpen: boolean;
   /** A small mark above the clock, like "DEV" for the development app. Null: none. */
   badge: string | null;
   /** The drum is held, ready to be dragged: its ring gets a light outline. */
@@ -64,8 +67,6 @@ const SPIN_EASING: Record<DrumSpin["kind"], string> = {
   jolt: "ease-out",
 };
 
-/** The empty chamber on the other side stays in the middle of the arc. */
-const BACK_CHAMBER = 3;
 const RING = "#23262C";
 const EDGE = "#3A3E46";
 const CLOCK_IDLE = "#8A919C";
@@ -113,6 +114,8 @@ export function Drum({
   side,
   flipMs,
   onFlip,
+  onOpenBack,
+  backOpen,
   badge,
   grabbed,
 }: DrumProps) {
@@ -261,14 +264,16 @@ export function Drum({
           <button
             type="button"
             data-back-chamber
-            aria-disabled="true"
-            title="Câmara vazia"
+            onClick={onOpenBack}
+            aria-expanded={backOpen}
+            title="Notas fora do tambor e cor nova"
             aria-label="Câmara vazia"
-            className="cursor-default rounded-full bg-transparent p-0"
+            className="cursor-pointer rounded-full bg-transparent p-0"
             style={{
               ...around(g.chambers[BACK_CHAMBER]!, g.chamberSize),
               boxSizing: "border-box",
               border: "1.5px dashed #8D94A0",
+              boxShadow: backOpen ? "0 0 0 2px rgba(255,255,255,.55)" : undefined,
             }}
           />
         </div>

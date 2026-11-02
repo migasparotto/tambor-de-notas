@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import type { NoteColor } from "../domain/chambers";
+import type { ColorFields } from "../domain/colorRules";
 import { createAppNotebook, notesErrorMessage } from "../domain/notebook";
 import type { Settings } from "../domain/settings";
 
@@ -41,6 +42,17 @@ export function useNotebook(
   return {
     /** The colors and who is in each chamber, from `cores.json`. */
     colors: () => notebook.resolvedColors(),
+    /** The colors off the drum that have an active note. */
+    offDrumColors: () => notebook.offDrumColors(),
+    /** The palette tones a new color can use. */
+    availableTones: () => notebook.availableTones(),
+    createColor: (fields: ColorFields, chamber: number) => {
+      const result = notebook.createColor(fields, chamber);
+      redraw();
+      return result;
+    },
+    /** Saves every pending change right away. */
+    flush: () => void notebook.flush().catch(report),
     text: (colorId: string) => notebook.text(colorId),
     /** The note subject, or the color's last subject when there is no note yet. */
     subject: (colorId: string) => notebook.subject(colorId),

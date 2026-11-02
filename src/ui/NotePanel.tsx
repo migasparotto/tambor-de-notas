@@ -20,6 +20,8 @@ interface NotePanelProps {
   rect: Rect;
   /** The chamber it grows from and shrinks back into. */
   chamber: { center: Point; size: number };
+  /** The keyboard starts in the subject, instead of the text (a color just created). */
+  startInSubject: boolean;
   /** False: shrink back into the chamber, then call `onHidden`. */
   open: boolean;
   size: PanelSize;
@@ -40,11 +42,13 @@ const iconButton =
 
 /** The editor "bubble": born round in the chamber, it grows beside the drum in the note color. */
 export function NotePanel(props: NotePanelProps) {
-  const { color, text, markdown, charLimit, rect, chamber, open, size, message } = props;
+  const { color, text, markdown, charLimit, rect, chamber, startInSubject } = props;
+  const { open, size, message } = props;
   const [mounted, setMounted] = useState(false);
   // "Ver Markdown": the plain file text instead of the editor (which stays alive, hidden).
   const [showMarkdown, setShowMarkdown] = useState(false);
   const editor = useRef<NoteEditorHandle>(null);
+  const subjectInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Wait one frame so the browser draws the small bubble before growing it.
@@ -53,6 +57,10 @@ export function NotePanel(props: NotePanelProps) {
   }, []);
 
   const grown = mounted && open;
+  // After the editor, which takes the keyboard when it is created.
+  useEffect(() => {
+    if (grown && startInSubject) subjectInput.current?.focus();
+  }, [grown, startInSubject]);
   const shape: CSSProperties = grown
     ? { left: rect.x, top: rect.y, width: rect.width, height: rect.height, borderRadius: 14 }
     : {
@@ -117,6 +125,7 @@ export function NotePanel(props: NotePanelProps) {
 
           <div className={showMarkdown ? "hidden" : "flex min-h-0 flex-1 flex-col gap-1"}>
             <input
+              ref={subjectInput}
               type="text"
               value={props.subject}
               onChange={(e) => props.onSubjectChange(e.target.value)}
