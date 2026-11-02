@@ -93,6 +93,33 @@ describe("Notebook colors on the real disk", () => {
     expect(notebook.offDrumColors()).toEqual([]);
   });
 
+  it("puts a color back in a chamber after reopening, and its note returns with it", async () => {
+    const notebook = await openApp();
+    notebook.edit(RED, "# Aula\ntexto");
+    const colorId = colorIdOf(notebook.createColor(DOUBT, RED_CHAMBER));
+    notebook.edit(colorId, "# Dúvida\ntexto");
+    await notebook.flush();
+
+    expect(notebook.putInChamber(RED, RED_CHAMBER)).toBe(true);
+    await notebook.flush();
+
+    const reopened = await openApp();
+    expect(reopened.resolvedColors().chambers[RED_CHAMBER]).toBe(RED);
+    expect(reopened.text(RED)).toBe("# Aula\ntexto");
+    // The color that was there goes to the other side, and loses nothing.
+    expect(reopened.offDrumColors().map((color) => color.id)).toEqual([colorId]);
+    expect(reopened.text(colorId)).toBe("# Dúvida\ntexto");
+  });
+
+  it("refuses to put an unknown color in a chamber, and changes nothing", async () => {
+    const notebook = await openApp();
+    notebook.edit("sumiu", "# Antiga");
+    const before = notebook.resolvedColors();
+    expect(notebook.putInChamber("sumiu", 0)).toBe(false);
+    await notebook.flush();
+    expect(notebook.resolvedColors()).toEqual(before);
+  });
+
   it("refuses a repeated name or a tone in use, and changes nothing", async () => {
     const notebook = await openApp();
     const before = notebook.resolvedColors();

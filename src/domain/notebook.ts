@@ -3,7 +3,13 @@ import type { NotesStore } from "../storage/notesStore";
 import { FileBusyError } from "../storage/retry";
 import { loadColorsData, saveColorsData, type LoadedColorsData } from "./appData";
 import type { NoteColor } from "./chambers";
-import { availableTones, createColor, offDrumColorsWithNote, type ColorFields } from "./colorRules";
+import {
+  availableTones,
+  createColor,
+  occupyChamber,
+  offDrumColorsWithNote,
+  type ColorFields,
+} from "./colorRules";
 import {
   lastSubject,
   rememberSubject,
@@ -179,6 +185,19 @@ export class Notebook {
     this.colorsData = created.data;
     void this.run(() => this.saveColors());
     return { ok: true, colorId: created.colorId };
+  }
+
+  /**
+   * Puts a color of `cores.json` back in a chamber and saves the file. The color that was there
+   * goes to the other side, with its notes. A note's unknown color has no tone to go on the drum,
+   * so it is refused: returns false, and nothing changes.
+   */
+  putInChamber(colorId: string, chamber: number): boolean {
+    const known = resolveColors(this.colorsData, this.options.colors).colors;
+    if (!known.some((color) => color.id === colorId)) return false;
+    this.colorsData = occupyChamber(this.colorsData, colorId, chamber);
+    void this.run(() => this.saveColors());
+    return true;
   }
 
   /** The text of the color's current note, or "" when there is none. */

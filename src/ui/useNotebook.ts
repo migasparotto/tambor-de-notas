@@ -51,6 +51,11 @@ export function useNotebook(
       redraw();
       return result;
     },
+    putInChamber: (colorId: string, chamber: number) => {
+      const done = notebook.putInChamber(colorId, chamber);
+      redraw();
+      return done;
+    },
     /** Saves every pending change right away. */
     flush: () => void notebook.flush().catch(report),
     text: (colorId: string) => notebook.text(colorId),

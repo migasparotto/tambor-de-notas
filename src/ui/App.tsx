@@ -191,6 +191,11 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
     setPanel({ colorId, size: "normal", open: true });
   };
 
+  /** A color off the drum goes back to a chamber; the front shows it there, with its note. */
+  const putInChamber = (colorId: string, chamber: number) => {
+    if (notes.putInChamber(colorId, chamber)) flipTo("front");
+  };
+
   /** Creates a color, and its note opens in one step. Returns why it was refused, or null. */
   const createColor = (fields: ColorFields, chamber: number): string | null => {
     const result = notes.createColor(fields, chamber);
@@ -356,6 +361,7 @@ function App({ settings, startupProblems, initialPlacement }: AppProps) {
           chambers={chamberColors.map(colorIn)}
           onOpenColor={openOffDrumColor}
           onCreateColor={createColor}
+          onPutInChamber={putInChamber}
           onClose={() => setBackOpen(false)}
         />
       )}
