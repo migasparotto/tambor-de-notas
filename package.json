@@ -46,7 +46,7 @@
     "@wdio/mocha-framework": "^10.1.0",
     "@wdio/spec-reporter": "^10.1.0",
     "edgedriver": "^8.0.0",
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
