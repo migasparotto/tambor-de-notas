@@ -1,6 +1,7 @@
 # Turns on auto-merge for the Dependabot PRs of the "-auto" groups (see dependabot.yml).
 # GitHub then merges the PR by itself once the checks required by the main ruleset pass.
-# It never checks out or runs the PR code: it only reads the metadata and calls the GitHub API.
+# It does not check out the PR: it only reads the metadata and calls the GitHub API. Note: on a
+# PR that updates GitHub Actions, this workflow runs the new version of its own actions.
 name: Dependabot auto-merge
 
 on: pull_request
