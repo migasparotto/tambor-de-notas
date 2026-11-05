@@ -11,7 +11,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Passos extras dos comandos rápidos
 
-- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o usuário ver como está. Se o app instalado estiver aberto, avisar que os atalhos ficam com ele. Conferir também o Dependabot: o último CI agendado da main está verde (`gh run list --workflow ci.yml --event schedule -L 1`) e nenhum PR dele está parado (`gh pr list --author app/dependabot`); PR `-auto` com CI vermelho ou atualização de segurança fora de grupo: avisar o usuário.
+- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o usuário ver como está. O próprio comando avisa se o app de desenvolvimento já estiver aberto (e então não abre outro) e se o instalado estiver aberto (os atalhos ficam com ele): repassar o aviso ao usuário. Conferir também o Dependabot: o último CI agendado da main está verde (`gh run list --workflow ci.yml --event schedule -L 1`) e nenhum PR dele está parado (`gh pr list --author app/dependabot`); PR `-auto` com CI vermelho ou atualização de segurança fora de grupo: avisar o usuário.
 
 ## Regras do projeto
 
@@ -25,7 +25,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 - **Autonomia (merge sozinho):** vale a política do `CLAUDE.md` de usuário. Neste projeto:
   - "CI e e2e verdes" são os jobs `check`, `rust` e `e2e` do `ci.yml`, no commit exato do merge. O e2e roda só no CI (decidido em 02/11/2026).
   - "Permissões ou capabilities" são `src-tauri/capabilities/` e os plugins do Tauri; "formato dos arquivos" é o frontmatter das notas e os `.json` da pasta do app (`configuracoes.json`, `cores.json`, `pomodoro.json`, `janela.json`): mexer neles sempre para e pergunta.
-  - **A main é protegida no GitHub** (ruleset "Proteção da main", ligado pelo usuário em 02/11/2026, sem exceções): só entra por PR, com os checks `check`, `rust` e `e2e` verdes; force push e exclusão bloqueados. Nunca usar `gh pr merge --admin`, que passa por cima da proteção.
+  - **A main é protegida no GitHub** (ruleset "Proteção De Main", nome igual na tela e na API, ligado pelo usuário em 02/11/2026, sem exceções): só entra por PR, com os checks `check`, `rust` e `e2e` verdes; force push e exclusão bloqueados. Nunca usar `gh pr merge --admin`, que passa por cima da proteção.
 - **PRs do Dependabot:** (exceção mais permissiva à política de autonomia, porque nelas a dependência atualizada é o próprio objetivo)
   - **Automático (decidido em 04/11/2026):** patch (qualquer biblioteca) e minor só de desenvolvimento vêm nos grupos `-auto` do `.github/dependabot.yml`, e o workflow `dependabot-auto-merge.yml` liga o auto-merge: o GitHub faz o merge sozinho com os checks verdes, e o job `instalador` monta o instalador em todo PR do Dependabot (sem publicar nada). O merge só espera o `instalador` depois que ele entrar nos checks exigidos do ruleset (pendente do usuário em 05/11/2026; no #43 o merge entrou antes de o instalador terminar). Ninguém precisa atualizar a branch. Como esse merge não dispara o CI na main, ela é conferida pelo CI agendado de toda terça (ver os passos extras do "pmp bom dia").
   - **Minor que entra no app final** (npm de produção, Rust) e minor das GitHub Actions: um PR semanal por ecossistema (grupos `-minor`), que o usuário aprova.
@@ -52,4 +52,4 @@ Detalhes deste projeto para a skill `release`:
 
 ## Comandos
 
-`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run e2e` (o app de verdade; fechar o app antes) · `npm run lint` · `npm run format` · `npm run build`
+`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run e2e` (o app de verdade; recusa começar com o Tambor aberto) · `npm run lint` · `npm run format` · `npm run build`
