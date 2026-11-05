@@ -3,6 +3,10 @@ name: CI
 on:
   push:
   pull_request:
+  # A merge done by GitHub's own token (the Dependabot auto-merge) does not start the CI on main,
+  # so main is checked once a week, after the Dependabot updates (Tuesday 09:00 UTC).
+  schedule:
+    - cron: "0 9 * * 2"
   workflow_dispatch:
     inputs:
       page_heap:

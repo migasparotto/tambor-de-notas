@@ -1,4 +1,10 @@
-# Dependabot: once a week, opens one PR per ecosystem with all its updates (grouped).
+# Dependabot: once a week, per ecosystem.
+# - Groups ending in "-auto" get auto-merge (see dependabot-auto-merge.yml): GitHub merges them
+#   by itself when the required checks pass. Patch updates (all) and minor updates of dev tools.
+# - Groups ending in "-minor" come in one weekly PR for the user to approve: minor updates that
+#   go into the app (or into the build, for the GitHub Actions).
+# - Major updates are in no group, so each comes in its own PR for the user to decide.
+# A dependency goes to the first group that matches it.
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -6,23 +12,34 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      npm:
-        patterns: ["*"]
-        # In its own PR, as a reminder: don't merge until typescript-eslint accepts TypeScript 7.
-        exclude-patterns: ["typescript"]
+      npm-dev-auto:
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+      npm-prod-patch-auto:
+        dependency-type: "production"
+        update-types: ["patch"]
+      npm-prod-minor:
+        dependency-type: "production"
+        update-types: ["minor"]
 
   - package-ecosystem: "cargo"
     directory: "/src-tauri"
     schedule:
       interval: "weekly"
     groups:
-      rust:
-        patterns: ["*"]
+      # Every Rust dependency goes into the app.
+      rust-patch-auto:
+        update-types: ["patch"]
+      rust-minor:
+        update-types: ["minor"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     groups:
-      actions:
-        patterns: ["*"]
+      actions-patch-auto:
+        update-types: ["patch"]
+      # The actions build the installer (CD), so a minor one waits for the user.
+      actions-minor:
+        update-types: ["minor"]

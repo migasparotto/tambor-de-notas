@@ -27,9 +27,10 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
   - "Permissões ou capabilities" são `src-tauri/capabilities/` e os plugins do Tauri; "formato dos arquivos" é o frontmatter das notas e os `.json` da pasta do app (`configuracoes.json`, `cores.json`, `pomodoro.json`, `janela.json`): mexer neles sempre para e pergunta.
   - **A main é protegida no GitHub** (ruleset "Proteção da main", ligado pelo usuário em 02/11/2026, sem exceções): só entra por PR, com os checks `check`, `rust` e `e2e` verdes; force push e exclusão bloqueados. Nunca usar `gh pr merge --admin`, que passa por cima da proteção.
 - **PRs do Dependabot:** (exceção mais permissiva à política de autonomia, porque nelas a dependência atualizada é o próprio objetivo)
-  - Patch (qualquer biblioteca) ou minor só de desenvolvimento, com CI verde, e com CD verde quando a atualização mexer no build: pode fazer o merge sem perguntar ao usuário e avisar no resumo.
-  - Major, minor que entra no app final, ou qualquer coisa que exija mudar código: parar e perguntar ao usuário.
-  - Atualização que entrou a mais no grupo: segue a mesma regra acima, sem precisar parar só por isso.
+  - **Automático (decidido em 04/11/2026):** patch (qualquer biblioteca) e minor só de desenvolvimento vêm nos grupos `-auto` do `.github/dependabot.yml`, e o workflow `dependabot-auto-merge.yml` liga o auto-merge: o GitHub faz o merge sozinho com os checks verdes. Ninguém precisa atualizar a branch. Como esse merge não dispara o CI na main, ela é conferida pelo CI agendado de toda terça; no "pmp bom dia", conferir que ele está verde.
+  - **Minor que entra no app final** (npm de produção, Rust) e minor das GitHub Actions: um PR semanal por ecossistema (grupos `-minor`), que o usuário aprova.
+  - **Major, ou qualquer coisa que exija mudar código:** PR separado; parar e perguntar ao usuário.
+  - Atualização de segurança fora de grupo, ou PR `-auto` com o CI vermelho: parar e avisar o usuário.
 
 ## Release
 

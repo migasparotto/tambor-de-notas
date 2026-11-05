@@ -249,6 +249,7 @@ Pedido do usuário em 28/10/2026: manter as dependências atualizadas e receber 
 - [x] CI compila e testa o Rust no Windows: `cargo fmt --check`, `cargo check --locked` e `cargo test --locked` (PR #9, 31/10/2026)
 - [x] PR separado do TypeScript 7: até 01/11/2026 o Dependabot não abriu, provavelmente porque o `typescript-eslint` exige versão abaixo da 6.1.0 (não confirmado). Paramos de esperar por ele: o lembrete é a tarefa futura abaixo. Se ele abrir, **não juntar**.
 - [x] **Na v0.3.0:** as notas de lançamento vêm do `CHANGELOG.md`, lido pelo CD com `scripts/release-notes.mjs` (com testes), em vez de serem escritas à mão no GitHub (01/11/2026).
+- [x] **Merge automático (04/11/2026):** patch e minor de desenvolvimento entram sozinhos (grupos `-auto` e o workflow `dependabot-auto-merge.yml`, que liga o auto-merge do GitHub); minor que entra no app vem num PR semanal por ecossistema para o usuário aprovar; major vem separado. CI agendado na main toda terça, porque o merge feito pelo token do GitHub não dispara o CI. Falta o usuário ligar "Allow auto-merge" (Settings → General) e conferir o ruleset. PR #40 (TypeScript 7) fechado em 04/11/2026: o `typescript-eslint` ainda não aceita.
 - [ ] **Tarefa futura:** migrar para o TypeScript 7 quando o `typescript-eslint` aceitar (hoje exige versão abaixo da 6.1.0).
 
 ## Qualidade
