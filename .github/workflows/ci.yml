@@ -135,3 +135,55 @@ jobs:
             build-output/
           if-no-files-found: ignore
           retention-days: 14
+
+  # Builds the Windows installer (NSIS) without publishing anything: on every Dependabot PR, so an
+  # update that breaks the build is caught before the auto-merge, and on the weekly run on main
+  # (the weekly CD). Skipped on other PRs, which GitHub counts as passing for a required check.
+  instalador:
+    if: github.actor == 'dependabot[bot]' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run tauri build -- --bundles nsis
+      - name: Check that the .pdb matches the .exe
+        run: node scripts/pdb-match.mjs src-tauri/target/release/tambor-de-notas.exe src-tauri/target/release/tambor_de_notas.pdb
+      - name: Keep the installer in the run's artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: instalador-windows
+          path: src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+  # Weekly: fails if the settings the Dependabot auto-merge depends on have changed (auto-merge
+  # allowed in the repository; main requires the check, rust and e2e checks).
+  configuracao:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check auto-merge and the checks required on main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          auto=$(gh api "repos/$GITHUB_REPOSITORY" --jq .allow_auto_merge)
+          checks=$(gh api "repos/$GITHUB_REPOSITORY/rules/branches/main" --jq '[.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context] | sort | join(",")')
+          echo "allow_auto_merge=$auto; checks exigidos na main: $checks"
+          fail=0
+          if [ "$auto" != "true" ]; then echo "::error::O auto-merge está desligado no repositório (Settings > General > Allow auto-merge)."; fail=1; fi
+          for c in check e2e rust; do
+            case ",$checks," in *",$c,"*) ;; *) echo "::error::A main não exige mais o check $c (ruleset)."; fail=1 ;; esac
+          done
+          exit $fail
