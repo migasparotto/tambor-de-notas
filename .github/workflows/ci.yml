@@ -166,7 +166,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # Weekly: fails if main stops requiring the check, rust and e2e checks (the Dependabot auto-merge
+  # Weekly: fails if main stops requiring the check, rust, e2e and instalador checks (the Dependabot auto-merge
   # relies on them). The "Allow auto-merge" setting is not readable with this token (it comes back
   # empty), so it is checked in the "pmp bom dia" instead.
   configuracao:
@@ -182,7 +182,7 @@ jobs:
           checks=$(gh api "repos/$GITHUB_REPOSITORY/rules/branches/main" --jq '[.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context] | sort | join(",")')
           echo "Checks exigidos na main: $checks"
           fail=0
-          for c in check e2e rust; do
+          for c in check e2e instalador rust; do
             case ",$checks," in *",$c,"*) ;; *) echo "::error::A main não exige mais o check $c (ruleset)."; fail=1 ;; esac
           done
           exit $fail
