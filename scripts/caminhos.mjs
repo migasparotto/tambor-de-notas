@@ -1,6 +1,6 @@
 // Finds, in the versioned files, Windows paths that are broken (a "C:" glued to a letter, with the
 // backslash lost) or personal (a user folder, which exposes the user name in a public repository).
-// Use relative paths or ~ instead. Run by its test (scripts/caminhos.test.mjs) in `npm test`.
+// Use relative paths or ~ instead. Run by its test (scripts/caminhos.test.mjs) in `npm test`. Same file as in minhas-skills.
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
