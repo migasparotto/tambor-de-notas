@@ -11,7 +11,7 @@ Este arquivo é só um resumo. Em caso de dúvida ou conflito, valem os dois doc
 
 ## Passos extras dos comandos rápidos
 
-- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o usuário ver como está. Se o app instalado estiver aberto, avisar que os atalhos ficam com ele. Conferir também o Dependabot: o último CI agendado da main está verde (`gh run list --workflow ci.yml --event schedule -L 1`) e nenhum PR dele está parado (`gh pr list --author app/dependabot`); PR `-auto` com CI vermelho ou atualização de segurança fora de grupo: avisar o usuário.
+- **`executar pmp bom dia`:** além dos passos gerais, abrir o app de desenvolvimento com `npm run app:dev` (em segundo plano) para o usuário ver como está. O próprio comando avisa se o app de desenvolvimento já estiver aberto (e então não abre outro) e se o instalado estiver aberto (os atalhos ficam com ele): repassar o aviso ao usuário. Conferir também o Dependabot: o último CI agendado da main está verde (`gh run list --workflow ci.yml --event schedule -L 1`) e nenhum PR dele está parado (`gh pr list --author app/dependabot`); PR `-auto` com CI vermelho ou atualização de segurança fora de grupo: avisar o usuário.
 
 ## Regras do projeto
 
@@ -52,4 +52,4 @@ Detalhes deste projeto para a skill `release`:
 
 ## Comandos
 
-`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run e2e` (o app de verdade; fechar o app antes) · `npm run lint` · `npm run format` · `npm run build`
+`npm run app:dev` (abre o app de desenvolvimento, "DEV", com notas e configurações separadas do instalado; não usar `npm run tauri dev`) · `npm test` · `npm run e2e` (o app de verdade; recusa começar com o Tambor aberto) · `npm run lint` · `npm run format` · `npm run build`
