@@ -2,15 +2,18 @@ import { fileURLToPath, URL } from "node:url";
 import { describe, expect, it } from "vitest";
 import { findInRepository, findProblems } from "./caminhos.mjs";
 
-const B = String.fromCharCode(92); // a backslash, built so this file does not break its own rules
+// Built in parts, so this file (scanned by its own test) does not break the rules it checks.
+const B = String.fromCharCode(92); // a backslash
+const U = "Users";
+const C = "C:";
 
 describe("findProblems", () => {
   it("finds a broken path, where the backslash after C: was lost", () => {
-    expect(findProblems(`worktree em C:Projetosminhas-skills`)).toHaveLength(1);
+    expect(findProblems(`worktree em ${C}Projetosminhas-skills`)).toHaveLength(1);
   });
 
   it("finds personal paths in the three spellings", () => {
-    for (const path of [`C:${B}Users${B}fulano`, "C:/Users/fulano", "/c/Users/fulano"]) {
+    for (const path of [`${C}${B}${U}${B}fulano`, `${C}/${U}/fulano`, `/c/${U}/fulano`]) {
       expect(findProblems(`em ${path}${B}notas`)).toHaveLength(1);
     }
   });
@@ -28,7 +31,7 @@ describe("findProblems", () => {
   });
 
   it("gives the line number", () => {
-    expect(findProblems(`ok\nok\n/c/Users/x`)[0]?.line).toBe(3);
+    expect(findProblems(`ok\nok\n/c/${U}/x`)[0]?.line).toBe(3);
   });
 });
 

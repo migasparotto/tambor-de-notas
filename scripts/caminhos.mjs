@@ -7,13 +7,14 @@ import { join } from "node:path";
 
 const BACKSLASH = String.fromCharCode(92);
 const SEP = `[${BACKSLASH}${BACKSLASH}/]`;
+const USERS = "Users"; // kept apart, so this file does not break its own rule
 
 /** The rules, each with a name and the pattern that breaks it. */
 export const RULES = [
   { name: "caminho quebrado (C: seguido de letra, sem barra)", pattern: /(?<![A-Za-z])C:[A-Za-z]/ },
   {
     name: "caminho pessoal (pasta de usuário)",
-    pattern: new RegExp(`[Cc]:${SEP}+Users${SEP}|/c/Users/`, "i"),
+    pattern: new RegExp(`[Cc]:${SEP}+${USERS}${SEP}|/c/${USERS}/`, "i"),
   },
 ];
 
