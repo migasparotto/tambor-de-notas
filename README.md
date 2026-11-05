@@ -103,16 +103,16 @@ O instalador não tem assinatura digital, então o Windows mostra "O Windows pro
 
 ### Comandos úteis
 
-| Comando                      | O que faz                                         |
-| ---------------------------- | ------------------------------------------------- |
-| `npm run app:dev`            | Abre o app de desenvolvimento ("DEV")             |
-| `npm test`                   | Roda os testes automatizados (Vitest)             |
-| `npm run test:watch`         | Roda os testes de novo a cada arquivo salvo       |
-| `npm run lint`               | Procura erros e quebras de camada (ESLint)        |
-| `npm run format`             | Formata o código (Prettier)                       |
-| `npm run build`              | Verifica os tipos (TypeScript) e gera a interface |
-| `npm run e2e`                | Testa o app de verdade (feche o app antes)        |
-| `cd src-tauri && cargo test` | Roda os testes em Rust                            |
+| Comando                      | O que faz                                                    |
+| ---------------------------- | ------------------------------------------------------------ |
+| `npm run app:dev`            | Abre o app de desenvolvimento ("DEV"), se não estiver aberto |
+| `npm test`                   | Roda os testes automatizados (Vitest)                        |
+| `npm run test:watch`         | Roda os testes de novo a cada arquivo salvo                  |
+| `npm run lint`               | Procura erros e quebras de camada (ESLint)                   |
+| `npm run format`             | Formata o código (Prettier)                                  |
+| `npm run build`              | Verifica os tipos (TypeScript) e gera a interface            |
+| `npm run e2e`                | Testa o app de verdade (recusa começar com o app aberto)     |
+| `cd src-tauri && cargo test` | Roda os testes em Rust                                       |
 
 O `npm test` e o `npm run build` guardam sempre a saída completa em `test-output/saida.txt` e `build-output/saida.txt` (fora do Git), e cada falha também em `falha-<data>.txt` na mesma pasta, para uma rodada seguinte não apagar. No CI, as duas pastas ficam anexadas à execução quando algo falha, como os artifacts `test-output-ubuntu` e `test-output-windows`, por 14 dias.
 
