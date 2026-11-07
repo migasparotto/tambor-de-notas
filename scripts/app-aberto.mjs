@@ -54,10 +54,11 @@ export function decide(mode, processes, portTaken) {
   return { action: "run" };
 }
 
-/** Lists the running Tambor processes with their paths (Windows only; empty elsewhere). */
-function runningProcesses() {
+/** Lists the running processes with this name (the Tambor by default) and their paths; Windows only, empty elsewhere. */
+export function runningProcesses(name = EXE) {
   if (process.platform !== "win32") return [];
-  const script = `Get-Process ${EXE} -ErrorAction SilentlyContinue | ForEach-Object { "$($_.Id)|$($_.Path)" }`;
+  // @() turns "no process" into an empty list: without it, PowerShell exits with 1.
+  const script = `@(Get-Process ${name} -ErrorAction SilentlyContinue) | ForEach-Object { "$($_.Id)|$($_.Path)" }`;
   const out = execFileSync("powershell", ["-NoProfile", "-Command", script], { encoding: "utf8" });
   return parseProcesses(out);
 }
