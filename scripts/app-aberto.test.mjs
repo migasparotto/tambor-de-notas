@@ -1,5 +1,6 @@
+import process from "node:process";
 import { describe, expect, it } from "vitest";
-import { decide, DEV_PORT, parseProcesses } from "./app-aberto.mjs";
+import { decide, DEV_PORT, parseProcesses, runningProcesses } from "./app-aberto.mjs";
 
 const DEV = {
   pid: 15800,
@@ -20,6 +21,18 @@ describe("parseProcesses", () => {
 
   it("returns nothing when no Tambor is running", () => {
     expect(parseProcesses("")).toEqual([]);
+  });
+});
+
+// Runs the real Windows query: "no process" must be a result, not a failure (hansei 2026-11-05-19).
+describe.runIf(process.platform === "win32")("runningProcesses, on Windows", () => {
+  it("lists nothing, without failing, when no process has the name", () => {
+    expect(runningProcesses("tambor-processo-que-nao-existe")).toEqual([]);
+  });
+
+  it("lists a running process with its PID and path", () => {
+    const node = runningProcesses("node").find((p) => p.pid === process.pid);
+    expect(node?.path.toLowerCase()).toBe(process.execPath.toLowerCase());
   });
 });
 
