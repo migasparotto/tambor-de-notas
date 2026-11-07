@@ -143,11 +143,17 @@ function dumpHungApp() {
   }
 }
 
+/** Stops the processes with this name and path and waits for them to leave. */
+export function stopProcesses(name, exe) {
+  // @() turns "no process" into an empty list: without it, PowerShell exits with 1.
+  powershell(
+    `@(Get-Process ${name} -ErrorAction SilentlyContinue) | Where-Object { $_.Path -eq '${exe}' } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue; $_.WaitForExit(5000) | Out-Null }`,
+  );
+}
+
 /** Closes the e2e app, if open. Only runs after checking no other copy of the app is open. */
 export function closeE2eApp() {
-  powershell(
-    `Get-Process tambor-de-notas -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '${E2E_APP}' } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue; $_.WaitForExit(5000) | Out-Null }`,
-  );
+  stopProcesses("tambor-de-notas", E2E_APP);
 }
 
 /** Stops the run if another copy of the app is open: it would hold the global shortcuts. */
