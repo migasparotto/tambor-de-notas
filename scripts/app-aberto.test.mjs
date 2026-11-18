@@ -1,6 +1,7 @@
 import process from "node:process";
 import { describe, expect, it } from "vitest";
 import { decide, DEV_PORT, parseProcesses, runningProcesses } from "./app-aberto.mjs";
+import { REAL_SHELL_TIMEOUT_MS, timed } from "./real-shell.mjs";
 
 const DEV = {
   pid: 15800,
@@ -25,16 +26,28 @@ describe("parseProcesses", () => {
 });
 
 // Runs the real Windows query: "no process" must be a result, not a failure (hansei 2026-11-05-19).
-describe.runIf(process.platform === "win32")("runningProcesses, on Windows", () => {
-  it("lists nothing, without failing, when no process has the name", () => {
-    expect(runningProcesses("tambor-processo-que-nao-existe")).toEqual([]);
-  });
+describe.runIf(process.platform === "win32")(
+  "runningProcesses, on Windows",
+  { timeout: REAL_SHELL_TIMEOUT_MS },
+  () => {
+    it("uses the real-shell time limit, not the default one", ({ task }) => {
+      expect(task.timeout).toBe(REAL_SHELL_TIMEOUT_MS);
+    });
 
-  it("lists a running process with its PID and path", () => {
-    const node = runningProcesses("node").find((p) => p.pid === process.pid);
-    expect(node?.path.toLowerCase()).toBe(process.execPath.toLowerCase());
-  });
-});
+    it("lists nothing, without failing, when no process has the name", () => {
+      expect(
+        timed("Get-Process (nenhum)", () => runningProcesses("tambor-processo-que-nao-existe")),
+      ).toEqual([]);
+    });
+
+    it("lists a running process with its PID and path", () => {
+      const node = timed("Get-Process (node)", () => runningProcesses("node")).find(
+        (p) => p.pid === process.pid,
+      );
+      expect(node?.path.toLowerCase()).toBe(process.execPath.toLowerCase());
+    });
+  },
+);
 
 describe("decide, for app:dev", () => {
   it("skips without error when the dev app is open, naming its PID", () => {
