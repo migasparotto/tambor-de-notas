@@ -6,5 +6,8 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts", "scripts/**/*.test.mjs", "e2e/**/*.test.mjs"],
     environment: "node",
+    // Shows console output of passing tests too, so the CI log keeps the real duration of
+    // each real system command (`timed` in scripts/real-shell.mjs).
+    silent: false,
   },
 });
