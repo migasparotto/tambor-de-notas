@@ -301,7 +301,7 @@ fn windows_version() -> String {
 mod tests {
     use super::*;
 
-    const NOTE_PATH: &str = r"C:\Users\Alguém\OneDrive\Documentos\Tambor de Notas\notas\ativas\2026-11 vermelho - Aula de Cálculo.md";
+    const NOTE_PATH: &str = r"C:\Dados\Alguém\OneDrive\Documentos\Tambor de Notas\notas\ativas\2026-11 vermelho - Aula de Cálculo.md";
 
     #[test]
     fn sanitize_removes_note_paths_and_file_names() {
@@ -356,7 +356,7 @@ mod tests {
     #[test]
     fn sanitize_removes_forward_slash_unc_and_file_url_paths() {
         assert_eq!(
-            sanitize("em C:/Users/x/notas/a.md, de novo"),
+            sanitize("em C:/Dados/x/notas/a.md, de novo"),
             "em <caminho>, de novo"
         );
         assert_eq!(sanitize(r"rede \\servidor\notas\a.md"), "rede <caminho>");
