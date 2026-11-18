@@ -7,7 +7,7 @@ Oct 19, 2026 · o usuário
 O projeto tem cinco etapas, feitas em ordem: 0 Fundação, 1 MVP utilizável, 2 Organização, 3 Integrações, 4 IA. Ao fim de cada etapa o app já é usável no dia a dia.
 
 - **Etapas são as sprints principais.** Dentro de cada uma, as tarefas são agrupadas em sprints internas curtas (sugestão: uma a duas semanas cada). A divisão das sprints internas é feita no começo de cada etapa, junto comigo.
-- **Não adiantar etapas.** Funcionalidades de uma etapa futura não entram antes da hora, nem "só um pouco".
+- **Não adiantar etapas.** Funcionalidades de uma etapa futura não entram antes da hora, nem "só um pouco". Única exceção, aprovada pelo usuário em 17/11/2026: a parte 1 da Etapa 3 (Notion e Todoist) vem logo depois da S4 da Etapa 2 (ver "Propostas de 17/11/2026").
 - **Os IDs de requisito** (RF01, RNF01...) vêm do documento "Tambor de Notas — Instruções do Projeto", que é a fonte das regras de comportamento.
 - **Pontos em aberto** de cada etapa são decididos no início dela, antes de programar.
 
@@ -35,6 +35,40 @@ Decisões tomadas: mockup **C1 (bolha)** com o tambor em 1/3 da altura da tela (
    - Em 23/10/2026: item 6 fechado como "só acontece em desenvolvimento" (teste com o app instalado passou); item 7 feito e aprovado; item 8 não necessário (o instalador tem 1,7 MB).
 7. ~~**CD — Entrega contínua**~~: concluído em 23/10/2026. Instalador por tag (release em rascunho, publicado à mão) ou à mão; app de desenvolvimento separado do instalado (`npm run app:dev`). Release [v0.1.0](https://github.com/migasparotto/tambor-de-notas/releases/tag/v0.1.0) publicado.
 8. **Agora: Etapa 2 — Organização.** Sprints aprovadas em 23/10/2026 e reorganizadas em 25/10/2026 (S1 Janela → S2 Assunto → S3 Outro lado do tambor → S4 Lista e busca → S5 Backlinks → S6 Editor → S7 Abas) e pontos 1, 3 e 4 decididos (ver "Pontos em aberto da Etapa 2"). Ponto 2 fechado em 23/10/2026. ~~**S1 — Janela**~~ concluída em 24/10/2026 (ver "Janela" na Etapa 2): arrasto feito e aprovado. Painel na borda esquerda (com o "×0") e posição lembrada ao reabrir conferidos e aprovados pelo usuário (24/10/2026). Ícone na bandeja (sem Rust) e cantos transparentes feitos e aprovados (24/10/2026); Alt+F4 decidido (fica o "Sair" da bandeja). Arrasto só depois de segurar parado feito e aprovado (24/10/2026). Versão **v0.2.0** pelo CD: CI e CD verdes, release publicado pelo usuário em 25/10/2026, com notas de lançamento escritas à mão (o que mudou para quem usa). **Agora: S2 — Assunto** (plano aprovado em 25/10/2026; ver "Assunto"). Itens 1 a 4 feitos em 27/10/2026 (lógica com testes e a linha do assunto no painel). Roteiro do item 4 aprovado pelo usuário em 01/11/2026 e alertas do Dependabot resolvidos (ver "Dependabot"). **S2 concluída em 01/11/2026:** `CHANGELOG.md` aprovado, CD por tag verde (o que comprovou o `tauri-action` v1 e as notas vindas do `CHANGELOG.md`) e v0.3.0 publicada. Skills de usuário `guardar-licao` e `revisar-antes-de-enviar` criadas em 01/11/2026. Testes de notas em disco real e das regras do `focus.rs` feitos em 01/11/2026 (ver "Qualidade"). Skill de usuário `release` criada em 01/11/2026. Critérios da S3 aprovados em 01/11/2026 (ver "Outro lado do tambor e cores"). **Agora: S3 — Outro lado do tambor**, passos 1 a 3 feitos em 01/11/2026 (modelo do `cores.json`, regras e `Notebook` usando as cores do arquivo); e2e, passo 4 (giro), passo 5 (câmara vazia, com "pôr numa câmara") e passo 6 (cabeçalho) feitos; teste do usuário aprovado em 02/11/2026. **S3 concluída em 02/11/2026:** v0.4.0 publicada, com o teste rápido aprovado pelo usuário, inclusive com o Smart App Control ligado. Em 02/11/2026, captura automática de quedas feita (PR #28) e nova queda às 03:35 com a mesma assinatura da de 01/11 (ver "Qualidade"); a S4 — Lista e busca (critérios aprovados; ver "Lista, busca e pasta da nota") vem depois da investigação. Decidido também em 25/10/2026: sem menu de botão direito; a troca e a criação de cores vão para a nova **S3 — Outro lado do tambor** (ver "Outro lado do tambor e cores"), que saiu do "Futuro".
+
+## Propostas de 17/11/2026 (aprovadas, a implementar)
+
+Pedidas e aprovadas pelo usuário em 17/11/2026, com os ajustes dele. Ainda não implementadas.
+
+**Ordem aprovada:** (P3 + P2 juntos, porque são pequenos e mexem nos dados que o usuário já está criando nas aulas: limpar antes do índice da S4) → item 18 (`app-aberto.mjs`) → **S4 · Lista e busca** (v0.6.0) → (P1) **Etapa 3, parte 1: Notion e Todoist** → volta à Etapa 2: S5 Backlinks → S6 Editor → S7 Abas → **Etapa 3, parte 2: backlinks no Notion** (RF15).
+
+### P1 — Etapa 3 (Notion) logo depois da S4
+
+- **O quê:** depois da S4, fazer a Etapa 3 antes das S5 a S7 da Etapa 2.
+- **Por quê:** o plano de estudo do usuário lê as notas no Notion toda semana, para gerar flashcards, e todo mês, para o relatório. Enquanto as notas não chegarem lá, o plano não tem o que ler.
+- **Como encaixa:** a Etapa 3 se divide em duas partes, porque parte dela depende da Etapa 2:
+  - **Parte 1, logo depois da S4:** base das integrações (adaptador, chaves no armazenamento seguro, fila de envio, câmaras 6 e 7), envio ao Notion ao fechar e por tamanho (RF14), atualização da página quando a nota mudar e envio das notas roxas ao Todoist (RF16).
+  - **Parte 2, depois da S5:** os backlinks virando links entre páginas do Notion (RF15), que dependem dos backlinks da S5. A toggle list da S6 entra no Notion como bloco `toggle` quando a S6 existir.
+- **Impacto:** muda a ordem fixa das etapas (0 → 4): a regra "não adiantar etapas" deste backlog e o "Trabalhe por etapas" de `docs/instrucoes.md` foram atualizados juntos, em 17/11/2026, com esta exceção. Os pontos em aberto da Etapa 3 (chaves de API, projeto do Todoist, valor final do limite e tempo de inatividade) passam a ser decididos no início da parte 1. A Etapa 2 só fecha depois da S7, e as versões seguem uma por sprint.
+- **A decidir junto:** quais colunas o plano de estudo precisa ler no banco do Notion (hoje: título, cor, assunto, data de criação e data de envio).
+
+### P2 — Limite de 1.500 caracteres, configurável
+
+- **O quê:** o padrão de `charLimit` em `src/domain/settings.ts` passa de 300 para 1.500, e continua configurável no `configuracoes.json`.
+- **Por quê:** 300 caracteres enchem a câmara rápido demais para uma nota de aula. O próprio backlog já previa reavaliar o valor (Etapa 3, "Reavaliar comigo se 300 caracteres é pouco").
+- **Sem migração (decidido em 17/11/2026: um usuário só, YAGNI):** o `configuracoes.json` do usuário tem `"charLimit": 300` gravado, e o `completeSettings` não mexe em valores existentes. Muda-se o padrão no código e o `configuracoes.json` do usuário é trocado à mão, uma vez, com backup antes.
+- **Rever como as câmaras enchem:** hoje o enchimento é linear (`fillLevel` em `src/domain/noteText.ts`: caracteres ÷ limite). Com 1.500, uma nota de 150 caracteres fica com 10% da câmara, quase vazia. Opções: (a) manter linear; (b) curva que enche mais rápido no começo (raiz quadrada: 150 de 1.500 dariam cerca de 32%); (c) um mínimo visível assim que a nota tem texto. **O usuário escolhe olhando no app**, com as três lado a lado.
+- **Testes:** os testes de contagem e enchimento já usam o limite configurado (regra do projeto); acrescentar os da curva escolhida.
+- **Onde encaixa:** junto com a P3, antes do item 18 e da S4.
+
+### P3 — Assunto sem espaços nas pontas ao salvar
+
+- **O quê:** ao salvar, o assunto da nota é gravado sem espaços no começo e no fim, com teste.
+- **Por quê:** hoje "Algoritmos e Lógica " e "Algoritmos e Lógica" viram assuntos diferentes. A memória do último assunto já tira os espaços (`rememberSubject` em `src/domain/colorData.ts`), mas a nota grava o assunto como foi digitado (`editSubject` em `src/domain/notebook.ts`). A S4 filtra por assunto e, sem a correção, mostraria os dois como assuntos separados. No Notion (P1), viraria duas opções na coluna.
+- **Como:** pela skill `corrigir`: primeiro o teste que falha (salvar "Algoritmos e Lógica " grava "Algoritmos e Lógica"), depois a correção na camada de regras. Tirar os espaços só ao salvar, não a cada tecla, para não comer o espaço que o usuário acabou de digitar entre duas palavras.
+- **Antes de implementar, perguntar ao usuário:** "algoritmos" e "Algoritmos" devem contar como o mesmo assunto no índice?
+- **Notas antigas:** a proposta é **não regravar ao abrir**. A S4 decidiu que listar ou buscar nunca grava nos arquivos, e regravar notas antigas mexe em arquivos que o usuário não editou. Em vez disso: (a) o índice da S4 compara os assuntos sem os espaços das pontas, então as antigas já aparecem juntas no filtro; (b) uma nota antiga ativa é corrigida quando for salva de novo; (c) as arquivadas ficam como estão no disco. Alternativa, se o usuário preferir: corrigir ao abrir só as notas ativas.
+- **Onde encaixa:** junto com a P2, antes do item 18 e da S4, porque é pequena e a S4 depende dela.
 
 ## Etapa 0 — Fundação ✅
 
@@ -317,7 +351,7 @@ Regra (02/11/2026): toda falha, em qualquer lugar onde o código roda, deixa soz
 | **S6 · Editor** | Toggle list, sumário (TOC) e espaçamento (RF09, RF10, RF13) |
 | **S7 · Abas** | Até 3 notas abertas como abas empilhadas; os testes incluem a regra de foco do item 7 (`canTakeKeyboard`) com várias abas |
 
-Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que os backlinks usam. **Cada sprint termina com uma versão nova** pelo CD (v0.2.0, v0.3.0...).
+Regras: a lista e a busca vêm antes dos backlinks porque montam o índice que os backlinks usam. **Cada sprint termina com uma versão nova** pelo CD (v0.2.0, v0.3.0...). Proposta P1, de 17/11/2026: a parte 1 da Etapa 3 entra entre a S4 e a S5 (ver "Propostas de 17/11/2026").
 
 ### Pontos em aberto da Etapa 2
 
@@ -379,6 +413,7 @@ Decidido pelo usuário em 25/10/2026 (sem programar ainda): **sem menu de botão
 
 - Decidido (25/10/2026): o campo fica numa **linha própria entre o cabeçalho e o título**, compacta (fonte menor e mais apagada que o título, para não parecer um segundo título). O rótulo da cor continua no cabeçalho como está.
 - Decidido (25/10/2026): o "último assunto usado" é **lembrado por cor** (cada cor tem o seu), guardado no arquivo das cores **`cores.json`** na pasta do app, criado já nesta sprint.
+- Aprovado em 17/11/2026 (P3): gravar o assunto sem espaços nas pontas (ver "Propostas de 17/11/2026").
 - Plano aprovado (25/10/2026), um commit por item: (1) assunto no arquivo da nota (`subject` no cabeçalho; notas antigas abrem com o assunto vazio); (2) último assunto por cor em `cores.json` (apagar o campo não apaga a memória); (3) a nota nova nasce com o último assunto da cor, e mudar o assunto salva sozinho; (4) linha compacta no painel, Enter no assunto leva ao título; (5) teste do usuário, CI verde, README e versão v0.3.0.
 
 - [x] Campo assunto em cada nota (itens 1 e 4, feitos em 27/10/2026; aprovados pelo usuário em 01/11/2026)
@@ -456,7 +491,7 @@ Decidido pelo usuário em 25/10/2026 (sem programar ainda): **sem menu de botão
 
 - [ ] Teste de desempenho do editor com notas grandes, para saber se existe limite técnico
 - [ ] Usar o limite de caracteres criado na Etapa 1 (mesmo valor e mesmo lugar no código)
-- [ ] Reavaliar comigo se 300 caracteres é pouco, com base no uso real das Etapas 1 e 2
+- [ ] Reavaliar comigo se 300 caracteres é pouco, com base no uso real das Etapas 1 e 2 (aprovada em 17/11/2026, proposta P2: 1.500; ver "Propostas de 17/11/2026")
 - [ ] Ao fechar a nota, enviar na hora
 - [ ] Com a câmara cheia (a nota chegou ao limite) e a nota aberta, enviar na primeira pausa da digitação, sem interromper
 - [ ] Ao passar do limite, aviso discreto, sem interromper a digitação

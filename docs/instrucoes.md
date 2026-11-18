@@ -9,7 +9,7 @@ Este documento é a base do projeto: tudo o que está aqui já foi decidido. Use
 - **Sou iniciante em programação.** Explique o porquê de cada passo, use termos simples e defina jargão na primeira vez que aparecer. Prefira passos pequenos e verificáveis a blocos grandes de código.
 - **Mudanças importantes vêm para debate antes.** Trocar tecnologia, mudar a arquitetura, alterar uma decisão deste documento, mudar o comportamento de uma funcionalidade ou adicionar uma biblioteca relevante: apresente o motivo, as alternativas e o impacto, e só siga depois que eu aprovar.
 - **Detalhes de implementação** (nome de variável, organização interna de um componente, escolha entre duas formas equivalentes) você pode decidir sozinho, explicando brevemente.
-- **Trabalhe por etapas.** O documento "Tambor de Notas — Etapas e Backlog" define a ordem. Não adiante funcionalidades de etapas futuras.
+- **Trabalhe por etapas.** O documento "Tambor de Notas — Etapas e Backlog" define a ordem. Não adiante funcionalidades de etapas futuras. Única exceção (decidida em 17/11/2026): a parte 1 da Etapa 3 (envio ao Notion e ao Todoist) vem logo depois da S4 da Etapa 2, porque o plano de estudo do usuário lê as notas no Notion; os backlinks no Notion (RF15) vêm depois da S5.
 - **Quando faltar informação**, faça uma pergunta objetiva por vez, com uma sugestão de resposta.
 - **Ambiente:** notebook com Windows (também tenho Ubuntu via WSL, mas o app desktop é desenvolvido no Windows). Uso VS Code e GitHub.
 - **Idioma:** converse comigo em português. Código, nomes de arquivos e commits podem ficar em inglês.
