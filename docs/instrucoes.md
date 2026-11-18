@@ -125,11 +125,11 @@ A **nota inteira** tem uma cor. A cor indica a **função** da nota, não a mat�
 A nota deve continuar leve; o arquivo completo fica no Notion.
 
 - Existe um **limite de caracteres configurável** por nota, definido **num lugar só** do código e reaproveitado por todo o app.
-- **Divisão entre etapas:** na **etapa 1** entram só o valor do limite (300, configurável) e a contagem de caracteres, para a câmara encher. Na **etapa 3** entram o aviso e o envio automático, usando o mesmo valor. A etapa 3 também reavalia se 300 é pouco. Regra de envio: **ao fechar a nota, envia na hora**; **com a câmara cheia e a nota aberta, envia na primeira pausa da digitação**.
+- **Divisão entre etapas:** na **etapa 1** entram só o valor do limite (300, configurável) e a contagem de caracteres, para a câmara encher. Na **etapa 3** entram o aviso e o envio automático, usando o mesmo valor. A etapa 3 também reavalia se 300 é pouco (em 17/11/2026, o padrão passou a 1.500, ainda antes da etapa 3; o valor final continua sendo calibrado nela). Regra de envio: **ao fechar a nota, envia na hora**; **com a câmara cheia e a nota aberta, envia na primeira pausa da digitação**.
 - **Nunca enviar enquanto estou digitando.** Ao passar do limite, o app mostra um aviso discreto e espera eu terminar.
 - O envio acontece quando: eu fecho a nota, **ou** confirmo o aviso ("ok"), **ou** fico um tempo sem digitar (tempo de inatividade configurável). Mesmo sem ação manual, a nota precisa ir.
 - Depois do envio automático, a nota local é esvaziada e continuo escrevendo. O que eu escrever depois é **acrescentado à mesma página** do Notion.
-- **Valor do limite:** começar em 300 caracteres e aumentar até achar o ponto ideal. Uma tarefa da etapa 3 mede o desempenho do editor com notas grandes para mostrar se há algum limite técnico; o esperado é que o limite seja uma escolha de uso (manter a nota leve), não de desempenho.
+- **Valor do limite:** começar em 300 caracteres (1.500 desde 17/11/2026) e ajustar até achar o ponto ideal. Uma tarefa da etapa 3 mede o desempenho do editor com notas grandes para mostrar se há algum limite técnico; o esperado é que o limite seja uma escolha de uso (manter a nota leve), não de desempenho.
 
 ### Editor
 
